@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Eduardo Silva</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/assets/img/favicon.webp" rel="icon">
+    <link content="text/css" href="/assets/css/aesthetic.css" rel="stylesheet">
+    <script content="text/javascript" defer="" src="/assets/js/htmx.min.js"></script>
+    <script content="text/javascript" defer="" src="/assets/js/pager.js"></script>
+  </head>
+  <body>
+
+    <div id="container">
+
+      <div class="scanline"></div>
+
+      <fieldset class="main-container neon-text {{ if .warning }}warning{{ end }}">
+        <legend 
+          id="home-button"
+          style="cursor: pointer;"
+          class="neon-text {{ if .warning }}warning{{ end }}" 
+          hx-get="/aboutMe" 
+          hx-target="#container"
+          hx-replace-url="true">EXPENSES</legend>
+        <div id="main-container-content" class="main-container-content">
+          {{ if .renderNavBar }}
+          <nav id="page-navigation">
+            <button 
+              hx-post="/expenses" 
+              hx-target="#content"
+              hx-target-5*="#doc"
+              hx-swap="innerHTML"
+              hx-replace-url="true"
+              id="expenses"
+              class="nav-button {{ if eq .page "expenses" }}selected{{ end }}">EXPENSES</button>
+            <button 
+              hx-post="/overview" 
+              hx-target="#content"
+              hx-swap="innerHTML"
+              hx-replace-url="true"
+              id="overview"
+              class="nav-button {{ if eq .page "overview" }}selected{{ end }}">OVERVIEW</button>
+          </nav>
+          <br>
+          {{ end }}
+
+          <main id="content">
+            {{ .content }}
+          </main> 
+
+        </div>
+      </fieldset>
+
+    </div>
+
+  </body>
+</html>

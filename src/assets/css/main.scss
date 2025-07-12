@@ -1,0 +1,212 @@
+@use 'crt';
+
+:root {
+  --html_font_size: 20px;
+  --html_mobile_font_size: 15px;
+  --border-title-padding: 10px;
+  --warning-color: #eb2d26;
+  --text-color: #ecb27b;
+  --url-color: #f0e3c2;
+  --background-color: #0b0015;
+}
+
+@font-face {
+  font-family: dejavu_monospace;
+  src: url(./dejavu-fonts-ttf-2.37/ttf/DejaVuSansMono.ttf);
+}
+
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+
+  width: 100vw;
+
+  color: var(--text-color);
+  background-color: var(--background-color);
+
+  /* Font settings */
+  font-family: dejavu_monospace;
+  font-size: var(--html_font_size);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+
+  width: 98vw;
+
+  overflow-y: hidden;
+}
+
+hr {
+  color: var(--text-color);
+}
+
+dd {
+  margin: 0;
+  padding-left: 2ch;
+}
+
+dl {
+  margin: 0;
+}
+
+li::marker {
+  content: "- ";
+}
+
+a {
+  color: var(--url-color);
+  text-decoration: none;
+}
+
+button {
+  all: unset;
+  cursor: pointer;
+}
+
+fieldset {
+  border-color: 2px solid var(--text-color);
+}
+
+legend {
+  animation: textShadow 1.9s infinite;
+  padding: 0px;
+}
+
+code {
+  display: inline-block;
+  margin-left: 2ch;
+  padding-left: 2ch;
+  text-indent: -2ch;
+  white-space: pre-wrap;
+  color: var(--url-color);
+}
+
+/* CSS for centering images */
+.centeredImgContainer {
+  max-width: 80%;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.centeredImg {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  cursor: pointer;
+}
+/* --- */
+
+.nav-button::before {
+  content: "\00a0";
+}
+
+.nav-button::after {
+  content: "\00a0";
+}
+
+.nav-button.selected::before {
+  content: ">";
+}
+
+.nav-button.selected::after {
+  content: "<";
+}
+
+.neon-text,
+dt {
+  color: var(--text-color);
+  text-shadow:
+    0 0 1px var(--text-color);
+}
+
+#container {
+  width: 100%;
+  margin: auto;
+
+  display: flex;
+  justify-content: center;
+}
+
+.main-container {
+  /* This will render the box with limits to the top and bottom */
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  right: 7px;
+  bottom: 7px;
+
+  /* Center the container horizontally */
+  max-width: 80ch;
+  margin: auto;
+  padding: 0;
+  padding: var(--border-title-padding);
+
+  color: var(--text-color);
+  background-color: var(--background-color);
+
+  scroll-snap-type: y mandatory;
+
+  word-break: break-word;
+}
+
+.main-container-content {
+  height: 100%;
+
+  overflow-y: auto;
+
+  /* IE and Edge */
+  -ms-overflow-style: none;
+  /* Firefox */
+  scrollbar-width: none;
+
+  scroll-snap-align: start;
+}
+
+.main-container-content::-webkit-scrollbar {
+  display: none;
+}
+
+.collapsible {
+  cursor: pointer;
+  color: var(--url-color);
+}
+
+.collapsible-content {
+  max-height: 0px;
+  overflow: hidden;
+}
+
+.collapsible-content.open {
+  max-height: min-content;
+  overflow: auto;
+}
+
+/* ↖ ↑ ↗ */
+/* ← · → */
+/* ↙ ↓ ↘ */
+.collapsible::before {
+  content: "+ ";
+}
+
+.collapsible.open::before {
+  content: "- ";
+}
+
+.no-underline {
+  color: var(--text-color);
+  text-decoration: none;
+}
+
+.warning {
+  color: var(--warning-color);
+}
+
+@media (max-width: 900px) {
+  html {
+    font-size: var(--html_mobile_font_size);
+  }
+}
