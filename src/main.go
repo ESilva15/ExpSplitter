@@ -22,6 +22,8 @@ func main() {
 	router.LoadHTMLGlob(filepath.Join(cfg.AssetsDir, "htmx/*.gotempl"))
 
 	pages.RouteHome(router)
+	pages.RouteExpenses(router)
+	pages.RouteCategories(router)
 	pages.RouteNotFound(router)
 	pages.RouteServerError(router)
 

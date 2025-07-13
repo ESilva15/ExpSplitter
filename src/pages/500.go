@@ -2,7 +2,7 @@ package pages
 
 import (
 	"expenses/config"
-	"expenses/utils"
+	"expenses/templating"
 
 	"github.com/gin-gonic/gin"
 )
@@ -10,7 +10,7 @@ import (
 func ServerErrorView(c *gin.Context, msg string) {
 	cfg := config.GetInstance()
 
-	errHtml := utils.HtmlTemplate(
+	errHtml := templating.HtmlTemplate(
 		cfg.AssetsDir+"htmx/panic.tpl", map[string]any{
 			"msg": msg,
 		},

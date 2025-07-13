@@ -1,0 +1,12 @@
+<table>
+  <tr>
+    <th>ID</th>
+    <th>Name</th>
+  </tr>
+  {{ range .categories }}
+  <tr>
+    <th><a href="/categories/{{ .CategoryID }}">{{ .CategoryID }}</th>
+    <th spellcheck="false" contenteditable>{{ .CategoryName }}</th>
+  </tr>
+  {{ end }}
+</table>

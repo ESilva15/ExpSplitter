@@ -33,13 +33,13 @@
     opacity: 1.1;
   }
   40% {
-    opacity: 0.9;
+    opacity: 1.1;
   }
   60% {
     opacity: 1;
   }
   80% {
-    opacity: 1.1;
+    opacity: 1;
   }
   100% {
     opacity: 1;
@@ -126,6 +126,16 @@
     text-shadow: 2.6208764474px 0 1px rgba(0, 30, 255, 0.5), -2.6208764474px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
   }
 }
+.decimal-align {
+  text-align: right;
+  font-variant-numeric: tabular-nums; /* makes digits equal width */
+  font-family: monospace, monospace;
+}
+
+th {
+  text-align: left;
+}
+
 :root {
   --html_font_size: 20px;
   --html_mobile_font_size: 15px;

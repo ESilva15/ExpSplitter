@@ -1,0 +1,9 @@
+.decimal-align {
+  text-align: right;
+  font-variant-numeric: tabular-nums; /* makes digits equal width */
+  font-family: monospace, monospace;
+}
+
+th {
+  text-align: left;
+}

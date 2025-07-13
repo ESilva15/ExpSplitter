@@ -1,4 +1,16 @@
-<dl>
-  <dt>Hello,</dt>
-  <dd>world</dd>
-</dl>
+<table>
+  <tr>
+    <th>ID</th>
+    <th>Desc</th>
+    <th>Price</th>
+    <th>Date</th>
+  </tr>
+  {{ range .expenses }}
+  <tr>
+    <th><a href="/expenses/{{ .ExpID }}">{{ .ExpID }}</th>
+    <th spellcheck="false" contenteditable>{{ .Description }}</th>
+    <th spellcheck="false" contenteditable>{{ formatPrice .Value }}</th>
+    <th spellcheck="false" contenteditable>{{ formatDate .ExpDate }}</th>
+  </tr>
+  {{ end }}
+</table>
