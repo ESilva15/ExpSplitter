@@ -2,9 +2,15 @@ package expenses
 
 import (
 	"database/sql"
-	_ "github.com/mattn/go-sqlite3"
+	"fmt"
 	"log"
 	"strconv"
+
+	_ "github.com/mattn/go-sqlite3"
+)
+
+var (
+	ErrNotFound = fmt.Errorf("not found")
 )
 
 type Category struct {
@@ -65,4 +71,55 @@ func GetCategory(catID int) (Category, error) {
 	}
 
 	return cat, nil
+}
+
+func (cat *Category) Insert() error {
+	db, err := sql.Open("sqlite3", "./data/data.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	query := "INSERT INTO categories(CategoryName) VALUES(?)"
+	res, err := db.Exec(query, cat.CategoryName)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	} else if rowsAffected == 0 {
+		return fmt.Errorf("no rows were created")
+	}
+
+	return nil
+}
+
+func (cat *Category) Delete() error {
+	db, err := sql.Open("sqlite3", "./data/data.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	_, err = db.Exec("PRAGMA foreign_keys = ON")
+	if err != nil {
+		return err
+	}
+
+	query := "DELETE FROM categories WHERE CategoryID = ?"
+	res, err := db.Exec(query, cat.CategoryID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	} else if rowsAffected == 0 {
+		return ErrNotFound
+	}
+
+	return nil
 }

@@ -8,10 +8,10 @@
         <label class="fullwidth-label" for="category-name">NAME</label>
         <input class="tui-input underline fullwidth" type="text" name="category-name" id="category-name"><br><br>
 
-        <label for="category-description">DESCRIPTION</label>
-        <input 
-          class="tui-input underline fullwidth" type="text" name="category-description" 
-          id="category-description"><br><br>
+        <!-- <label for="category-description">DESCRIPTION</label> -->
+        <!-- <input  -->
+        <!--   class="tui-input underline fullwidth" type="text" name="category-description"  -->
+        <!--   id="category-description"><br><br> -->
 
         <button 
           class="subbutton"
@@ -26,8 +26,8 @@
 </div>
 
 <script>
-  document.body.addEventListener("wrongCredentials", function(evt) {
-    var messageDiv = document.getElementById("login-state")
+  document.body.addEventListener("formState", function(evt) {
+    var messageDiv = document.getElementById("form-state")
     messageDiv.innerHTML = evt.detail.value
 
     setTimeout(() => {
@@ -36,7 +36,7 @@
   });
 
   // Add the spinner
-  var btn = document.getElementById("login-submit-button");
+  var btn = document.getElementById("category-submit-button");
   btn.addEventListener('htmx:beforeRequest', function (evt) {
     btn.classList.add("loading");
     spinner(btn)

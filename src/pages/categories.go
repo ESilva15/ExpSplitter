@@ -4,6 +4,7 @@ import (
 	"expenses/config"
 	"expenses/expenses"
 	"expenses/templating"
+	"fmt"
 	"log"
 
 	"net/http"
@@ -18,13 +19,11 @@ const (
 )
 
 func categoriesContent() (map[string]any, error) {
-	log.Println("here1")
 	categories, err := expenses.GetAllCategories()
 	if err != nil {
 		return nil, err
 	}
 
-	log.Println("here2")
 	data := map[string]any{
 		"size":       len(categories) - 1,
 		"categories": categories,
@@ -92,6 +91,46 @@ func newCategoryPage(c *gin.Context) {
 }
 
 func createCategory(c *gin.Context) {
+	newCatName := c.PostForm("category-name")
+
+	newCat := expenses.Category{
+		CategoryName: newCatName,
+	}
+
+	err := newCat.Insert()
+	if err != nil {
+		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
+	}
+
+	c.Header("HX-Trigger", "{\"formState\":\"Success\"}")
+}
+
+func deleteCategory(c *gin.Context) {
+	categoryID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.Redirect(404, "/404")
+	}
+
+	log.Println("Delete requested for category: ", categoryID)
+
+	category := expenses.Category{
+		CategoryID: categoryID,
+	}
+	log.Println("here1")
+	err = category.Delete()
+	if err == expenses.ErrNotFound {
+		errMsg := fmt.Sprintf("category %d not found", categoryID)
+		c.String(http.StatusNotFound, errMsg)
+		return
+	}
+
+	if err != nil {
+		errMsg := fmt.Sprintf("error deleting category %d", categoryID)
+		c.String(http.StatusInternalServerError, errMsg)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
 }
 
 func RouteCategories(router *gin.Engine) {
@@ -101,4 +140,5 @@ func RouteCategories(router *gin.Engine) {
 
 	router.GET(CategoriesPath+"/new", newCategoryPage)
 	router.POST(CategoriesPath+"/new", createCategory)
+	router.DELETE(CategoriesPath+"/:id", deleteCategory)
 }

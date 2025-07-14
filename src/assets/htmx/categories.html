@@ -1,12 +1,52 @@
+<div id="operation-state" class="warning"></div><br>
 <table>
   <tr>
+    <th></th>
     <th>ID</th>
     <th>Name</th>
   </tr>
   {{ range .categories }}
   <tr>
-    <th><a href="/categories/{{ .CategoryID }}">{{ .CategoryID }}</th>
+    <th>
+      <a class="category-delete-button" 
+        hx-delete="/categories/{{ .CategoryID }}"
+        hx-on::after-request="handleDeleteResponse(event)"
+        >&nbspX&nbsp</a>
+    </th>
+    <th><a href="/categories/{{ .CategoryID }}">{{ .CategoryID }}</a></th>
     <th spellcheck="false" contenteditable>{{ .CategoryName }}</th>
   </tr>
   {{ end }}
 </table>
+
+<script>
+  function handleDeleteResponse(evt) {
+    const status = evt.detail.xhr.status;
+    const messageDiv = document.getElementById("operation-state")
+
+    if (status >= 400) {
+      messageDiv.textContent = evt.detail.xhr.responseText || "Delete failed";
+
+      setTimeout(() => {
+        messageDiv.textContent = "";
+      }, 5000);
+    }
+
+    if (status == 204) {
+      const tr = evt.target.closest('tr');
+      tr.remove();
+    }
+  }
+
+  document.querySelectorAll(".category-delete-button").forEach(btn => {
+    // Add the spinner
+    btn.addEventListener('htmx:beforeRequest', function () {
+      btn.classList.add("loading");
+    })
+
+    // Remove the spinner
+    btn.addEventListener('htmx:afterRequest', function (evt) {
+      btn.classList.remove("loading");
+    });
+  })
+</script>
