@@ -4,6 +4,7 @@ import (
 	"expenses/config"
 	"expenses/expenses"
 	"expenses/templating"
+	"fmt"
 	"strconv"
 
 	"net/http"
@@ -51,7 +52,7 @@ func ExpensesGlobalPage(c *gin.Context) {
 	})
 }
 
-func ExpensePage(c *gin.Context) {
+func expensePage(c *gin.Context) {
 	cfg := config.GetInstance()
 
 	expenseID, err := strconv.Atoi(c.Param("id"))
@@ -67,6 +68,11 @@ func ExpensePage(c *gin.Context) {
 		},
 	)
 
+	if expense.ExpID == -1 {
+		NotFoundView(c, fmt.Sprintf("ID `%d` doesn't exist", expenseID))
+		return
+	}
+
 	c.HTML(http.StatusOK, "terminal.gotempl", gin.H{
 		"page":         "expense",
 		"renderNavBar": false,
@@ -74,9 +80,33 @@ func ExpensePage(c *gin.Context) {
 	})
 }
 
+func newExpensePage(c *gin.Context) {
+	cfg := config.GetInstance()
+
+	categories, err := expenses.GetAllCategories()
+	if err != nil {
+		ServerErrorView(c, "failed to fetch categories")
+		return
+	}
+
+	content := templating.HtmlTemplate(
+		fp.Join(cfg.AssetsDir, "/htmx/expenseNew.html"), map[string]any{
+			"expense":    expenses.NewExpense(),
+			"categories": categories,
+		},
+	)
+
+	c.HTML(http.StatusOK, "terminal.gotempl", gin.H{
+		"page":         "expenseNew",
+		"renderNavBar": false,
+		"content":      content,
+	})
+}
+
 func RouteExpenses(router *gin.Engine) {
 	router.GET(ExpensesPath, ExpensesGlobalPage)
+	router.GET(ExpensesPath+"/:id", expensePage)
 	router.POST(ExpensesPath, ExpensesGlobalPage)
 
-	router.GET(ExpensesPath+"/:id", ExpensePage)
+	router.GET(ExpensesPath+"/new", newExpensePage)
 }

@@ -77,9 +77,28 @@ func categoryPage(c *gin.Context) {
 	})
 }
 
+func newCategoryPage(c *gin.Context) {
+	cfg := config.GetInstance()
+
+	content := templating.HtmlTemplate(
+		fp.Join(cfg.AssetsDir, "/htmx/categoryNew.html"), map[string]any{},
+	)
+
+	c.HTML(http.StatusOK, "terminal.gotempl", gin.H{
+		"page":         "expenseNew",
+		"renderNavBar": false,
+		"content":      content,
+	})
+}
+
+func createCategory(c *gin.Context) {
+}
+
 func RouteCategories(router *gin.Engine) {
 	router.GET(CategoriesPath, categoriesGlobalPage)
+	router.GET(CategoriesPath+"/:id", categoryPage)
 	router.POST(CategoriesPath, categoriesGlobalPage)
 
-	router.GET(CategoriesPath+"/:id", categoryPage)
+	router.GET(CategoriesPath+"/new", newCategoryPage)
+	router.POST(CategoriesPath+"/new", createCategory)
 }

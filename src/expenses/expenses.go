@@ -12,11 +12,24 @@ type Expense struct {
 	ExpID        int
 	Description  string
 	Value        float32
-	StoreID      int
-	CategoryID   int
-	OwnerUserID  int
+	ExpStore     Store
+	ExpCategory  Category
+	OwnerUser    User
 	ExpDate      int
 	CreationDate int
+}
+
+func NewExpense() Expense {
+	return Expense{
+		ExpID:        -1,
+		Description:  "",
+		Value:        0.0,
+		ExpStore:     NewStore(),
+		ExpCategory:  NewCategory(),
+		OwnerUser:    NewUser(),
+		ExpDate:      0,
+		CreationDate: 0,
+	}
 }
 
 func GetAllExpenses() ([]Expense, error) {
@@ -26,9 +39,14 @@ func GetAllExpenses() ([]Expense, error) {
 	}
 	defer db.Close()
 
-	query := "SELECT ExpID,Description,Value,StoreID,CategoryID," +
-		"OwnerUserID,ExpDate,CreationDate " +
-		"FROM expenses"
+	query := "SELECT ExpID,Description,Value," +
+		"Stores.StoreID,Stores.StoreName," +
+		"Categories.CategoryID,Categories.CategoryName," +
+		"Users.UserID,Users.UserName," +
+		"ExpDate,CreationDate " +
+		"FROM expenses " +
+		"JOIN Stores, Categories " +
+		"JOIN Users ON UserID = OwnerUserId"
 
 	var expList []Expense
 	rows, err := db.Query(query)
@@ -38,8 +56,12 @@ func GetAllExpenses() ([]Expense, error) {
 
 	for rows.Next() {
 		exp := &Expense{}
-		err := rows.Scan(&exp.ExpID, &exp.Description, &exp.Value, &exp.StoreID,
-			&exp.CategoryID, &exp.OwnerUserID, &exp.ExpDate, &exp.CreationDate,
+		err := rows.Scan(
+			&exp.ExpID, &exp.Description, &exp.Value,
+			&exp.ExpStore.StoreID, &exp.ExpStore.StoreName,
+			&exp.ExpCategory.CategoryID, &exp.ExpCategory.CategoryName,
+			&exp.OwnerUser.UserID, &exp.OwnerUser.UserName,
+			&exp.ExpDate, &exp.CreationDate,
 		)
 		if err != nil {
 			log.Fatalf("Failed to parse data from db: %v", err)
@@ -57,16 +79,30 @@ func GetExpense(expID int) (Expense, error) {
 	}
 	defer db.Close()
 
-	query := "SELECT ExpID,Description,Value,StoreID,CategoryID," +
-		"OwnerUserID,ExpDate,CreationDate " +
+	query := "SELECT ExpID,Description,Value," +
+		"Stores.StoreID,Stores.StoreName," +
+		"Categories.CategoryID,Categories.CategoryName," +
+		"Users.UserID,Users.UserName," +
+		"ExpDate,CreationDate " +
 		"FROM expenses " +
+		"JOIN Stores, Categories " +
+		"JOIN Users ON UserID = OwnerUserId " +
 		"WHERE ExpID = " + strconv.Itoa(expID)
 
-	var exp Expense
+	log.Println(query)
+
+	exp := Expense{ExpID: -1}
 	err = db.QueryRow(query).Scan(
-		&exp.ExpID, &exp.Description, &exp.Value, &exp.StoreID,
-		&exp.CategoryID, &exp.OwnerUserID, &exp.ExpDate, &exp.CreationDate,
+		&exp.ExpID, &exp.Description, &exp.Value,
+		&exp.ExpStore.StoreID, &exp.ExpStore.StoreName,
+		&exp.ExpCategory.CategoryID, &exp.ExpCategory.CategoryName,
+		&exp.OwnerUser.UserID, &exp.OwnerUser.UserName,
+		&exp.ExpDate, &exp.CreationDate,
 	)
+	if err == sql.ErrNoRows {
+		return Expense{ExpID: -1}, nil
+	}
+
 	if err != nil {
 		return Expense{}, nil
 	}

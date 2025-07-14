@@ -12,6 +12,13 @@ type Category struct {
 	CategoryName string
 }
 
+func NewCategory() Category {
+	return Category{
+		CategoryID:   -1,
+		CategoryName: "",
+	}
+}
+
 func GetAllCategories() ([]Category, error) {
 	db, err := sql.Open("sqlite3", "./data/data.db")
 	if err != nil {

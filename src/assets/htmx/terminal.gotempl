@@ -20,7 +20,7 @@
           id="home-button"
           style="cursor: pointer;"
           class="neon-text {{ if .warning }}warning{{ end }}" 
-          hx-get="/aboutMe" 
+          hx-get="/" 
           hx-target="#container"
           hx-replace-url="true">EXPENSES</legend>
         <div id="main-container-content" class="main-container-content">
