@@ -1,0 +1,49 @@
+#form-box-boundaries {
+  height: 100%;
+}
+
+.form-container {
+  display: block;
+  text-align: center;
+}
+
+.form-container.form-left {
+  text-align: left;
+}
+
+.fullwidth-label {
+  display: block;
+}
+
+.tui-input {
+  width: 50%;
+  max-width: 15ch;
+  font-family: dejavu_monospace;
+  font-size: var(--html_font_size);
+  border: solid 2px;
+  overflow: hide;
+  outline: none;
+  resize: horizontal;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.tui-input.fullwidth {
+  width: 100%;
+  max-width: 100%;
+  text-align: left;
+}
+
+.tui-input.underline {
+  border: none;
+  border-bottom: 2px solid;
+}
+
+
+.subbutton:focus::before {
+  content: ">";
+}
+
+.subbutton:focus::after {
+  content: "<";
+}

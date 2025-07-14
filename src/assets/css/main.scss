@@ -1,5 +1,6 @@
 @use 'crt';
 @use 'expensesTable';
+@use 'forms';
 
 :root {
   --html_font_size: 20px;
@@ -99,6 +100,7 @@ code {
   object-fit: contain;
   cursor: pointer;
 }
+
 /* --- */
 
 .nav-button::before {
