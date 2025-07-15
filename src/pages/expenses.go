@@ -5,7 +5,9 @@ import (
 	"expenses/expenses"
 	"expenses/templating"
 	"fmt"
+	"log"
 	"strconv"
+	"time"
 
 	"net/http"
 	fp "path/filepath"
@@ -134,16 +136,78 @@ func newExpensePage(c *gin.Context) {
 }
 
 func createExpense(c *gin.Context) {
-	// newCatName := c.PostForm("category-name")
+	newDescription := c.PostForm("expense-desc")
+	newDate := c.PostForm("expense-date")
 
-	// newExp := expenses.Expense{
-	// 	CategoryName: newCatName,
-	// }
-	//
-	// err := newExp.Insert()
-	// if err != nil {
-	// 	c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
-	// }
+	formattedDate, err := time.Parse("02-Jan-2006", newDate)
+	if err != nil {
+		// TODO
+		// Change this to something the user can see
+		c.Header("HX-Redirect", "/500")
+		return
+	}
+	date := formattedDate.Unix()
+
+	newValue := c.PostForm("expense-value")
+	value, err := strconv.ParseFloat(newValue, 32)
+	if err != nil {
+		// TODO
+		// Change this to something the user can see
+		c.Header("HX-Redirect", "/500")
+		return
+	}
+
+	newTyp := c.PostForm("newexp-type-dropdown")
+	typID, err := strconv.Atoi(newTyp)
+	if err != nil {
+		// TODO
+		// Change this to something the user can see
+		log.Println("failed to parse newType:", newTyp)
+		c.Header("HX-Redirect", "/500")
+		return
+	}
+
+	newCat := c.PostForm("newexp-cat-dropdown")
+	catID, err := strconv.Atoi(newCat)
+	if err != nil {
+		// TODO
+		// Change this to something the user can see
+		log.Println("failed to parse catID:", newCat)
+		c.Header("HX-Redirect", "/500")
+		return
+	}
+
+	newStore := c.PostForm("newexp-store-dropdown")
+	storeID, err := strconv.Atoi(newStore)
+	if err != nil {
+		// TODO
+		// Change this to something the user can see
+		log.Println("failed to parse storeID:", newStore)
+		c.Header("HX-Redirect", "/500")
+		return
+	}
+
+	newExp := expenses.Expense{
+		Description: newDescription,
+		ExpDate:     date,
+		Value:       float32(value),
+		ExpType: expenses.Type{
+			TypeID: typID,
+		},
+		ExpCategory: expenses.Category{
+			CategoryID: catID,
+		},
+		ExpStore: expenses.Store{
+			StoreID: storeID,
+		},
+	}
+	log.Println(newExp)
+
+	err = newExp.Insert()
+	if err != nil {
+		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
+		return
+	}
 
 	c.Header("HX-Trigger", "{\"formState\":\"Success\"}")
 }

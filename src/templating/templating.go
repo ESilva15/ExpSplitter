@@ -11,8 +11,8 @@ import (
 
 func createTemplateEngine(name string) *template.Template {
 	funcMap := template.FuncMap{
-		"formatDate": func(ts int) string {
-			return time.Unix(int64(ts), 0).Format("02-Jan-2006")
+		"formatDate": func(ts int64) string {
+			return time.Unix(ts, 0).Format("02-Jan-2006")
 		},
 		"formatPrice": func(v float32) string {
 			return fmt.Sprintf("%.2f", v)

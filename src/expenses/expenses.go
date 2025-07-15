@@ -2,6 +2,7 @@ package expenses
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"strconv"
 
@@ -13,10 +14,11 @@ type Expense struct {
 	Description  string
 	Value        float32
 	ExpStore     Store
+	ExpType      Type
 	ExpCategory  Category
 	OwnerUser    User
-	ExpDate      int
-	CreationDate int
+	ExpDate      int64
+	CreationDate int64
 }
 
 func NewExpense() Expense {
@@ -109,4 +111,33 @@ func GetExpense(expID int) (Expense, error) {
 	}
 
 	return exp, nil
+}
+
+func (exp *Expense) Insert() error {
+	db, err := sql.Open("sqlite3", "./data/data.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	query := "INSERT INTO expenses(" +
+		"Description,Value,StoreID,CategoryID,TypeID,OwnerUserID,ExpDate" +
+		") " +
+		"VALUES(?, ?, ? , ?, ?, ?, ?)"
+
+	res, err := db.Exec(query, exp.Description, exp.Value, exp.ExpStore.StoreID,
+		exp.ExpCategory.CategoryID, exp.ExpType.TypeID, 0, exp.ExpDate,
+	)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	} else if rowsAffected == 0 {
+		return fmt.Errorf("no rows were created")
+	}
+
+	return nil
 }
