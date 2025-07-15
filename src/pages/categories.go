@@ -4,9 +4,8 @@ import (
 	"expenses/config"
 	"expenses/expenses"
 	"expenses/templating"
-	"fmt"
-	"log"
 
+	"fmt"
 	"net/http"
 	fp "path/filepath"
 	"strconv"
@@ -111,12 +110,9 @@ func deleteCategory(c *gin.Context) {
 		c.Redirect(404, "/404")
 	}
 
-	log.Println("Delete requested for category: ", categoryID)
-
 	category := expenses.Category{
 		CategoryID: categoryID,
 	}
-	log.Println("here1")
 	err = category.Delete()
 	if err == expenses.ErrNotFound {
 		errMsg := fmt.Sprintf("category %d not found", categoryID)

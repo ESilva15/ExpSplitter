@@ -9,75 +9,75 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type Store struct {
-	StoreID   int
-	StoreName string
+type Type struct {
+	TypeID   int
+	TypeName string
 }
 
-func NewStore() Store {
-	return Store{
-		StoreID:   -1,
-		StoreName: "",
+func NewType() Type {
+	return Type{
+		TypeID:   -1,
+		TypeName: "",
 	}
 }
 
-func GetAllStores() ([]Store, error) {
+func GetAllTypes() ([]Type, error) {
 	db, err := sql.Open("sqlite3", "./data/data.db")
 	if err != nil {
 		return nil, err
 	}
 	defer db.Close()
 
-	query := "SELECT StoreID,StoreName " +
-		"FROM stores"
+	query := "SELECT TypeID,TypeName " +
+		"FROM expenseTypes"
 
-	var storeList []Store
+	var typeList []Type
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
 	}
 
 	for rows.Next() {
-		store := &Store{}
-		err := rows.Scan(&store.StoreID, &store.StoreName)
+		nType := &Type{}
+		err := rows.Scan(&nType.TypeID, &nType.TypeName)
 		if err != nil {
 			log.Fatalf("Failed to parse data from db: %v", err)
 		}
-		storeList = append(storeList, *store)
+		typeList = append(typeList, *nType)
 	}
 
-	return storeList, nil
+	return typeList, nil
 }
 
-func GetStore(storeID int) (Store, error) {
+func GetType(storeID int) (Type, error) {
 	db, err := sql.Open("sqlite3", "./data/data.db")
 	if err != nil {
-		return Store{}, err
+		return Type{}, err
 	}
 	defer db.Close()
 
-	query := "SELECT StoreID,StoreName " +
-		"FROM stores " +
-		"WHERE StoreID = " + strconv.Itoa(storeID)
+	query := "SELECT TypeID,TypeName " +
+		"FROM expenseTypes " +
+		"WHERE TypeID = " + strconv.Itoa(storeID)
 
-	var store Store
-	err = db.QueryRow(query).Scan(&store.StoreID, &store.StoreName)
+	var nType Type
+	err = db.QueryRow(query).Scan(&nType.TypeID, &nType.TypeName)
 	if err != nil {
-		return Store{}, nil
+		return Type{}, nil
 	}
 
-	return store, nil
+	return nType, nil
 }
 
-func (cat *Store) Insert() error {
+func (typ *Type) Insert() error {
 	db, err := sql.Open("sqlite3", "./data/data.db")
 	if err != nil {
 		return err
 	}
 	defer db.Close()
 
-	query := "INSERT INTO stores(StoreName) VALUES(?)"
-	res, err := db.Exec(query, cat.StoreName)
+	query := "INSERT INTO expenseTypes(TypeName) VALUES(?)"
+	res, err := db.Exec(query, typ.TypeName)
 	if err != nil {
 		return err
 	}
@@ -92,7 +92,7 @@ func (cat *Store) Insert() error {
 	return nil
 }
 
-func (cat *Store) Delete() error {
+func (typ *Type) Delete() error {
 	db, err := sql.Open("sqlite3", "./data/data.db")
 	if err != nil {
 		return err
@@ -104,8 +104,8 @@ func (cat *Store) Delete() error {
 		return err
 	}
 
-	query := "DELETE FROM stores WHERE StoreID = ?"
-	res, err := db.Exec(query, cat.StoreID)
+	query := "DELETE FROM expenseTypes WHERE TypeID = ?"
+	res, err := db.Exec(query, typ.TypeID)
 	if err != nil {
 		return err
 	}

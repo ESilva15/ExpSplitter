@@ -45,7 +45,8 @@ func GetAllExpenses() ([]Expense, error) {
 		"Users.UserID,Users.UserName," +
 		"ExpDate,CreationDate " +
 		"FROM expenses " +
-		"JOIN Stores, Categories " +
+		"JOIN Stores ON stores.StoreID = expenses.StoreID " +
+		"JOIN Categories ON categories.CategoryID = expenses.CategoryID " +
 		"JOIN Users ON UserID = OwnerUserId"
 
 	var expList []Expense

@@ -6,12 +6,13 @@ CREATE TABLE expenses (
   StoreID int NOT NULL DEFAULT 0,
   CategoryID int NOT NULL DEFAULT 0,
   OwnerUserID int NOT NULL DEFAULT 0,
-  ExpTypeID int NOT NULL DEFAULT 0,
+  TypeID int NOT NULL DEFAULT 0,
   ExpDate int NOT NULL DEFAULT -1,
   CreationDate int NOT NULL DEFAULT -1,
   FOREIGN KEY(StoreID) REFERENCES stores(StoreID) ON DELETE RESTRICT,
   FOREIGN KEY(CategoryID) REFERENCES categories(CategoryID) ON DELETE RESTRICT,
-  FOREIGN KEY(OwnerUserID) REFERENCES users(UserID) ON DELETE RESTRICT
+  FOREIGN KEY(OwnerUserID) REFERENCES users(UserID) ON DELETE RESTRICT,
+  FOREIGN KEY(TypeID) REFERENCES expenseTypes(TypeID) ON DELETE RESTRICT
 );
 
 DROP TABLE IF EXISTS stores;
@@ -32,11 +33,11 @@ INSERT INTO categories (CategoryID, CategoryName) VALUES(0, 'No Category');
 
 DROP TABLE IF EXISTS expenseTypes;
 CREATE TABLE expenseTypes(
-  ExpTypeID integer PRIMARY KEY AUTOINCREMENT,
-  ExpTypeName text NOT NULL
+  TypeID integer PRIMARY KEY AUTOINCREMENT,
+  TypeName text NOT NULL
 );
 -- Create a default category for NoCategory
-INSERT INTO expenseTypes (ExpTypeID, ExpTypeName) VALUES(0, 'expense');
+INSERT INTO expenseTypes (TypeID, TypeName) VALUES(0, 'expense');
 
 DROP TABLE IF EXISTS users;
 CREATE TABLE users(

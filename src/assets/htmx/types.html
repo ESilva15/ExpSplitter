@@ -5,16 +5,16 @@
     <th>ID</th>
     <th>Name</th>
   </tr>
-  {{ range .categories }}
+  {{ range .types }}
   <tr>
     <th>
-      <a class="category-delete-button" 
-        hx-delete="/categories/{{ .CategoryID }}"
+      <a class="type-delete-button" 
+        hx-delete="/types/{{ .TypeID }}"
         hx-on::after-request="handleDeleteResponse(event)"
         >&nbsp;X&nbsp;</a>
     </th>
-    <th><a href="/categories/{{ .CategoryID }}">{{ .CategoryID }}</a></th>
-    <th spellcheck="false" contenteditable>{{ .CategoryName }}</th>
+    <th><a href="/types/{{ .TypeID }}">{{ .TypeID }}</a></th>
+    <th spellcheck="false" contenteditable>{{ .TypeName }}</th>
   </tr>
   {{ end }}
 </table>
@@ -38,7 +38,7 @@
     }
   }
 
-  document.querySelectorAll(".category-delete-button").forEach(btn => {
+  document.querySelectorAll(".type-delete-button").forEach(btn => {
     // Add the spinner
     btn.addEventListener('htmx:beforeRequest', function () {
       btn.classList.add("loading");

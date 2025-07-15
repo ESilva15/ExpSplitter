@@ -1,19 +1,24 @@
 <div>
-  <form id="category-form" action="submit">
+  <form id="store-form" action="submit">
     <fieldset id="form-box-boundaries">
       <legend>CATEGORY FORM</legend>
       <div class="form-container form-left">
         <div id="form-state" class="warning"></div><br>
 
-        <label class="fullwidth-label" for="category-name">NAME</label>
-        <input class="tui-input underline fullwidth" type="text" name="category-name" id="category-name"><br><br>
+        <label class="fullwidth-label" for="store-name">NAME</label>
+        <input class="tui-input underline fullwidth" type="text" name="store-name" id="store-name"><br><br>
+
+        <!-- <label for="store-description">DESCRIPTION</label> -->
+        <!-- <input  -->
+        <!--   class="tui-input underline fullwidth" type="text" name="store-description"  -->
+        <!--   id="store-description"><br><br> -->
 
         <button 
           class="subbutton"
-          hx-post="/categories/new" 
+          hx-post="/stores/new" 
           hx-swap="none"
           type="submit" 
-          id="category-submit-button">CREATE</button>
+          id="store-submit-button">CREATE</button>
           <br>
       </div>
     </fieldset>
@@ -31,7 +36,7 @@
   });
 
   // Add the spinner
-  var btn = document.getElementById("category-submit-button");
+  var btn = document.getElementById("store-submit-button");
   btn.addEventListener('htmx:beforeRequest', function (evt) {
     btn.classList.add("loading");
     spinner(btn)

@@ -32,6 +32,22 @@ func expensesContent() (map[string]any, error) {
 	return data, nil
 }
 
+func expensesPartial(c *gin.Context) {
+	cfg := config.GetInstance()
+
+	expenses, err := expensesContent()
+	if err != nil {
+		c.Header("HX-Redirect", "/500")
+		return
+	}
+	content := templating.HtmlTemplate(
+		fp.Join(cfg.AssetsDir, "htmx/expenses.html"),
+		expenses,
+	)
+
+	c.String(http.StatusOK, string(content))
+}
+
 func ExpensesGlobalPage(c *gin.Context) {
 	cfg := config.GetInstance()
 
@@ -89,10 +105,24 @@ func newExpensePage(c *gin.Context) {
 		return
 	}
 
+	stores, err := expenses.GetAllStores()
+	if err != nil {
+		ServerErrorView(c, "failed to fetch stores")
+		return
+	}
+
+	types, err := expenses.GetAllTypes()
+	if err != nil {
+		ServerErrorView(c, "failed to fetch types")
+		return
+	}
+
 	content := templating.HtmlTemplate(
 		fp.Join(cfg.AssetsDir, "/htmx/expenseNew.html"), map[string]any{
 			"expense":    expenses.NewExpense(),
 			"categories": categories,
+			"stores":     stores,
+			"types":      types,
 		},
 	)
 
@@ -103,10 +133,26 @@ func newExpensePage(c *gin.Context) {
 	})
 }
 
+func createExpense(c *gin.Context) {
+	// newCatName := c.PostForm("category-name")
+
+	// newExp := expenses.Expense{
+	// 	CategoryName: newCatName,
+	// }
+	//
+	// err := newExp.Insert()
+	// if err != nil {
+	// 	c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
+	// }
+
+	c.Header("HX-Trigger", "{\"formState\":\"Success\"}")
+}
+
 func RouteExpenses(router *gin.Engine) {
 	router.GET(ExpensesPath, ExpensesGlobalPage)
 	router.GET(ExpensesPath+"/:id", expensePage)
-	router.POST(ExpensesPath, ExpensesGlobalPage)
+	router.POST(ExpensesPath, expensesPartial)
 
 	router.GET(ExpensesPath+"/new", newExpensePage)
+	router.POST(ExpensesPath+"/new", createExpense)
 }

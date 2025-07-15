@@ -1,26 +1,111 @@
-<table>
-  <tr>
-    <td>ID:</td>
-    <td>{{ .expense.ExpID }}</td>
-  </tr>
-  <tr>
-    <td>Description:</td>
-    <td>{{ .expense.Description }}</td>
-  </tr>
-  <tr>
-    <td>Date:</td>
-    <td>{{ formatDate .expense.ExpDate }}</td>
-  </tr>
-  <tr>
-    <td>Category:</td>
-    <td>
-      <select name="newexp-cat-dropdown" id="newexp-cat-dropdown">
-        {{ range .categories }}
-        <option value="{{ .CategoryID }}">{{ .CategoryName }}</option>
-        {{ end}}
-      </select>
-    </td>
-  </tr>
-</table>
+<div>
+  <form id="expense-form" action="submit">
+    <fieldset id="form-box-boundaries">
+      <legend>EXPENSE FORM</legend>
+      <div class="form-container form-table">
+        <div id="form-state" class="warning"></div><br>
 
+        <p>
+          <label class="" for="expense-desc">Description:</label>
+          <input 
+            class="tui-input underline fullwidth" type="text" name="expense-name" 
+            id="expense-name"><br><br>
+        </p>
+
+        <p>
+          <label for="expense-date">Date:</label>
+          <input 
+            class="tui-input underline fullwidth" type="text" name="expense-description" 
+            id="expense-description"><br><br>
+        </p>
+
+        <p>
+          <label for="expense-date">Value:</label>
+          <input 
+            class="tui-input underline fullwidth" type="text" name="expense-date" 
+            id="expense-date"><br><br>
+        </p>
+
+        <p>
+          <label for="newexp-type-dropdown">Type:</label>
+          <select name="newexp-type-dropdown" id="newexp-type-dropdown">
+            {{ range .types }}
+            <option value="{{ .TypeID}}">{{ .TypeName }}</option>
+            {{ end}}
+          </select>
+        </p>
+
+        <p>
+          <label for="newexp-cat-dropdown">Category:</label>
+          <select name="newexp-cat-dropdown" id="newexp-cat-dropdown">
+            {{ range .categories }}
+            <option value="{{ .CategoryID}}">{{ .CategoryName }}</option>
+            {{ end}}
+          </select>
+        </p>
+
+        <p>
+          <label for="newexp-store-dropdown">Store:</label>
+          <select name="newexp-store-dropdown" id="newexp-store-dropdown">
+            {{ range .stores }}
+            <option value="{{ .StoreID}}">{{ .StoreName }}</option>
+            {{ end}}
+          </select>
+        </p>
+        <br><br>
+
+        <button 
+          class="subbutton"
+          hx-post="/expenses/new" 
+          hx-swap="none"
+          type="submit" 
+          id="expense-submit-button">CREATE</button>
+          <br>
+      </div>
+    </fieldset>
+  </form>
+</div>
+
+<style>
+  .form-container.form-table {
+    text-align: left;
+    display: table;
+    width: 100%;
+  }
+  .form-container p {
+    display: table-row;
+  }
+  .form-container label {
+    display: table-cell;
+    padding-right: 1em;
+    white-space: nowrap;
+    width: 10%;
+  }
+  .form-container .input.tui-input {
+    display: table-cell;
+    width: 100%;
+  }
+</style>
+
+<script>
+  document.body.addEventListener("formState", function(evt) {
+    var messageDiv = document.getElementById("form-state")
+    messageDiv.innerHTML = evt.detail.value
+
+    setTimeout(() => {
+      messageDiv.innerHTML = ""
+    }, 3000);
+  });
+
+  // Add the spinner
+  var btn = document.getElementById("expense-submit-button");
+  btn.addEventListener('htmx:beforeRequest', function (evt) {
+    btn.classList.add("loading");
+    spinner(btn)
+  });
+
+  btn.addEventListener('htmx:afterRequest', function (evt) {
+    btn.classList.remove("loading");
+  });
+</script>
 
