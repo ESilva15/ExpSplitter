@@ -1,13 +1,12 @@
 package pages
 
 import (
+	"encoding/json"
 	"expenses/config"
 	"expenses/expenses"
 	"expenses/templating"
 	"fmt"
-	"log"
 	"strconv"
-	"time"
 
 	"net/http"
 	fp "path/filepath"
@@ -79,10 +78,31 @@ func expensePage(c *gin.Context) {
 	}
 
 	expense, err := expenses.GetExpense(expenseID)
+	categories, err := expenses.GetAllCategories()
+	if err != nil {
+		ServerErrorView(c, "failed to fetch categories")
+		return
+	}
+
+	stores, err := expenses.GetAllStores()
+	if err != nil {
+		ServerErrorView(c, "failed to fetch stores")
+		return
+	}
+
+	types, err := expenses.GetAllTypes()
+	if err != nil {
+		ServerErrorView(c, "failed to fetch types")
+		return
+	}
+
 	content := templating.HtmlTemplate(
 		fp.Join(cfg.AssetsDir, "/htmx/expense.html"),
 		map[string]any{
-			"expense": expense,
+			"expense":    expense,
+			"categories": categories,
+			"stores":     stores,
+			"types":      types,
 		},
 	)
 
@@ -136,76 +156,40 @@ func newExpensePage(c *gin.Context) {
 }
 
 func createExpense(c *gin.Context) {
-	newDescription := c.PostForm("expense-desc")
-	newDate := c.PostForm("expense-date")
-
-	formattedDate, err := time.Parse("02-Jan-2006", newDate)
+	newExp, err := expenseFromForm(c)
 	if err != nil {
 		// TODO
 		// Change this to something the user can see
 		c.Header("HX-Redirect", "/500")
-		return
 	}
-	date := formattedDate.Unix()
-
-	newValue := c.PostForm("expense-value")
-	value, err := strconv.ParseFloat(newValue, 32)
-	if err != nil {
-		// TODO
-		// Change this to something the user can see
-		c.Header("HX-Redirect", "/500")
-		return
-	}
-
-	newTyp := c.PostForm("newexp-type-dropdown")
-	typID, err := strconv.Atoi(newTyp)
-	if err != nil {
-		// TODO
-		// Change this to something the user can see
-		log.Println("failed to parse newType:", newTyp)
-		c.Header("HX-Redirect", "/500")
-		return
-	}
-
-	newCat := c.PostForm("newexp-cat-dropdown")
-	catID, err := strconv.Atoi(newCat)
-	if err != nil {
-		// TODO
-		// Change this to something the user can see
-		log.Println("failed to parse catID:", newCat)
-		c.Header("HX-Redirect", "/500")
-		return
-	}
-
-	newStore := c.PostForm("newexp-store-dropdown")
-	storeID, err := strconv.Atoi(newStore)
-	if err != nil {
-		// TODO
-		// Change this to something the user can see
-		log.Println("failed to parse storeID:", newStore)
-		c.Header("HX-Redirect", "/500")
-		return
-	}
-
-	newExp := expenses.Expense{
-		Description: newDescription,
-		ExpDate:     date,
-		Value:       float32(value),
-		ExpType: expenses.Type{
-			TypeID: typID,
-		},
-		ExpCategory: expenses.Category{
-			CategoryID: catID,
-		},
-		ExpStore: expenses.Store{
-			StoreID: storeID,
-		},
-	}
-	log.Println(newExp)
 
 	err = newExp.Insert()
 	if err != nil {
 		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
+		return
+	}
+
+	c.Header("HX-Trigger", "{\"formState\":\"Success\"}")
+}
+
+func updateExpense(c *gin.Context) {
+	expenseID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.Redirect(404, "/404")
+	}
+
+	newExp, err := expenseFromForm(c)
+	if err != nil {
+		// TODO
+		// Change this to something the user can see
+		c.Header("HX-Redirect", "/500")
+	}
+	newExp.ExpID = expenseID
+
+	err = newExp.Update()
+	if err != nil {
+		errMsg, _ := json.Marshal(err.Error())
+		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":%s}", errMsg))
 		return
 	}
 
@@ -219,4 +203,5 @@ func RouteExpenses(router *gin.Engine) {
 
 	router.GET(ExpensesPath+"/new", newExpensePage)
 	router.POST(ExpensesPath+"/new", createExpense)
+	router.PUT(ExpensesPath+"/:id", updateExpense)
 }

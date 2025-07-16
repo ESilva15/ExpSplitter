@@ -65,26 +65,3 @@
     </fieldset>
   </form>
 </div>
-
-<script>
-  document.body.addEventListener("formState", function(evt) {
-    var messageDiv = document.getElementById("form-state")
-    messageDiv.innerHTML = evt.detail.value
-
-    setTimeout(() => {
-      messageDiv.innerHTML = ""
-    }, 3000);
-  });
-
-  // Add the spinner
-  var btn = document.getElementById("expense-submit-button");
-  btn.addEventListener('htmx:beforeRequest', function (evt) {
-    btn.classList.add("loading");
-    spinner(btn)
-  });
-
-  btn.addEventListener('htmx:afterRequest', function (evt) {
-    btn.classList.remove("loading");
-  });
-</script>
-

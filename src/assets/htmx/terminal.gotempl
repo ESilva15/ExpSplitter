@@ -8,6 +8,7 @@
     <link content="text/css" href="/assets/css/aesthetic.css" rel="stylesheet">
     <script content="text/javascript" defer="" src="/assets/js/htmx.min.js"></script>
     <script content="text/javascript" defer="" src="/assets/js/pager.js"></script>
+    <script content="text/javascript" defer="" src="/assets/js/forms.js"></script>
   </head>
   <body>
 
