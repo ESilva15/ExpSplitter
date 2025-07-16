@@ -129,6 +129,27 @@ func deleteType(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+func updateType(c *gin.Context) {
+	typeID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.Redirect(404, "/404")
+	}
+	newName := c.PostForm("type-name")
+
+	newTyp := expenses.Type{
+		TypeID:   typeID,
+		TypeName: newName,
+	}
+
+	err = newTyp.Update()
+	if err != nil {
+		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
+		return
+	}
+
+	c.Header("HX-Trigger", "{\"formState\":\"Success\"}")
+}
+
 func RouteTypes(router *gin.Engine) {
 	router.GET(TypesPath, typesGlobalPage)
 	router.GET(TypesPath+"/:id", typePage)
@@ -137,4 +158,5 @@ func RouteTypes(router *gin.Engine) {
 	router.GET(TypesPath+"/new", newTypePage)
 	router.POST(TypesPath+"/new", createType)
 	router.DELETE(TypesPath+"/:id", deleteType)
+	router.PUT(TypesPath+"/:id", updateType)
 }

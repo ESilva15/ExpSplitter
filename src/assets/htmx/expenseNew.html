@@ -2,11 +2,11 @@
   <form id="expense-form" action="submit">
     <fieldset id="form-box-boundaries">
       <legend>EXPENSE FORM</legend>
-      <div class="form-container form-table">
+      <div class="form-container form-inline">
         <div id="form-state" class="warning"></div><br>
 
         <p>
-          <label class="" for="expense-desc">Description:</label>
+          <label for="expense-desc">Description:</label>
           <input 
             class="tui-input underline fullwidth" type="text" name="expense-desc" 
             id="expense-desc"><br>
@@ -65,27 +65,6 @@
     </fieldset>
   </form>
 </div>
-
-<style>
-  .form-container.form-table {
-    text-align: left;
-    display: table;
-    width: 100%;
-  }
-  .form-container p {
-    display: table-row;
-  }
-  .form-container label {
-    display: table-cell;
-    padding-right: 1em;
-    white-space: nowrap;
-    width: 10%;
-  }
-  .form-container .input.tui-input {
-    display: table-cell;
-    width: 100%;
-  }
-</style>
 
 <script>
   document.body.addEventListener("formState", function(evt) {

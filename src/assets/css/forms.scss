@@ -47,3 +47,29 @@
 .subbutton:focus::after {
   content: "<";
 }
+
+.form-container.form-inline {
+  text-align: left;
+  display: table;
+  width: 100%;
+}
+
+.form-inline p {
+  display: table-row;
+}
+
+.form-inline label {
+  display: table-cell;
+  padding-right: 1em;
+  white-space: nowrap;
+  width: 10%;
+}
+
+.form-inline .input.tui-input {
+  display: table-cell;
+  width: 100%;
+}
+
+.form-inline .subbutton {
+  display: block;
+}

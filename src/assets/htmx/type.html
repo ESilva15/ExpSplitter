@@ -1,10 +1,58 @@
-<table>
-  <tr>
-    <td>ID:</td>
-    <td>{{ .type.TypeID }}</td>
-  </tr>
-  <tr>
-    <td>Name:</td>
-    <td>{{ .type.TypeName }}</td>
-  </tr>
-</table>
+<div>
+  <form id="type-form" action="submit">
+    <fieldset id="form-box-boundaries">
+      <legend>TYPE FORM</legend>
+      <div class="form-container form-inline">
+        <div id="form-state" class="warning"></div><br>
+
+        <p>
+          <label for="type-id">ID:</label>
+          <input class="tui-input underline fullwidth"
+            type="text" readonly
+            name="type-id" id="type-id" value="{{ .type.TypeID }}">
+        </p>
+        <br>
+
+        <p>
+          <label for="type-name">NAME</label>
+          <input class="tui-input underline fullwidth" 
+            type="text" 
+            name="type-name" id="type-name" value="{{ .type.TypeName }}">
+        </p>
+        <br>
+        
+        <!-- TODO -->
+        <!-- The after attribute of this button is written on a newline for no reason -->
+        <button 
+          class="subbutton"
+          hx-put="/types/{{ .type.TypeID }}" 
+          hx-swap="none"
+          type="submit" 
+          id="type-submit-button">UPDATE</button><br>
+      </div>
+    </fieldset>
+  </form>
+</div>
+
+<script>
+  document.body.addEventListener("formState", function(evt) {
+    var messageDiv = document.getElementById("form-state")
+    messageDiv.innerHTML = evt.detail.value
+
+    setTimeout(() => {
+      messageDiv.innerHTML = ""
+    }, 3000);
+  });
+
+  // Add the spinner
+  var btn = document.getElementById("type-submit-button");
+  btn.addEventListener('htmx:beforeRequest', function (evt) {
+    btn.classList.add("loading");
+    spinner(btn)
+  });
+
+  btn.addEventListener('htmx:afterRequest', function (evt) {
+    btn.classList.remove("loading");
+  });
+</script>
+

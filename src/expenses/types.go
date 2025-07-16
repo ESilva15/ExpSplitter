@@ -119,3 +119,31 @@ func (typ *Type) Delete() error {
 
 	return nil
 }
+
+func (typ *Type) Update() error {
+	db, err := sql.Open("sqlite3", "./data/data.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	_, err = db.Exec("PRAGMA foreign_keys = ON")
+	if err != nil {
+		return err
+	}
+
+	query := "UPDATE expenseTypes SET TypeName = ? WHERE TypeID = ?"
+	res, err := db.Exec(query, typ.TypeName, typ.TypeID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	} else if rowsAffected == 0 {
+		return ErrNotFound
+	}
+
+	return nil
+}
