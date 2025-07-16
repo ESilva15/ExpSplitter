@@ -60,11 +60,11 @@ func typePage(c *gin.Context) {
 		c.Redirect(404, "/404")
 	}
 
-	typ, err := expenses.GetCategory(typeID)
+	typ, err := expenses.GetType(typeID)
 	content := templating.HtmlTemplate(
 		fp.Join(cfg.AssetsDir, "/htmx/type.html"),
 		map[string]any{
-			"category": typ,
+			"type": typ,
 		},
 	)
 

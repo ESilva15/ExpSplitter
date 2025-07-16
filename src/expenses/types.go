@@ -49,7 +49,7 @@ func GetAllTypes() ([]Type, error) {
 	return typeList, nil
 }
 
-func GetType(storeID int) (Type, error) {
+func GetType(typID int) (Type, error) {
 	db, err := sql.Open("sqlite3", "./data/data.db")
 	if err != nil {
 		return Type{}, err
@@ -58,7 +58,7 @@ func GetType(storeID int) (Type, error) {
 
 	query := "SELECT TypeID,TypeName " +
 		"FROM expenseTypes " +
-		"WHERE TypeID = " + strconv.Itoa(storeID)
+		"WHERE TypeID = " + strconv.Itoa(typID)
 
 	var nType Type
 	err = db.QueryRow(query).Scan(&nType.TypeID, &nType.TypeName)
