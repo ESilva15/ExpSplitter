@@ -5,6 +5,7 @@
       <div class="form-container form-inline">
         <div id="form-state" class="warning"></div><br>
 
+        {{ if eq .method "put" }}
         <p>
           <label for="expense-desc">ID:</label>
           <input 
@@ -12,6 +13,7 @@
             class="tui-input underline fullwidth" type="text" name="expense-id" 
             value="{{ .expense.ExpID }}" id="expense-id"><br>
         </p>
+        {{ end }}
 
         <p>
           <label for="expense-desc">Description:</label>
@@ -70,10 +72,17 @@
 
         <button 
           class="subbutton"
+          {{ if eq .method "put" }}
           hx-put="/expenses/{{ .expense.ExpID }}" 
+          {{ end }}
+          {{ if eq .method "post" }}
+          hx-post="/expenses/new" 
+          {{ end }}
           hx-swap="none"
           type="submit" 
-          id="expense-submit-button">UPDATE</button>
+          id="expense-submit-button">
+          {{- if eq .method "put" }}UPDATE{{- end }}
+          {{- if eq .method "post" }}CREATE{{- end }}</button>
           <br>
       </div>
     </fieldset>

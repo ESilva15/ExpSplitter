@@ -99,6 +99,7 @@ func expensePage(c *gin.Context) {
 	content := templating.HtmlTemplate(
 		fp.Join(cfg.AssetsDir, "/htmx/expense.html"),
 		map[string]any{
+			"method":     "put",
 			"expense":    expense,
 			"categories": categories,
 			"stores":     stores,
@@ -140,7 +141,8 @@ func newExpensePage(c *gin.Context) {
 	}
 
 	content := templating.HtmlTemplate(
-		fp.Join(cfg.AssetsDir, "/htmx/expenseNew.html"), map[string]any{
+		fp.Join(cfg.AssetsDir, "/htmx/expense.html"), map[string]any{
+			"method":     "post",
 			"expense":    expenses.NewExpense(),
 			"categories": categories,
 			"stores":     stores,
@@ -175,7 +177,8 @@ func createExpense(c *gin.Context) {
 func updateExpense(c *gin.Context) {
 	expenseID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.Redirect(404, "/404")
+		c.Header("HX-Redirect", "/404")
+		return
 	}
 
 	newExp, err := expenseFromForm(c)
@@ -183,6 +186,7 @@ func updateExpense(c *gin.Context) {
 		// TODO
 		// Change this to something the user can see
 		c.Header("HX-Redirect", "/500")
+		return
 	}
 	newExp.ExpID = expenseID
 
