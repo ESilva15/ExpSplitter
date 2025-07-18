@@ -17,6 +17,8 @@ type Expense struct {
 	ExpCategory  Category
 	OwnerUser    User
 	ExpDate      int64
+	Payments     []ExpensePayment
+	Shares       []ExpenseShare
 	CreationDate int64
 }
 
@@ -29,6 +31,8 @@ func NewExpense() Expense {
 		ExpCategory:  NewCategory(),
 		OwnerUser:    NewUser(),
 		ExpDate:      0,
+		Payments:     []ExpensePayment{},
+		Shares:       []ExpenseShare{},
 		CreationDate: 0,
 	}
 }

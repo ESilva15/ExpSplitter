@@ -6,6 +6,7 @@ import (
 	"expenses/expenses"
 	"expenses/templating"
 	"fmt"
+	"log"
 	"strconv"
 
 	"net/http"
@@ -78,6 +79,19 @@ func expensePage(c *gin.Context) {
 	}
 
 	expense, err := expenses.GetExpense(expenseID)
+	err = expense.GetPayments()
+	if err != nil {
+		ServerErrorView(c, "failed to fetch payments")
+		return
+	}
+
+	err = expense.GetShares()
+	if err != nil {
+		ServerErrorView(c, "failed to fetch payments")
+		return
+	}
+
+
 	categories, err := expenses.GetAllCategories()
 	if err != nil {
 		ServerErrorView(c, "failed to fetch categories")
@@ -96,6 +110,15 @@ func expensePage(c *gin.Context) {
 		return
 	}
 
+	log.Println(expense.Shares)
+	log.Println(expense.Payments)
+
+	summary, err := expense.GetSummary()
+	if err != nil {
+		ServerErrorView(c, "failed to get summary")
+		return
+	}
+
 	content := templating.HtmlTemplate(
 		fp.Join(cfg.AssetsDir, "/htmx/expense.html"),
 		map[string]any{
@@ -104,6 +127,7 @@ func expensePage(c *gin.Context) {
 			"categories": categories,
 			"stores":     stores,
 			"types":      types,
+			"summary":    summary,
 		},
 	)
 

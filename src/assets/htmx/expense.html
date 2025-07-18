@@ -88,4 +88,19 @@
     </fieldset>
   </form>
 </div>
-outside
+
+Shares:
+<table>
+  <tr>
+    <th>USER</th>
+    <th>SHARE</th>
+    <th>PAYED</th>
+  </tr>
+  {{- range .summary }}
+  <tr>
+    <td>{{ .User.UserName }}</td>
+    <td>{{ .Share }}</td>
+    <td>{{ .PayedTotal }}</td>
+  </tr>
+  {{- end }}
+</table>
