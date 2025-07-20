@@ -2,6 +2,7 @@ package expenses
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -40,6 +41,34 @@ func (e *Expense) GetShares() error {
 			log.Fatalf("Failed to parse data from db: %v", err)
 		}
 		e.Shares = append(e.Shares, *share)
+	}
+
+	return nil
+}
+
+func (sh *ExpenseShare) Insert(expID int) error {
+	db, err := sql.Open("sqlite3", "./data/data.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	query := "INSERT INTO expensesShares(" +
+		"ExpID,UserID,Share" +
+		") " +
+		"VALUES(?, ?, ?)"
+
+	log.Println(query, expID, sh.User.UserID, sh.Share)
+	res, err := db.Exec(query, expID, sh.User.UserID, sh.Share)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	} else if rowsAffected == 0 {
+		return fmt.Errorf("no rows were created")
 	}
 
 	return nil

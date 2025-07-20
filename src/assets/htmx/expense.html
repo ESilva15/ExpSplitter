@@ -35,6 +35,7 @@
             class="tui-input underline fullwidth" type="text" name="expense-value" 
             value="{{ .expense.Value }}" id="expense-value"><br>
         </p>
+        <br>
 
         <p>
           <label for="newexp-type-dropdown">Type:</label>
@@ -68,6 +69,67 @@
             {{ end}}
           </select>
         </p>
+        <br>
+
+        <p>
+          <button
+            type="button"
+            onclick="addShareRow()"
+            >+ Share</button>
+        </p>
+        <table>
+          <tr>
+            <th>USER</th>
+            <th>SHARE</th>
+            <th>PAYED</th>
+          </tr>
+
+          <tr id="default-payment-row">
+            <td>
+              <select name="shares-user-ids[]">
+                {{ range .users }}
+                <option 
+                  {{ if eq .UserID $.expense.OwnerUser.UserID }}selected{{ end }}
+                  value="{{ .UserID }}">{{ .UserName }}</option>
+                {{ end}}
+              </select>
+            </td>
+            <td>
+              <input type="number" name="shares-percent[]" value="1">
+            </td>
+            <td>
+              <input type="number" name="payments-payment[]" value="0">
+            </td>
+            <td class="row-delete-button">
+              <button type="button" onclick="deleteShareRow(this)">X</button>
+            </td>
+          </tr>
+          {{ range .summary }}
+            {{ $summary := . }}
+            <tr>
+              <td>
+                <select name="shares-user-ids[]">
+                  {{ range $.users }}
+                  <option 
+                    value="{{ .UserID }}"
+                    {{ if eq .UserID $summary.User.UserID }}selected{{ end }}>
+                    {{ .UserName }}
+                  </option>
+                  {{ end }}
+                </select>
+              </td>
+              <td>
+                <input type="number" name="shares-percent[]" value="{{ $summary.Share }}">
+              </td>
+              <td>
+                <input type="number" name="payments-payment[]" value="{{ $summary.PayedTotal }}">
+              </td>
+              <td class="row-delete-button">
+                <button type="button" onclick="deleteShareRow(this)">X</button>
+              </td>
+            </tr>
+          {{ end }}
+        </table>
         <br><br>
 
         <button 
@@ -83,24 +145,16 @@
           id="expense-submit-button">
           {{- if eq .method "put" }}UPDATE{{- end }}
           {{- if eq .method "post" }}CREATE{{- end }}</button>
-          <br>
       </div>
     </fieldset>
   </form>
 </div>
 
-Shares:
-<table>
-  <tr>
-    <th>USER</th>
-    <th>SHARE</th>
-    <th>PAYED</th>
-  </tr>
-  {{- range .summary }}
-  <tr>
-    <td>{{ .User.UserName }}</td>
-    <td>{{ .Share }}</td>
-    <td>{{ .PayedTotal }}</td>
-  </tr>
-  {{- end }}
-</table>
+<script>
+  function deleteShareRow(btn) {
+    const row = btn.closest("tr");
+    if (row) {
+      row.remove();
+    }
+  }
+</script>

@@ -42,6 +42,46 @@ func expenseFromForm(c *gin.Context) (*expenses.Expense, error) {
 		return nil, err
 	}
 
+	shares := []expenses.ExpenseShare{}
+	payments := []expenses.ExpensePayment{}
+
+	sharesUserIDs := c.PostFormArray("shares-user-ids[]")
+	formShares := c.PostFormArray("shares-percent[]")
+	formPayments := c.PostFormArray("payments-payment[]")
+	
+	for i := range sharesUserIDs {
+		userID, err := strconv.Atoi(sharesUserIDs[i])
+		if err != nil {
+			return nil, err
+		}
+
+		share, err := strconv.ParseFloat(formShares[i], 32)
+		if err != nil {
+			return nil, err
+		}
+
+		payed, err := strconv.ParseFloat(formPayments[i], 32)
+		if err != nil {
+			return nil, err
+		}
+
+		newShare := expenses.ExpenseShare{
+			User: expenses.User{
+				UserID: userID,
+			},
+			Share: float32(share),
+		}	
+		shares = append(shares, newShare)
+
+		newPayment := expenses.ExpensePayment{
+			User: expenses.User{
+				UserID: userID,
+			},
+			PayedAmount: float32(payed),
+		} 
+		payments = append(payments, newPayment)
+	}
+
 	newExp := expenses.Expense{
 		Description: newDescription,
 		ExpDate:     date,
@@ -55,6 +95,8 @@ func expenseFromForm(c *gin.Context) (*expenses.Expense, error) {
 		ExpStore: expenses.Store{
 			StoreID: storeID,
 		},
+		Shares: shares,
+		Payments: payments,
 	}
 	return &newExp, nil
 }

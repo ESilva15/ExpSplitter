@@ -3,6 +3,7 @@ package expenses
 import (
 	"database/sql"
 	"log"
+	"fmt"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -40,6 +41,35 @@ func (e *Expense) GetPayments() error {
 			log.Fatalf("Failed to parse data from db: %v", err)
 		}
 		e.Payments = append(e.Payments, *paym)
+	}
+
+	return nil
+}
+
+func (p *ExpensePayment) Insert(expID int) error {
+	db, err := sql.Open("sqlite3", "./data/data.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	query := "INSERT INTO expensesPayments(" +
+		"ExpID,UserID,Payed" +
+		") " +
+		"VALUES(?, ?, ?)"
+
+	log.Println(query, expID, p.User.UserID, p.PayedAmount)
+
+	res, err := db.Exec(query, expID, p.User.UserID, p.PayedAmount)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	} else if rowsAffected == 0 {
+		return fmt.Errorf("no rows were created")
 	}
 
 	return nil

@@ -131,11 +131,31 @@ func (exp *Expense) Insert() error {
 		") " +
 		"VALUES(?, ?, ? , ?, ?, ?, ?)"
 
+	// TODO
+	// Add a transaction here so that it fails when necessary
 	res, err := db.Exec(query, exp.Description, exp.Value, exp.ExpStore.StoreID,
 		exp.ExpCategory.CategoryID, exp.ExpType.TypeID, 0, exp.ExpDate,
 	)
 	if err != nil {
 		return err
+	}
+
+	expenseID, err := res.LastInsertId()
+	if err != nil {
+		return fmt.Errorf("failed to retrieve last inserted expense ID: %v", err)
+	}
+	exp.ExpID = int(expenseID)
+	for _, share := range exp.Shares {
+		err := share.Insert(exp.ExpID)
+		if err != nil {
+			return err
+		}
+	}
+	for _, paym := range exp.Payments {
+		err := paym.Insert(exp.ExpID)
+		if err != nil {
+			return err
+		}
 	}
 
 	rowsAffected, err := res.RowsAffected()

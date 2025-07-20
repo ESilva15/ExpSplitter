@@ -91,7 +91,6 @@ func expensePage(c *gin.Context) {
 		return
 	}
 
-
 	categories, err := expenses.GetAllCategories()
 	if err != nil {
 		ServerErrorView(c, "failed to fetch categories")
@@ -110,14 +109,26 @@ func expensePage(c *gin.Context) {
 		return
 	}
 
-	log.Println(expense.Shares)
-	log.Println(expense.Payments)
+	users, err := expenses.GetAllUsers()
+	if err != nil {
+		ServerErrorView(c, "failed to fetch users")
+		return
+	}
 
 	summary, err := expense.GetSummary()
 	if err != nil {
 		ServerErrorView(c, "failed to get summary")
 		return
 	}
+
+	log.Println("Users:")
+	log.Println(users)
+
+	log.Println("Payments:")
+	log.Println(expense.Payments)
+
+	log.Println("Shares:")
+	log.Println(expense.Shares)
 
 	content := templating.HtmlTemplate(
 		fp.Join(cfg.AssetsDir, "/htmx/expense.html"),
@@ -128,6 +139,7 @@ func expensePage(c *gin.Context) {
 			"stores":     stores,
 			"types":      types,
 			"summary":    summary,
+			"users":      users,
 		},
 	)
 
@@ -164,6 +176,12 @@ func newExpensePage(c *gin.Context) {
 		return
 	}
 
+	users, err := expenses.GetAllUsers()
+	if err != nil {
+		ServerErrorView(c, "failed to fetch users")
+		return
+	}
+
 	content := templating.HtmlTemplate(
 		fp.Join(cfg.AssetsDir, "/htmx/expense.html"), map[string]any{
 			"method":     "post",
@@ -171,6 +189,7 @@ func newExpensePage(c *gin.Context) {
 			"categories": categories,
 			"stores":     stores,
 			"types":      types,
+			"users":      users,
 		},
 	)
 
