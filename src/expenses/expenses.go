@@ -126,14 +126,14 @@ func (exp *Expense) Insert() error {
 	defer db.Close()
 
 	query := "INSERT INTO expenses(" +
-		"Description,Value,StoreID,CategoryID,TypeID,OwnerUserID,ExpDate" +
+		"Description,Value,StoreID,CategoryID,TypeID,OwnerUserID,ExpDate,CreationDate" +
 		") " +
-		"VALUES(?, ?, ? , ?, ?, ?, ?)"
+		"VALUES(?, ?, ? , ?, ?, ?, ?, ?)"
 
 	// TODO
 	// Add a transaction here so that it fails when necessary
 	res, err := db.Exec(query, exp.Description, exp.Value, exp.ExpStore.StoreID,
-		exp.ExpCategory.CategoryID, exp.ExpType.TypeID, 1, exp.ExpDate,
+		exp.ExpCategory.CategoryID, exp.ExpType.TypeID, 1, exp.ExpDate, exp.CreationDate,
 	)
 	if err != nil {
 		return err

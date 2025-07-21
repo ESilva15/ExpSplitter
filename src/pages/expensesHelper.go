@@ -149,6 +149,7 @@ func expenseFromForm(c *gin.Context) (*expenses.Expense, error) {
 			// This needs to be dynamic - to be added once we have logins and whatnot
 			UserID: 1,
 		},
+		CreationDate: time.Now().Unix(),
 		Shares: shares,
 		Payments: payments,
 	}
