@@ -1,7 +1,5 @@
 package expenses
 
-import "log"
-
 type UserExpenseSummary struct {
 	User       User
 	Share      float32
@@ -30,7 +28,6 @@ func (e *Expense) GetSummary() ([]UserExpenseSummary, error) {
 			}
 		}
 
-		log.Println(curSummary)
 		summary = append(summary, curSummary)
 	}
 

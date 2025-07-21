@@ -26,6 +26,7 @@ func main() {
 	pages.RouteCategories(router)
 	pages.RouteStores(router)
 	pages.RouteTypes(router)
+	pages.RoutePayments(router)
 	pages.RouteNotFound(router)
 	pages.RouteServerError(router)
 

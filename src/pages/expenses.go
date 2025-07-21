@@ -121,15 +121,6 @@ func expensePage(c *gin.Context) {
 		return
 	}
 
-	log.Println("Users:")
-	log.Println(users)
-
-	log.Println("Payments:")
-	log.Println(expense.Payments)
-
-	log.Println("Shares:")
-	log.Println(expense.Shares)
-
 	content := templating.HtmlTemplate(
 		fp.Join(cfg.AssetsDir, "/htmx/expense.html"),
 		map[string]any{
@@ -232,6 +223,7 @@ func updateExpense(c *gin.Context) {
 		return
 	}
 	newExp.ExpID = expenseID
+	log.Println(newExp)
 
 	err = newExp.Update()
 	if err != nil {
@@ -243,6 +235,33 @@ func updateExpense(c *gin.Context) {
 	c.Header("HX-Trigger", "{\"formState\":\"Success\"}")
 }
 
+func deleteExpense(c *gin.Context) {
+	expenseID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.Header("HX-Redirect", "/404")
+		return
+	}
+
+	payment := expenses.Expense{
+		ExpID: expenseID,
+	} 
+
+	err = payment.Delete()
+	if err == expenses.ErrNotFound {
+		errMsg := fmt.Sprintf("category %d not found", expenseID)
+		c.String(http.StatusNotFound, errMsg)
+		return
+	}
+
+	if err != nil {
+		errMsg := fmt.Sprintf("error deleting category %d", expenseID)
+		c.String(http.StatusInternalServerError, errMsg)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}
+
 func RouteExpenses(router *gin.Engine) {
 	router.GET(ExpensesPath, ExpensesGlobalPage)
 	router.GET(ExpensesPath+"/:id", expensePage)
@@ -251,4 +270,5 @@ func RouteExpenses(router *gin.Engine) {
 	router.GET(ExpensesPath+"/new", newExpensePage)
 	router.POST(ExpensesPath+"/new", createExpense)
 	router.PUT(ExpensesPath+"/:id", updateExpense)
+	router.DELETE(ExpensesPath+"/:id", deleteExpense)
 }

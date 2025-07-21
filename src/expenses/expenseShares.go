@@ -58,8 +58,35 @@ func (sh *ExpenseShare) Insert(expID int) error {
 		") " +
 		"VALUES(?, ?, ?)"
 
-	log.Println(query, expID, sh.User.UserID, sh.Share)
 	res, err := db.Exec(query, expID, sh.User.UserID, sh.Share)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	} else if rowsAffected == 0 {
+		return fmt.Errorf("no rows were created")
+	}
+
+	return nil
+}
+
+func (sh *ExpenseShare) Update() error {
+	db, err := sql.Open("sqlite3", "./data/data.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	query := "UPDATE expensesShares " +
+		"SET " +
+		"UserID = ?," +
+		"Share = ? " +
+		"WHERE ExpShareID = ?"
+
+	res, err := db.Exec(query, sh.User.UserID, sh.Share, sh.ExpShareID)
 	if err != nil {
 		return err
 	}

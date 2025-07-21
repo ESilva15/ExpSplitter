@@ -1,26 +1,25 @@
+function addRow(tableNameID, templateRowID) {
+  const table = document.getElementById(tableNameID);
+  const templateRow = document.getElementById(templateRowID);
+  const clone = templateRow.cloneNode(true);
+
+  // Remove the ID so we don't end up duplicating it and unhide it
+  clone.removeAttribute("id");
+  clone.style.display = ""; 
+
+  // Enable all the disabled input fields
+  // They are disabled so that they don't get grabbed by the backend
+  clone.querySelectorAll('input, select').forEach(el => el.disabled = false);
+
+  table.appendChild(clone);
+}
+
 function addShareRow() {
-  const templateRow = document.getElementById("default-payment-row");
+  addRow("shares-table", "template-share-row");
+}
 
-  if (!templateRow) {
-    console.error("Example row not found");
-    return;
-  }
-
-  // Clone the hidden row
-  const newRow = templateRow.cloneNode(true);
-  newRow.removeAttribute("id"); // IDs must be unique
-  newRow.style.display = "";    // Make it visible
-
-  // Optional: Reset input values if needed
-  const inputs = newRow.querySelectorAll("input");
-  inputs.forEach(input => {
-    if (input.type === "number") {
-      input.value = "";
-    }
-  });
-
-  // Insert the cloned row after the template row
-  templateRow.parentNode.appendChild(newRow);
+function addPaymentRow() {
+  addRow("payments-table", "template-payment-row");
 }
 
 // forms main function

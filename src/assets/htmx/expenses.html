@@ -6,7 +6,6 @@
     <th>Date</th>
     <th>Store</th>
     <th>Category</th>
-    <th>Owner</th>
   </tr>
   {{ range .expenses }}
   <tr>
@@ -16,7 +15,6 @@
     <th spellcheck="false" contenteditable>{{ formatDate .ExpDate }}</th>
     <th spellcheck="false">{{ .ExpStore.StoreName }}</th>
     <th spellcheck="false">{{ .ExpCategory.CategoryName }}</th>
-    <th spellcheck="false">{{ .OwnerUser.UserName }}</th>
   </tr>
   {{ end }}
 </table>

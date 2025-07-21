@@ -58,9 +58,60 @@ func (p *ExpensePayment) Insert(expID int) error {
 		") " +
 		"VALUES(?, ?, ?)"
 
-	log.Println(query, expID, p.User.UserID, p.PayedAmount)
-
 	res, err := db.Exec(query, expID, p.User.UserID, p.PayedAmount)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	} else if rowsAffected == 0 {
+		return fmt.Errorf("no rows were created")
+	}
+
+	return nil
+}
+
+func (p *ExpensePayment) Update() error {
+	db, err := sql.Open("sqlite3", "./data/data.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	query := "UPDATE expensesPayments " +
+		"SET " +
+		"UserID = ?," +
+		"Payed = ? " +
+		"WHERE ExpPaymID = ?"
+
+	res, err := db.Exec(query, p.User.UserID, p.PayedAmount, p.ExpPaymID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	} else if rowsAffected == 0 {
+		return fmt.Errorf("no rows were created")
+	}
+
+	return nil
+}
+
+func (p *ExpensePayment) Delete() error {
+	db, err := sql.Open("sqlite3", "./data/data.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	query := "DELETE FROM expensesPayments " +
+		"WHERE ExpPaymID = ?"
+
+	res, err := db.Exec(query, p.ExpPaymID)
 	if err != nil {
 		return err
 	}

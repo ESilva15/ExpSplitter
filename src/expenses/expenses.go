@@ -112,7 +112,6 @@ func GetExpense(expID int) (Expense, error) {
 	}
 
 	if err != nil {
-		log.Println(err)
 		return Expense{}, err
 	}
 
@@ -187,9 +186,57 @@ func (exp *Expense) Update() error {
 		"WHERE ExpID = ?"
 
 	res, err := db.Exec(query,
-		exp.Description, exp.Value, exp.ExpStore.StoreID,
-		exp.ExpCategory.CategoryID, exp.ExpType.TypeID, 0, exp.ExpDate, exp.ExpID,
+		exp.Description, exp.Value, exp.ExpStore.StoreID, 
+		exp.ExpCategory.CategoryID, exp.ExpType.TypeID, exp.OwnerUser.UserID, 
+		exp.ExpDate, exp.ExpID,
 	)
+	if err != nil {
+		return err
+	}
+
+	for _, share := range exp.Shares {
+		if share.ExpShareID == -1 {
+			err := share.Insert(exp.ExpID)
+			if err != nil {
+				return err
+			}
+		} else {
+			share.Update()
+		}
+	}
+
+	for _, paym := range exp.Payments {
+		if paym.ExpPaymID == -1 {
+			err := paym.Insert(exp.ExpID)
+			if err != nil {
+				return err
+			}
+		} else {
+			paym.Update()
+		}
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	} else if rowsAffected == 0 {
+		return fmt.Errorf("no rows were updated")
+	}
+
+	return nil
+}
+
+func (e *Expense) Delete() error {
+	db, err := sql.Open("sqlite3", "./data/data.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	query := "DELETE FROM expenses " +
+		"WHERE ExpID = ?"
+
+	res, err := db.Exec(query, e.ExpID)
 	if err != nil {
 		return err
 	}
@@ -198,7 +245,7 @@ func (exp *Expense) Update() error {
 	if err != nil {
 		return err
 	} else if rowsAffected == 0 {
-		return fmt.Errorf("no rows were updated")
+		return fmt.Errorf("no rows were created")
 	}
 
 	return nil
