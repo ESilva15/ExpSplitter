@@ -92,7 +92,7 @@ func expenseFromForm(c *gin.Context) (*expenses.Expense, error) {
 	newDescription := c.PostForm("expense-desc")
 	newDate := c.PostForm("expense-date")
 
-	formattedDate, err := time.Parse("02-Jan-2006", newDate)
+	formattedDate, err := time.ParseInLocation("02-Jan-2006", newDate, time.UTC)
 	if err != nil {
 		return nil, err
 	}
