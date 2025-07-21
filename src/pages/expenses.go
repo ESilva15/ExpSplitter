@@ -6,7 +6,6 @@ import (
 	"expenses/expenses"
 	"expenses/templating"
 	"fmt"
-	"log"
 	"strconv"
 
 	"net/http"
@@ -223,7 +222,6 @@ func updateExpense(c *gin.Context) {
 		return
 	}
 	newExp.ExpID = expenseID
-	log.Println(newExp)
 
 	err = newExp.Update()
 	if err != nil {

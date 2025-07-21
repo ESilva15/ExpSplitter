@@ -133,7 +133,7 @@ func (exp *Expense) Insert() error {
 	// TODO
 	// Add a transaction here so that it fails when necessary
 	res, err := db.Exec(query, exp.Description, exp.Value, exp.ExpStore.StoreID,
-		exp.ExpCategory.CategoryID, exp.ExpType.TypeID, 0, exp.ExpDate,
+		exp.ExpCategory.CategoryID, exp.ExpType.TypeID, 1, exp.ExpDate,
 	)
 	if err != nil {
 		return err
