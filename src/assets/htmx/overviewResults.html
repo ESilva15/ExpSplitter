@@ -1,0 +1,32 @@
+<table>
+  <tr>
+    <th>ID</th>
+    <th>Desc</th>
+    <th>Value</th>
+  </tr>
+  {{ range .expenses }}
+  <tr>
+    <td><a href="/expenses/{{ .ExpID }}">{{ .ExpID }}</td>
+    <td spellcheck="false" contenteditable>{{ .Description }}</td>
+    <td spellcheck="false" contenteditable>{{ formatPrice .Value }}</td>
+  </tr>
+  {{ end }}
+</table>
+
+<br>
+<table>
+  <tr>
+    <th>UserID</th>
+    <th>Owes</th>
+  </tr>
+  {{ range $key, $value := .summary }}
+  <tr>
+    <td>
+      {{ $key }}
+    </td>
+    <td>
+      {{ $value }}
+    </td>
+  </tr>
+  {{ end }}
+</table>

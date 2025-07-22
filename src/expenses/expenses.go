@@ -250,3 +250,46 @@ func (e *Expense) Delete() error {
 
 	return nil
 }
+
+// SHITTY QUERIES THAT I NEED TO PUT IN SOMEWHERE MORE OGRANHJASLD
+func GetExpensesRange(start int64, end int64) ([]Expense, error) {
+	db, err := sql.Open("sqlite3", "./data/data.db")
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	query := "SELECT ExpID,Description,Value," +
+		"Stores.StoreID,Stores.StoreName," +
+		"Categories.CategoryID,Categories.CategoryName," +
+		"Users.UserID,Users.UserName," +
+		"ExpDate,CreationDate " +
+		"FROM expenses " +
+		"JOIN Stores ON stores.StoreID = expenses.StoreID " +
+		"JOIN Categories ON categories.CategoryID = expenses.CategoryID " +
+		"JOIN Users ON UserID = OwnerUserId "+
+		"WHERE ExpDate >= ? and ExpDate <= ?"
+
+	var expList []Expense
+	rows, err := db.Query(query, start, end)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		exp := &Expense{}
+		err := rows.Scan(
+			&exp.ExpID, &exp.Description, &exp.Value,
+			&exp.ExpStore.StoreID, &exp.ExpStore.StoreName,
+			&exp.ExpCategory.CategoryID, &exp.ExpCategory.CategoryName,
+			&exp.OwnerUser.UserID, &exp.OwnerUser.UserName,
+			&exp.ExpDate, &exp.CreationDate,
+		)
+		if err != nil {
+			log.Fatalf("Failed to parse data from db: %v", err)
+		}
+		expList = append(expList, *exp)
+	}
+
+	return expList, nil
+}

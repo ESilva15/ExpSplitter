@@ -1,0 +1,25 @@
+<form>
+  <p>
+    <label for="range-start">Start date:</label>
+    <input 
+      class="tui-input underline fullwidth" type="text" name="range-start" 
+      value="" id="expense-date"><br>
+  </p>
+
+  <p>
+    <label for="range-end">End date:</label>
+    <input 
+      class="tui-input underline fullwidth" type="text" name="range-end" 
+      value="" id="expense-date"><br>
+  </p>
+
+  <button 
+    type="button"
+    hx-post="/overview/ranged" 
+    hx-target="#query-results"
+    hx-swap="innerHTML"
+    id="expenses">QUERY</button>
+</form>
+
+<div id="query-results">
+</div>

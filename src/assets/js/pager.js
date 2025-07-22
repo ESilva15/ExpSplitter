@@ -189,26 +189,26 @@ function customScroller() {
 
   document.addEventListener("keydown", (e) => {
     const key = e.key;
-    switch (key) {
-      case 'j':
-        elem.scrollBy(0, fontHeight);
-        break;
-      case 'k':
-        elem.scrollBy(0, -fontHeight);
-        break;
-      case 'g':
-        elem.scrollTo(0, 0)
-        break;
-      case 'G':
-        elem.scrollTo(0, elem.scrollHeight)
-        break;
-      case 'l':
-        moveTab(1)
-        break;
-      case 'h':
-        moveTab(-1)
-        break;
-    }
+    // switch (key) {
+    //   case 'j':
+    //     elem.scrollBy(0, fontHeight);
+    //     break;
+    //   case 'k':
+    //     elem.scrollBy(0, -fontHeight);
+    //     break;
+    //   case 'g':
+    //     elem.scrollTo(0, 0)
+    //     break;
+    //   case 'G':
+    //     elem.scrollTo(0, elem.scrollHeight)
+    //     break;
+    //   case 'l':
+    //     moveTab(1)
+    //     break;
+    //   case 'h':
+    //     moveTab(-1)
+    //     break;
+    // }
   });
 }
 
