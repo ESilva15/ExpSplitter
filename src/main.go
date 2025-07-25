@@ -11,7 +11,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// This can be set in the compilation command - in the Makefile
+var ginMode = "debug"
+
 func main() {
+	gin.SetMode(ginMode)
+
 	config.SetConfig("./config.yaml")
 
 	cfg := config.GetInstance()

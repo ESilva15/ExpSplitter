@@ -15,7 +15,7 @@ func sortBySum(a, b Debt) int {
 	return 0
 }
 
-func (e *Expense) calculateDebts() ([]Debt, error) {
+func (e *Expense) CalculateDebts() ([]Debt, error) {
 	dc := NewDebtCalculator(e)
 	dc.mapShares()
 	dc.mapPayments()

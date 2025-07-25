@@ -1,32 +1,44 @@
+{{ range .expenses }}
 <table>
   <tr>
     <th>ID</th>
     <th>Desc</th>
     <th>Value</th>
   </tr>
-  {{ range .expenses }}
   <tr>
-    <td><a href="/expenses/{{ .ExpID }}">{{ .ExpID }}</td>
-    <td spellcheck="false" contenteditable>{{ .Description }}</td>
-    <td spellcheck="false" contenteditable>{{ formatPrice .Value }}</td>
+    <td><a href="/expenses/{{ .Exp.ExpID }}">{{ .Exp.ExpID }}</td>
+    <td spellcheck="false" contenteditable>{{ .Exp.Description }}</td>
+    <td spellcheck="false" contenteditable>{{ formatPrice .Exp.Value }}</td>
+  </tr>
+</table>
+<table>
+  <tr>
+    <th>User</th>
+    <th>Sum</th>
+  </tr> 
+  {{ range .Debtors }}
+  <tr>
+    <td>{{ .Debtor.UserName }}</td>
+    <td>{{ formatPrice .Sum }}</td>
   </tr>
   {{ end }}
 </table>
-
+<hr>
+{{ end }}
 <br>
+
+<p>User Debt Summary:</p>
 <table>
   <tr>
-    <th>UserID</th>
-    <th>Owes</th>
+    <th>ID</th>
+    <th>NAME</th>
+    <th>OWES</th>
   </tr>
-  {{ range $key, $value := .summary }}
+  {{ range $user, $value := .summary }}
   <tr>
-    <td>
-      {{ $key }}
-    </td>
-    <td>
-      {{ $value }}
-    </td>
+    <td>{{ $user.UserID }}</td>
+    <td>{{ $user.UserName }}</td>
+    <td>{{ $value }}</td>
   </tr>
   {{ end }}
 </table>

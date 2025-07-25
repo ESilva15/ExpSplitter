@@ -14,6 +14,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type ExpenseDebtOverview struct {
+	Exp     *expenses.Expense
+	Debtors []expenses.Debt
+}
+
+type UserDebtSummary struct {
+	Debtor expenses.User
+	Total  float32
+}
+
 func overviewContent() template.HTML {
 	cfg := config.GetInstance()
 
@@ -80,63 +90,40 @@ func getResults(c *gin.Context) {
 		}
 	}
 
-	// Now we are going to try and get how much each user paid and how much 
-	// it owes
-	summary := make(map[int]float32)
-	expensesWithDebts := []expenses.Expense{}
+	userDebtSummary := make(map[expenses.User]float32)
+	expensesWithDebts := []ExpenseDebtOverview{}
 	for _, exp := range queriedExpenses {
 		if len(exp.Shares) <= 1 {
 			continue
 		}
 
-		log.Printf("ID: %d, Value: %.2f", exp.ExpID, exp.Value)
-		if len(exp.Shares) > 1 {
-			userShares := userShares(&exp)
-			userPayments := userPayments(&exp)
-
-			for userID, payment := range userPayments {
-				owed := (userShares[userID] * exp.Value) - userPayments[userID]
-				log.Printf("  [%d] %.2f - %.2f", userID, payment, owed)
-				if owed > 0 {
-					summary[userID] += owed
-				}
-			}
+		expenseDebts, err := exp.CalculateDebts()
+		if err != nil {
+			// whatevs yo
+			continue
+		}
+		if len(expenseDebts) <= 0 {
+			continue
 		}
 
-		expensesWithDebts = append(expensesWithDebts, exp)
+		expensesWithDebts = append(expensesWithDebts, ExpenseDebtOverview{
+			Exp: &exp, Debtors: expenseDebts,
+		})
+
+		for _, debt := range expenseDebts {
+			userDebtSummary[debt.Debtor] += debt.Sum
+		}
 	}
 
 	content := templating.HtmlTemplate(
 		fp.Join(cfg.AssetsDir, "htmx/overviewResults.html"),
 		map[string]any{
 			"expenses": expensesWithDebts,
-			"summary": summary,
+			"summary":  userDebtSummary,
 		},
 	)
 
-	log.Println("Summary:")
-	log.Println(summary)
 	c.String(http.StatusOK, string(content))
-}
-
-func userPayments(e *expenses.Expense) map[int]float32 {
-	userPayments := make(map[int]float32)
-
-	for _, payment := range e.Payments {
-		userPayments[payment.User.UserID] += payment.PayedAmount
-	}
-
-	return userPayments
-}
-
-func userShares(e *expenses.Expense) map[int]float32 {
-	userShares := make(map[int]float32)
-
-	for _, share := range e.Shares {
-		userShares[share.User.UserID] = share.Share
-	}
-
-	return userShares
 }
 
 func RouteOverview(router *gin.Engine) {
