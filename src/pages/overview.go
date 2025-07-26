@@ -44,7 +44,7 @@ func overviewPage(c *gin.Context) {
 	content := overviewContent()
 
 	c.HTML(http.StatusOK, "terminal.gotempl", gin.H{
-		"page":         "expenses",
+		"page":         "overview",
 		"renderNavBar": true,
 		"content":      content,
 	})
