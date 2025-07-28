@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"strconv"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -58,18 +57,18 @@ func GetStore(storeID int) (Store, error) {
 
 	query := "SELECT StoreID,StoreName " +
 		"FROM stores " +
-		"WHERE StoreID = " + strconv.Itoa(storeID)
+		"WHERE StoreID = ?"
 
-	var store Store
-	err = db.QueryRow(query).Scan(&store.StoreID, &store.StoreName)
+	store := Store{StoreID: -1}
+	err = db.QueryRow(query, storeID).Scan(&store.StoreID, &store.StoreName)
 	if err != nil {
-		return Store{}, nil
+		return Store{StoreID: -1}, nil
 	}
 
 	return store, nil
 }
 
-func (cat *Store) Insert() error {
+func (s *Store) Insert() error {
 	db, err := sql.Open("sqlite3", "./data/data.db")
 	if err != nil {
 		return err
@@ -77,7 +76,7 @@ func (cat *Store) Insert() error {
 	defer db.Close()
 
 	query := "INSERT INTO stores(StoreName) VALUES(?)"
-	res, err := db.Exec(query, cat.StoreName)
+	res, err := db.Exec(query, s.StoreName)
 	if err != nil {
 		return err
 	}
@@ -92,7 +91,35 @@ func (cat *Store) Insert() error {
 	return nil
 }
 
-func (cat *Store) Delete() error {
+func (s *Store) Update() error {
+	db, err := sql.Open("sqlite3", "./data/data.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	_, err = db.Exec("PRAGMA foreign_keys = ON")
+	if err != nil {
+		return err
+	}
+
+	query := "UPDATE stores SET StoreName = ? WHERE StoreID = ?"
+	res, err := db.Exec(query, s.StoreName, s.StoreID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	} else if rowsAffected == 0 {
+		return ErrNotFound
+	}
+
+	return nil
+}
+
+func (s *Store) Delete() error {
 	db, err := sql.Open("sqlite3", "./data/data.db")
 	if err != nil {
 		return err
@@ -105,7 +132,7 @@ func (cat *Store) Delete() error {
 	}
 
 	query := "DELETE FROM stores WHERE StoreID = ?"
-	res, err := db.Exec(query, cat.StoreID)
+	res, err := db.Exec(query, s.StoreID)
 	if err != nil {
 		return err
 	}

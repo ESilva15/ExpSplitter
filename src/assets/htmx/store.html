@@ -1,12 +1,45 @@
 {{ define "store" }}
-<table>
-  <tr>
-    <td>ID:</td>
-    <td>{{ .store.StoreID }}</td>
-  </tr>
-  <tr>
-    <td>Name:</td>
-    <td>{{ .store.StoreName }}</td>
-  </tr>
-</table>
+<div>
+  <form id="store-form" action="submit">
+    <fieldset id="form-box-boundaries">
+      <legend>STORE FORM</legend>
+      <div class="form-container form-inline">
+        <div id="form-state" class="warning"></div><br>
+
+        {{ if eq .method "put" }}
+        <label class="fullwidth-label" for="store-id">ID:</label>
+        <input class="tui-input underline" type="text" name="store-id" 
+          id="store-id" value="{{ .store.StoreID }}">
+        {{ end }}
+
+        <label class="fullwidth-label" for="store-name">NAME:</label>
+        <input class="tui-input underline" type="text" name="store-name" 
+          id="store-name" value="{{ .store.StoreName }}">
+      </div>
+    </fieldset>
+
+    <br>
+    <button 
+      class="subbutton"
+      {{ if eq .method "put" }}
+      hx-put="/stores/{{ .store.StoreID }}" 
+      {{ end }}
+      {{ if eq .method "post" }}
+      hx-post="/stores/new" 
+      {{ end }}
+      hx-swap="none"
+      type="submit">
+      {{- if eq .method "put" }}UPDATE{{- end }}
+      {{- if eq .method "post" }}CREATE{{- end }}</button>
+    {{ if eq .method "put" }}
+    <button
+      onclick="confirmDelete(this)"
+      type="button"
+      class="delete-button"
+      data-delete-url="/stores/{{ .store.StoreID }}">DELETE</button>
+    {{ end }}
+
+  </form>
+</div>
+{{ template "deleteModal" }}
 {{ end }}

@@ -37,12 +37,21 @@ func storePage(c *gin.Context) {
 	}
 
 	store, err := expenses.GetStore(storeID)
+	if err != nil {
+		ServerErrorView(c, fmt.Sprintf("error getting store: %+v", err.Error()))
+		return
+	}
+	if store.StoreID == -1 {
+		NotFoundView(c, fmt.Sprintf("didn't store with ID `%d`", storeID))
+		return
+	}
 
 	c.HTML(http.StatusOK, "terminal", gin.H{
 		"page":         "store",
 		"renderNavBar": false,
 		"content":      "store",
 		"store":        store,
+		"method":       "put",
 	})
 }
 
@@ -50,7 +59,8 @@ func newStorePage(c *gin.Context) {
 	c.HTML(http.StatusOK, "terminal", gin.H{
 		"page":         "storeNew",
 		"renderNavBar": false,
-		"content":      "storeNew",
+		"content":      "store",
+		"method":       "post",
 	})
 }
 
@@ -64,6 +74,27 @@ func createStore(c *gin.Context) {
 	err := newStore.Insert()
 	if err != nil {
 		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
+	}
+
+	c.Header("HX-Trigger", "{\"formState\":\"Success\"}")
+}
+
+func updateStore(c *gin.Context) {
+	storeID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.Redirect(404, "/404")
+	}
+	newName := c.PostForm("store-name")
+
+	newStore := expenses.Store{
+		StoreID:   storeID,
+		StoreName: newName,
+	}
+
+	err = newStore.Update()
+	if err != nil {
+		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
+		return
 	}
 
 	c.Header("HX-Trigger", "{\"formState\":\"Success\"}")
@@ -101,5 +132,6 @@ func RouteStores(router *gin.Engine) {
 
 	router.GET(StoresPath+"/new", newStorePage)
 	router.POST(StoresPath+"/new", createStore)
+	router.PUT(StoresPath+"/:id", updateStore)
 	router.DELETE(StoresPath+"/:id", deleteStore)
 }
