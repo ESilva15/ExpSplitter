@@ -39,6 +39,11 @@ func typePage(c *gin.Context) {
 	typ, err := expenses.GetType(typeID)
 	if err != nil {
 		ServerErrorView(c, "failed to retrieve requested type")
+		return
+	}
+	if typ.TypeID == -1 {
+		NotFoundView(c, fmt.Sprintf("Couldn't find type `%d`", typeID))
+		return
 	}
 
 	c.HTML(http.StatusOK, "terminal", gin.H{
@@ -46,6 +51,7 @@ func typePage(c *gin.Context) {
 		"renderNavBar": false,
 		"content":      "type",
 		"type":         typ,
+		"method":       "put",
 	})
 }
 
@@ -53,7 +59,8 @@ func newTypePage(c *gin.Context) {
 	c.HTML(http.StatusOK, "terminal", gin.H{
 		"page":         "typeNew",
 		"renderNavBar": false,
-		"content":      "typeNew",
+		"content":      "type",
+		"method":       "post",
 	})
 }
 

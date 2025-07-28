@@ -6,32 +6,40 @@
       <div class="form-container form-inline">
         <div id="form-state" class="warning"></div><br>
 
-        <p>
-          <label for="type-id">ID:</label>
-          <input class="tui-input underline fullwidth"
-            type="text" readonly
-            name="type-id" id="type-id" value="{{ .type.TypeID }}">
-        </p>
-        <br>
+        {{ if eq .method "put" }}
+        <label for="type-id">ID:</label>
+        <input class="tui-input underline" type="text" readonly
+          name="type-id" id="type-id" value="{{ .type.TypeID }}">
+        {{ end }}
 
-        <p>
-          <label for="type-name">NAME</label>
-          <input class="tui-input underline fullwidth" 
-            type="text" 
-            name="type-name" id="type-name" value="{{ .type.TypeName }}">
-        </p>
-        <br>
-        
-        <!-- TODO -->
-        <!-- The after attribute of this button is written on a newline for no reason -->
-        <button 
-          class="subbutton"
-          hx-put="/types/{{ .type.TypeID }}" 
-          hx-swap="none"
-          type="submit" 
-          id="type-submit-button">UPDATE</button><br>
+        <label class="fullwidth-label" for="type-name">NAME:</label>
+        <input class="tui-input underline" type="text" name="type-name" 
+          id="type-name" value="{{ .type.TypeName }}">
+
       </div>
     </fieldset>
+
+    <br>
+    <button 
+      class="subbutton"
+      {{ if eq .method "put" }}
+      hx-put="/types/{{ .type.TypeID }}" 
+      {{ end }}
+      {{ if eq .method "post" }}
+      hx-post="/types/new" 
+      {{ end }}
+      hx-swap="none"
+      type="submit">
+      {{- if eq .method "put" }}UPDATE{{- end }}
+      {{- if eq .method "post" }}CREATE{{- end }}</button>
+    {{ if eq .method "put" }}
+    <button
+      onclick="confirmDelete(this)"
+      type="button"
+      class="delete-button"
+      data-delete-url="/types/{{ .type.TypeID }}">DELETE</button>
+    {{ end }}
   </form>
 </div>
+{{ template "deleteModal" }}
 {{ end }}

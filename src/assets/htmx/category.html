@@ -5,7 +5,13 @@
       <legend>CATEGORY FORM</legend>
       <div id="form-state" class="warning"></div><br>
 
-      <div class="form-container form-left">
+      <div class="form-container form-inline">
+        {{ if eq .method "put" }}
+        <label for="category-id">ID:</label>
+        <input class="tui-input underline" type="text" readonly
+          name="category-id" id="category-id" value="{{ .category.CategoryID }}">
+        {{ end }}
+
         <label for="category-name">NAME:</label>
         <input class="tui-input underline" type="text" name="category-name" 
           id="category-name" value="{{ .category.CategoryName }}">

@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"strconv"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -58,12 +57,12 @@ func GetType(typID int) (Type, error) {
 
 	query := "SELECT TypeID,TypeName " +
 		"FROM expenseTypes " +
-		"WHERE TypeID = " + strconv.Itoa(typID)
+		"WHERE TypeID = ?"
 
-	var nType Type
-	err = db.QueryRow(query).Scan(&nType.TypeID, &nType.TypeName)
+	nType := Type{TypeID: -1}
+	err = db.QueryRow(query, typID).Scan(&nType.TypeID, &nType.TypeName)
 	if err != nil {
-		return Type{}, nil
+		return Type{TypeID: -1}, nil
 	}
 
 	return nType, nil

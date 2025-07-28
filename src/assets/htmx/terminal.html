@@ -61,8 +61,6 @@
               {{ template "categories" . }}
             {{ else if eq .content "category" }}
               {{ template "category" . }}
-            {{ else if eq .content "category" }}
-              {{ template "category" . }}
             {{ else if eq .content "overview" }}
               {{ template "overview" . }}
             {{ else if eq .content "stores" }}
@@ -73,8 +71,8 @@
               {{ template "storeNew" . }}
             {{ else if eq .content "types" }}
               {{ template "types" . }}
-            {{ else if eq .content "typeNew" }}
-              {{ template "typeNew" . }}
+            {{ else if eq .content "type" }}
+              {{ template "type" . }}
             {{ else }}
               <div>Unknown page</div>
             {{ end }}
