@@ -3,10 +3,12 @@ package main
 import (
 	"expenses/config"
 	"expenses/pages"
+	"expenses/templating"
 
+	"html/template"
 	"log"
 	"net/http"
-	"path/filepath"
+	fp "path/filepath"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,16 +17,21 @@ import (
 var ginMode = "debug"
 
 func main() {
-	gin.SetMode(ginMode)
-
 	config.SetConfig("./config.yaml")
-
 	cfg := config.GetInstance()
+
+	gin.SetMode(ginMode)
+	templates := template.Must(
+		template.New("").
+		Funcs(templating.TmplFuncMap).
+		ParseGlob(fp.Join(cfg.AssetsDir, "htmx/*.html")),
+	)
+
 	router := gin.Default()
+	router.SetHTMLTemplate(templates)
 
 	router.StaticFS("/assets", http.Dir(cfg.AssetsDir))
-	router.StaticFile("/favicon.ico", filepath.Join(cfg.AssetsDir, "img/favicon.webp"))
-	router.LoadHTMLGlob(filepath.Join(cfg.AssetsDir, "htmx/*.gotempl"))
+	router.StaticFile("/favicon.ico", fp.Join(cfg.AssetsDir, "img/favicon.webp"))
 
 	pages.RouteHome(router)
 	pages.RouteExpenses(router)

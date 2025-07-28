@@ -1,0 +1,66 @@
+{{ define "expenseShares" }}
+<button
+  type="button"
+  onclick="addShareRow()"
+  >+ Share</button>
+<table id="shares-table">
+  <tr>
+    <th>ID</th>
+    <th>USER</th>
+    <th>SHARE</th>
+  </tr>
+
+  <!-- Data row to be copied -->
+  <tr id="template-share-row" style="display: none;">
+    <td>
+      <input name="shares-ids[]" disabled readonly 
+        value="" class="tui-dropdown">
+    </td>
+    <td>
+      <select name="shares-user-ids[]" disabled class="tui-dropdown">
+        {{ range .users }}
+        <option 
+          {{ if eq .UserID $.expense.OwnerUser.UserID }}selected{{ end }}
+          value="{{ .UserID }}">{{ .UserName }}</option>
+        {{ end }}
+      </select>
+    </td>
+    <td>
+      <input type="number" name="shares-percent[]" 
+        value="1" disabled class="tui-dropdown">
+    </td>
+    <td class="row-delete-button">
+      <button type="button" onclick="deleteShareRow(this)">X</button>
+    </td>
+  </tr>
+
+  {{ range .expense.Shares }}
+    {{ $share := . }}
+    <tr>
+      <td>
+        <input 
+          name="shares-ids[]" readonly 
+          value="{{ $share.ExpShareID }}" class="tui-dropdown">
+      </td>
+      <td>
+        <select name="shares-user-ids[]" class="tui-dropdown">
+          {{ range $.users }}
+          <option 
+            value="{{ .UserID }}"
+            {{ if eq .UserID $share.User.UserID }}selected{{ end }}>
+            {{ .UserName }}
+          </option>
+          {{ end }}
+        </select>
+      </td>
+      <td>
+        <input type="number" name="shares-percent[]" 
+          value="{{ $share.Share }}" class="tui-dropdown">
+      </td>
+      <td class="row-delete-button">
+        <button type="button" onclick="deleteShareRow(this)">X</button>
+      </td>
+    </tr>
+  {{ end }}
+</table>
+{{ end }}

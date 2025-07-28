@@ -1,0 +1,72 @@
+{{ define "expensePayments" }}
+<button
+  type="button"
+  onclick="addPaymentRow()"
+  >+ Payment</button>
+<div id="operation-state" class="warning">&nbsp;</div><br>
+<table id="payments-table">
+  <tr>
+    <th>ID</th>
+    <th>USER</th>
+    <th>PAYED</th>
+  </tr>
+
+  <!-- Data row to be copied -->
+  <tr id="template-payment-row" style="display: none;">
+    <td >
+      <input name="payments-ids[]" disabled readonly
+        value="" class="tui-dropdown">
+    </td>
+    <td>
+      <select name="payments-user-ids[]" disabled class="tui-dropdown">
+        {{ range .users }}
+        <option 
+          {{ if eq .UserID $.expense.OwnerUser.UserID }}selected{{ end }}
+          value="{{ .UserID }}">{{ .UserName }}</option>
+        {{ end }}
+      </select>
+    </td>
+
+    <td>
+      <input type="number" name="payments-payment[]" value="0" disabled class="tui-dropdown">
+    </td>
+
+    <td class="row-delete-button">
+      <button type="button" onclick="deleteShareRow(this)">X</button>
+    </td>
+  </tr>
+
+  {{ range .expense.Payments }}
+    {{ $payment := . }}
+    <tr data-id="{{ $payment.ExpPaymID }}">
+      <td>
+        <input name="payments-ids[]" readonly
+          value="{{ $payment.ExpPaymID }}" class="tui-dropdown">
+      </td>
+      <td>
+        <select name="payments-user-ids[]" class="tui-dropdown">
+          {{ range $.users }}
+          <option 
+            value="{{ .UserID }}"
+            {{ if eq .UserID $payment.User.UserID }}selected{{ end }}>
+            {{ .UserName }}
+          </option>
+          {{ end }}
+        </select>
+      </td>
+      <td>
+        <input type="number" name="payments-payment[]" 
+          value="{{ $payment.PayedAmount }}" class="tui-dropdown">
+      </td>
+      <td class="row-delete-button">
+        <!-- <button type="button" onclick="deleteShareRow(this)">X</button> -->
+        <button
+          type="button"
+          class="delete-button"
+          hx-delete="/payments/{{ $payment.ExpPaymID }}"
+          hx-target="closest tr">X</button>
+      </td>
+    </tr>
+  {{ end }}
+</table>
+{{ end }}

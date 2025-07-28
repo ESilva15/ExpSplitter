@@ -45,7 +45,7 @@ func storesGlobalPage(c *gin.Context) {
 		stores,
 	)
 
-	c.HTML(http.StatusOK, "terminal.gotempl", gin.H{
+	c.HTML(http.StatusOK, "terminal.html", gin.H{
 		"page":         "stores",
 		"renderNavBar": true,
 		"content":      content,
@@ -68,7 +68,7 @@ func storePage(c *gin.Context) {
 		},
 	)
 
-	c.HTML(http.StatusOK, "terminal.gotempl", gin.H{
+	c.HTML(http.StatusOK, "terminal.html", gin.H{
 		"page":         "store",
 		"renderNavBar": false,
 		"content":      content,
@@ -82,7 +82,7 @@ func newStorePage(c *gin.Context) {
 		fp.Join(cfg.AssetsDir, "/htmx/storeNew.html"), map[string]any{},
 	)
 
-	c.HTML(http.StatusOK, "terminal.gotempl", gin.H{
+	c.HTML(http.StatusOK, "terminal.html", gin.H{
 		"page":         "storeNew",
 		"renderNavBar": false,
 		"content":      content,

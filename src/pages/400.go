@@ -13,12 +13,12 @@ func NotFoundView(c *gin.Context, msg string) {
 	cfg := config.GetInstance()
 
 	errHtml := templating.HtmlTemplate(
-		cfg.AssetsDir+"htmx/panic.tpl", map[string]any{
+		cfg.AssetsDir+"htmx/panic.html", map[string]any{
 			"msg": msg,
 		},
 	)
 
-	c.HTML(404, "terminal.gotempl", gin.H{
+	c.HTML(404, "terminal.html", gin.H{
 		"warning":      true,
 		"renderNavBar": false,
 		"content":      errHtml,

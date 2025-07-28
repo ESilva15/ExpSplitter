@@ -45,7 +45,7 @@ func categoriesGlobalPage(c *gin.Context) {
 		categories,
 	)
 
-	c.HTML(http.StatusOK, "terminal.gotempl", gin.H{
+	c.HTML(http.StatusOK, "terminal.html", gin.H{
 		"page":         "categories",
 		"renderNavBar": true,
 		"content":      content,
@@ -68,7 +68,7 @@ func categoryPage(c *gin.Context) {
 		},
 	)
 
-	c.HTML(http.StatusOK, "terminal.gotempl", gin.H{
+	c.HTML(http.StatusOK, "terminal.html", gin.H{
 		"page":         "category",
 		"renderNavBar": false,
 		"content":      content,
@@ -82,7 +82,7 @@ func newCategoryPage(c *gin.Context) {
 		fp.Join(cfg.AssetsDir, "/htmx/categoryNew.html"), map[string]any{},
 	)
 
-	c.HTML(http.StatusOK, "terminal.gotempl", gin.H{
+	c.HTML(http.StatusOK, "terminal.html", gin.H{
 		"page":         "expenseNew",
 		"renderNavBar": false,
 		"content":      content,

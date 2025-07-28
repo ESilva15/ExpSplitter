@@ -43,7 +43,7 @@ func overviewPartialPage(c *gin.Context) {
 func overviewPage(c *gin.Context) {
 	content := overviewContent()
 
-	c.HTML(http.StatusOK, "terminal.gotempl", gin.H{
+	c.HTML(http.StatusOK, "terminal.html", gin.H{
 		"page":         "overview",
 		"renderNavBar": true,
 		"content":      content,

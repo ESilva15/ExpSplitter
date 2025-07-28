@@ -2,6 +2,7 @@ package templating
 
 import (
 	"bytes"
+	"expenses/config"
 	"fmt"
 	"html/template"
 	"log"
@@ -9,8 +10,8 @@ import (
 	"time"
 )
 
-func createTemplateEngine(name string) *template.Template {
-	funcMap := template.FuncMap{
+var (
+	TmplFuncMap = template.FuncMap{
 		"formatDate": func(ts int64) string {
 			return time.Unix(ts, 0).Format("02-Jan-2006")
 		},
@@ -18,8 +19,17 @@ func createTemplateEngine(name string) *template.Template {
 			return fmt.Sprintf("%.2f", v)
 		},
 	}
+)
 
-	tmpl := template.New(name).Funcs(funcMap)
+func createTemplateEngine(name string) *template.Template {
+	cfg := config.GetInstance()
+
+
+	tmpl := template.New(name).Funcs(TmplFuncMap)
+	tmpl, err := tmpl.ParseGlob(fp.Join(cfg.AssetsDir, "htmx/*.html"))
+	if err != nil {
+		panic(err)
+	}
 
 	return tmpl
 }

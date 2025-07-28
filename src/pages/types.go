@@ -45,7 +45,7 @@ func typesGlobalPage(c *gin.Context) {
 		types,
 	)
 
-	c.HTML(http.StatusOK, "terminal.gotempl", gin.H{
+	c.HTML(http.StatusOK, "terminal.html", gin.H{
 		"page":         "types",
 		"renderNavBar": true,
 		"content":      content,
@@ -68,7 +68,7 @@ func typePage(c *gin.Context) {
 		},
 	)
 
-	c.HTML(http.StatusOK, "terminal.gotempl", gin.H{
+	c.HTML(http.StatusOK, "terminal.html", gin.H{
 		"page":         "type",
 		"renderNavBar": false,
 		"content":      content,
@@ -82,7 +82,7 @@ func newTypePage(c *gin.Context) {
 		fp.Join(cfg.AssetsDir, "/htmx/typeNew.html"), map[string]any{},
 	)
 
-	c.HTML(http.StatusOK, "terminal.gotempl", gin.H{
+	c.HTML(http.StatusOK, "terminal.html", gin.H{
 		"page":         "typeNew",
 		"renderNavBar": false,
 		"content":      content,
