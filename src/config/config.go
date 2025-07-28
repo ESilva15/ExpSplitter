@@ -9,6 +9,7 @@ import (
 
 type Configuration struct {
 	AssetsDir string `yaml:"assets"`
+	Port      string `yaml:"port"`
 }
 
 var (

@@ -91,15 +91,7 @@
     {{ end }}
   </form>
 
-  <dialog id="confirm-modal">
-    <form method="dialog" class="modal-content">
-      <p>Are you sure you want to delete this item?</p>
-      <menu>
-        <button id="modal-cancel">Cancel</button>
-        <button id="modal-confirm" class="danger">Yes, Delete</button>
-      </menu>
-    </form>
-  </dialog>
+  {{ template "deleteModal" }}
 
 </div>
 
@@ -110,34 +102,5 @@
       row.remove();
     }
   }
-  let modal = document.getElementById("confirm-modal");
-  let confirmButton = document.getElementById("modal-confirm");
-  let cancelButton = document.getElementById("modal-cancel");
-
-  let pendingDeleteUrl = null;
-  let deleteTarget = null;
-
-  function confirmDelete(button) {
-    pendingDeleteUrl = button.getAttribute("data-delete-url");
-    deleteTarget = button.closest("tr");
-    modal.showModal();
-  }
-
-  confirmButton.addEventListener("click", function () {
-    if (pendingDeleteUrl) {
-      // Use HTMX to send the DELETE
-      htmx.ajax('DELETE', pendingDeleteUrl, {
-        target: deleteTarget,
-        swap: 'outerHTML'
-      });
-    }
-    modal.close();
-  });
-
-  cancelButton.addEventListener("click", function () {
-    modal.close();
-    pendingDeleteUrl = null;
-    deleteTarget = null;
-  });
 </script>
 {{ end }}

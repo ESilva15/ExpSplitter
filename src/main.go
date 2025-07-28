@@ -50,11 +50,10 @@ func main() {
 	pages.RouteTypes(router)
 	pages.RoutePayments(router)
 	pages.RouteOverview(router)
-
 	pages.RouteNotFound(router)
 	pages.RouteServerError(router)
 
-	err := router.Run(":8081")
+	err := router.Run(":" + cfg.Port)
 	if err != nil {
 		log.Printf("Failed to launch application: \n  %s\n", err)
 	}

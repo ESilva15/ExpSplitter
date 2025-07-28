@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"strconv"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -62,12 +61,12 @@ func GetCategory(catID int) (Category, error) {
 
 	query := "SELECT CategoryID,CategoryName " +
 		"FROM categories " +
-		"WHERE CategoryID = " + strconv.Itoa(catID)
+		"WHERE CategoryID = ?"
 
-	var cat Category
-	err = db.QueryRow(query).Scan(&cat.CategoryID, &cat.CategoryName)
+	cat := Category{CategoryID: -1}
+	err = db.QueryRow(query, catID).Scan(&cat.CategoryID, &cat.CategoryName)
 	if err != nil {
-		return Category{}, nil
+		return Category{CategoryID: -1}, nil
 	}
 
 	return cat, nil
@@ -110,6 +109,34 @@ func (cat *Category) Delete() error {
 
 	query := "DELETE FROM categories WHERE CategoryID = ?"
 	res, err := db.Exec(query, cat.CategoryID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	} else if rowsAffected == 0 {
+		return ErrNotFound
+	}
+
+	return nil
+}
+
+func (cat *Category) Update() error {
+	db, err := sql.Open("sqlite3", "./data/data.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	_, err = db.Exec("PRAGMA foreign_keys = ON")
+	if err != nil {
+		return err
+	}
+
+	query := "UPDATE categories SET CategoryName = ? WHERE CategoryID = ?"
+	res, err := db.Exec(query, cat.CategoryName, cat.CategoryID)
 	if err != nil {
 		return err
 	}

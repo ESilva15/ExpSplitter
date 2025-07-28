@@ -3,6 +3,7 @@ package pages
 import (
 	"expenses/expenses"
 
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -41,20 +42,26 @@ func categoryPage(c *gin.Context) {
 		ServerErrorView(c, "The server too makes mistakes")
 		return
 	}
+	if category.CategoryID == -1 {
+		NotFoundView(c, fmt.Sprintf("Could not find category `%d`", categoryID))
+		return
+	}
 
 	c.HTML(http.StatusOK, "terminal", gin.H{
 		"page":         "category",
 		"renderNavBar": false,
 		"content":      "category",
 		"category":     category,
+		"method":       "put",
 	})
 }
 
 func newCategoryPage(c *gin.Context) {
 	c.HTML(http.StatusOK, "terminal", gin.H{
-		"page":         "expenseNew",
+		"page":         "categoryNew",
 		"renderNavBar": false,
-		"content":      "categoryNew",
+		"content":      "category",
+		"method":       "post",
 	})
 }
 
@@ -68,6 +75,29 @@ func createCategory(c *gin.Context) {
 	err := newCat.Insert()
 	if err != nil {
 		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
+	}
+
+	c.Header("HX-Trigger", "{\"formState\":\"Success\"}")
+}
+
+func updateCategory(c *gin.Context) {
+	categoryID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		NotFoundView(c, "No such category")
+		return
+	}
+
+	categoryName := c.PostForm("category-name")
+	category := expenses.Category{
+		CategoryID:   categoryID,
+		CategoryName: categoryName,
+	}
+
+	err = category.Update()
+	if err != nil {
+		errMsg, _ := json.Marshal(err.Error())
+		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":%s}", errMsg))
+		return
 	}
 
 	c.Header("HX-Trigger", "{\"formState\":\"Success\"}")
@@ -91,7 +121,8 @@ func deleteCategory(c *gin.Context) {
 	}
 
 	if err != nil {
-		errMsg := fmt.Sprintf("error deleting category %d", categoryID)
+		errMsg := fmt.Sprintf("error deleting category %d: %+v", categoryID,
+			err.Error())
 		c.String(http.StatusInternalServerError, errMsg)
 		return
 	}
@@ -107,4 +138,5 @@ func RouteCategories(router *gin.Engine) {
 	router.GET(CategoriesPath+"/new", newCategoryPage)
 	router.POST(CategoriesPath+"/new", createCategory)
 	router.DELETE(CategoriesPath+"/:id", deleteCategory)
+	router.PUT(CategoriesPath+"/:id", updateCategory)
 }

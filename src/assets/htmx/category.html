@@ -1,12 +1,40 @@
 {{ define "category" }}
-<table>
-  <tr>
-    <td>ID:</td>
-    <td>{{ .category.CategoryID }}</td>
-  </tr>
-  <tr>
-    <td>Name:</td>
-    <td>{{ .category.CategoryName }}</td>
-  </tr>
-</table>
+<div>
+  <form id="category-form" action="submit">
+    <fieldset id="form-box-boundaries">
+      <legend>CATEGORY FORM</legend>
+      <div id="form-state" class="warning"></div><br>
+
+      <div class="form-container form-left">
+        <label for="category-name">NAME:</label>
+        <input class="tui-input underline" type="text" name="category-name" 
+          id="category-name" value="{{ .category.CategoryName }}">
+      </div>
+    </fieldset>
+
+    <br>
+    <button 
+      class="subbutton"
+      {{ if eq .method "put" }}
+      hx-put="/categories/{{ .category.CategoryID }}" 
+      {{ end }}
+      {{ if eq .method "post" }}
+      hx-post="/categories/new" 
+      {{ end }}
+      hx-swap="none"
+      type="submit" 
+      id="expense-submit-button">
+      {{- if eq .method "put" }}UPDATE{{- end }}
+      {{- if eq .method "post" }}CREATE{{- end }}</button>
+    {{ if eq .method "put" }}
+    <button
+      onclick="confirmDelete(this)"
+      type="button"
+      class="delete-button"
+      data-delete-url="/categories/{{ .category.CategoryID }}"
+      id="expense-delete-button">DELETE</button>
+    {{ end }}
+  </form>
+</div>
+{{ template "deleteModal" }}
 {{ end }}

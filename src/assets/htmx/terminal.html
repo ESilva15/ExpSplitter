@@ -10,6 +10,7 @@
     <script content="text/javascript" defer="" src="/assets/js/htmx.min.js"></script>
     <script content="text/javascript" defer="" src="/assets/js/pager.js"></script>
     <script content="text/javascript" defer="" src="/assets/js/forms.js"></script>
+    <script content="text/javascript" defer="" src="/assets/js/modals.js"></script>
   </head>
   <body>
 
@@ -60,8 +61,8 @@
               {{ template "categories" . }}
             {{ else if eq .content "category" }}
               {{ template "category" . }}
-            {{ else if eq .content "categoryNew" }}
-              {{ template "categoryNew" . }}
+            {{ else if eq .content "category" }}
+              {{ template "category" . }}
             {{ else if eq .content "overview" }}
               {{ template "overview" . }}
             {{ else if eq .content "stores" }}
