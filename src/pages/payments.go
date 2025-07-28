@@ -12,7 +12,7 @@ import (
 func deletePayment(c *gin.Context) {
 	paymentID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.Header("HX-Redirect", "/404")
+		NotFoundView(c, "failed to fetch payment")
 		return
 	}
 

@@ -1,15 +1,11 @@
 package pages
 
 import (
-	"expenses/config"
 	"expenses/expenses"
-	"expenses/templating"
 	"log"
 	"time"
 
-	"html/template"
 	"net/http"
-	fp "path/filepath"
 
 	"github.com/gin-gonic/gin"
 )
@@ -24,35 +20,19 @@ type UserDebtSummary struct {
 	Total  float32
 }
 
-func overviewContent() template.HTML {
-	cfg := config.GetInstance()
-
-	content := templating.HtmlTemplate(
-		fp.Join(cfg.AssetsDir, "htmx/overview.html"),
-		map[string]any{},
-	)
-
-	return content
-}
-
 func overviewPartialPage(c *gin.Context) {
-	content := overviewContent()
-	c.String(http.StatusOK, string(content))
+	c.HTML(http.StatusOK, "overview", gin.H{})
 }
 
 func overviewPage(c *gin.Context) {
-	content := overviewContent()
-
-	c.HTML(http.StatusOK, "terminal.html", gin.H{
+	c.HTML(http.StatusOK, "terminal", gin.H{
 		"page":         "overview",
 		"renderNavBar": true,
-		"content":      content,
+		"content":      "overview",
 	})
 }
 
 func getResults(c *gin.Context) {
-	cfg := config.GetInstance()
-
 	startDateStr := c.PostForm("range-start") + " 00:00:00"
 	endDateStr := c.PostForm("range-end") + " 23:59:59"
 
@@ -115,15 +95,10 @@ func getResults(c *gin.Context) {
 		}
 	}
 
-	content := templating.HtmlTemplate(
-		fp.Join(cfg.AssetsDir, "htmx/overviewResults.html"),
-		map[string]any{
-			"expenses": expensesWithDebts,
-			"summary":  userDebtSummary,
-		},
-	)
-
-	c.String(http.StatusOK, string(content))
+	c.HTML(http.StatusOK, "overviewResults", gin.H{
+		"expenses": expensesWithDebts,
+		"summary": userDebtSummary,
+	})
 }
 
 func RouteOverview(router *gin.Engine) {

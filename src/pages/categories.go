@@ -1,13 +1,10 @@
 package pages
 
 import (
-	"expenses/config"
 	"expenses/expenses"
-	"expenses/templating"
 
 	"fmt"
 	"net/http"
-	fp "path/filepath"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -17,75 +14,47 @@ const (
 	CategoriesPath = "/categories"
 )
 
-func categoriesContent() (map[string]any, error) {
+func categoriesGlobalPage(c *gin.Context) {
 	categories, err := expenses.GetAllCategories()
 	if err != nil {
-		return nil, err
-	}
-
-	data := map[string]any{
-		"size":       len(categories) - 1,
-		"categories": categories,
-		"resource":   "categories",
-	}
-
-	return data, nil
-}
-
-func categoriesGlobalPage(c *gin.Context) {
-	cfg := config.GetInstance()
-
-	categories, err := categoriesContent()
-	if err != nil {
-		c.Header("HX-Redirect", "/500")
+		ServerErrorView(c, "The server too makes mistakes")
 		return
 	}
-	content := templating.HtmlTemplate(
-		fp.Join(cfg.AssetsDir, "htmx/categories.html"),
-		categories,
-	)
 
-	c.HTML(http.StatusOK, "terminal.html", gin.H{
+	c.HTML(http.StatusOK, "terminal", gin.H{
 		"page":         "categories",
 		"renderNavBar": true,
-		"content":      content,
+		"content":      "categories",
+		"categories":   categories,
 	})
 }
 
 func categoryPage(c *gin.Context) {
-	cfg := config.GetInstance()
-
 	categoryID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.Redirect(404, "/404")
+		NotFoundView(c, "No such category")
+		return
 	}
 
 	category, err := expenses.GetCategory(categoryID)
-	content := templating.HtmlTemplate(
-		fp.Join(cfg.AssetsDir, "/htmx/category.html"),
-		map[string]any{
-			"category": category,
-		},
-	)
+	if err != nil {
+		ServerErrorView(c, "The server too makes mistakes")
+		return
+	}
 
-	c.HTML(http.StatusOK, "terminal.html", gin.H{
+	c.HTML(http.StatusOK, "terminal", gin.H{
 		"page":         "category",
 		"renderNavBar": false,
-		"content":      content,
+		"content":      "category",
+		"category":     category,
 	})
 }
 
 func newCategoryPage(c *gin.Context) {
-	cfg := config.GetInstance()
-
-	content := templating.HtmlTemplate(
-		fp.Join(cfg.AssetsDir, "/htmx/categoryNew.html"), map[string]any{},
-	)
-
-	c.HTML(http.StatusOK, "terminal.html", gin.H{
+	c.HTML(http.StatusOK, "terminal", gin.H{
 		"page":         "expenseNew",
 		"renderNavBar": false,
-		"content":      content,
+		"content":      "categoryNew",
 	})
 }
 
@@ -107,7 +76,8 @@ func createCategory(c *gin.Context) {
 func deleteCategory(c *gin.Context) {
 	categoryID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.Redirect(404, "/404")
+		NotFoundView(c, "No such category")
+		return
 	}
 
 	category := expenses.Category{

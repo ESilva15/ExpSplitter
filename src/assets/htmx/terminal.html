@@ -1,3 +1,4 @@
+{{ define "terminal" }}
 <!DOCTYPE html>
 <html>
   <head>
@@ -53,6 +54,26 @@
               {{ template "expenses" . }}
             {{ else if eq .content "newExpense" }}
               {{ template "expense" . }}
+            {{ else if eq .content "panic" }}
+              {{ template "panic" . }}
+            {{ else if eq .content "categories" }}
+              {{ template "categories" . }}
+            {{ else if eq .content "category" }}
+              {{ template "category" . }}
+            {{ else if eq .content "categoryNew" }}
+              {{ template "categoryNew" . }}
+            {{ else if eq .content "overview" }}
+              {{ template "overview" . }}
+            {{ else if eq .content "stores" }}
+              {{ template "stores" . }}
+            {{ else if eq .content "store" }}
+              {{ template "store" . }}
+            {{ else if eq .content "storeNew" }}
+              {{ template "storeNew" . }}
+            {{ else if eq .content "types" }}
+              {{ template "types" . }}
+            {{ else if eq .content "typeNew" }}
+              {{ template "typeNew" . }}
             {{ else }}
               <div>Unknown page</div>
             {{ end }}
@@ -65,3 +86,4 @@
 
   </body>
 </html>
+{{ end }}

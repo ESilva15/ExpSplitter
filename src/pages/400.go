@@ -1,27 +1,17 @@
 package pages
 
 import (
-	"expenses/config"
-	"expenses/templating"
-
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func NotFoundView(c *gin.Context, msg string) {
-	cfg := config.GetInstance()
-
-	errHtml := templating.HtmlTemplate(
-		cfg.AssetsDir+"htmx/panic.html", map[string]any{
-			"msg": msg,
-		},
-	)
-
-	c.HTML(404, "terminal.html", gin.H{
+	c.HTML(404, "terminal", gin.H{
 		"warning":      true,
 		"renderNavBar": false,
-		"content":      errHtml,
+		"content":      "panic",
+		"msg":          msg,
 	})
 }
 

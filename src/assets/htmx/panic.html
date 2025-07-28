@@ -1,3 +1,4 @@
+{{ define "panic" }}
 <code class="warning">
   {{ .msg }}
   <br>
@@ -31,3 +32,4 @@
   /usr/lib/go/src/runtime/asm_amd64.s:1695 (0x472d80)
   	goexit: BYTE	$0x90	// NOP
 </code>
+{{ end }}

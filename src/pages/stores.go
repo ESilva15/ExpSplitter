@@ -1,13 +1,10 @@
 package pages
 
 import (
-	"expenses/config"
 	"expenses/expenses"
-	"expenses/templating"
 	"fmt"
 
 	"net/http"
-	fp "path/filepath"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -17,75 +14,43 @@ const (
 	StoresPath = "/stores"
 )
 
-func storesContent() (map[string]any, error) {
+func storesGlobalPage(c *gin.Context) {
 	stores, err := expenses.GetAllStores()
 	if err != nil {
-		return nil, err
-	}
-
-	data := map[string]any{
-		"size":     len(stores) - 1,
-		"stores":   stores,
-		"resource": "stores",
-	}
-
-	return data, nil
-}
-
-func storesGlobalPage(c *gin.Context) {
-	cfg := config.GetInstance()
-
-	stores, err := storesContent()
-	if err != nil {
-		c.Header("HX-Redirect", "/500")
+		ServerErrorView(c, "Failed to fetch stores content")
 		return
 	}
-	content := templating.HtmlTemplate(
-		fp.Join(cfg.AssetsDir, "htmx/stores.html"),
-		stores,
-	)
 
-	c.HTML(http.StatusOK, "terminal.html", gin.H{
+	c.HTML(http.StatusOK, "terminal", gin.H{
 		"page":         "stores",
 		"renderNavBar": true,
-		"content":      content,
+		"content":      "stores",
+		"stores":       stores,
 	})
 }
 
 func storePage(c *gin.Context) {
-	cfg := config.GetInstance()
-
 	storeID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.Redirect(404, "/404")
+		NotFoundView(c, "didn't find request store")
+		return
 	}
 
-	store, err := expenses.GetCategory(storeID)
-	content := templating.HtmlTemplate(
-		fp.Join(cfg.AssetsDir, "/htmx/category.html"),
-		map[string]any{
-			"store": store,
-		},
-	)
+	store, err := expenses.GetStore(storeID)
 
-	c.HTML(http.StatusOK, "terminal.html", gin.H{
+	c.HTML(http.StatusOK, "terminal", gin.H{
 		"page":         "store",
 		"renderNavBar": false,
-		"content":      content,
+		"content":      "store",
+		"store":        store,
 	})
 }
 
 func newStorePage(c *gin.Context) {
-	cfg := config.GetInstance()
-
-	content := templating.HtmlTemplate(
-		fp.Join(cfg.AssetsDir, "/htmx/storeNew.html"), map[string]any{},
-	)
-
-	c.HTML(http.StatusOK, "terminal.html", gin.H{
+	c.HTML(http.StatusOK, "terminal", gin.H{
 		"page":         "storeNew",
 		"renderNavBar": false,
-		"content":      content,
+		"content":      "storeNew",
 	})
 }
 

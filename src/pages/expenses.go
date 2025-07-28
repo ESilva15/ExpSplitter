@@ -34,7 +34,7 @@ func ExpensesGlobalPage(c *gin.Context) {
 		return
 	}
 
-	c.HTML(http.StatusOK, "terminal.html", gin.H{
+	c.HTML(http.StatusOK, "terminal", gin.H{
 		"page":         "expenses",
 		"renderNavBar": true,
 		"content":      "expenses",
@@ -96,7 +96,7 @@ func expensePage(c *gin.Context) {
 		return
 	}
 
-	c.HTML(http.StatusOK, "terminal.html", gin.H{
+	c.HTML(http.StatusOK, "terminal", gin.H{
 		"page":         "expense",
 		"renderNavBar": false,
 		"content":      "expense",
@@ -135,7 +135,7 @@ func newExpensePage(c *gin.Context) {
 		return
 	}
 
-	c.HTML(http.StatusOK, "terminal.html", gin.H{
+	c.HTML(http.StatusOK, "terminal", gin.H{
 		"page":         "expenseNew",
 		"renderNavBar": false,
 		"content":      "newExpense",
