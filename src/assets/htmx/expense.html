@@ -1,237 +1,224 @@
 <div>
   <form id="expense-form" action="submit">
+    <div id="form-state" class="warning"></div>
     <fieldset id="form-box-boundaries">
       <legend>EXPENSE FORM</legend>
       <div class="form-container form-inline">
-        <div id="form-state" class="warning"></div><br>
-
         {{ if eq .method "put" }}
-        <p>
-          <label for="expense-desc">ID:</label>
-          <input 
-            readonly
-            class="tui-input underline fullwidth" type="text" name="expense-id" 
-            value="{{ .expense.ExpID }}" id="expense-id"><br>
-        </p>
+        <label for="expense-desc">ID:</label>
+        <input 
+          readonly
+          class="tui-input underline" type="text" name="expense-id" 
+          value="{{ .expense.ExpID }}" id="expense-id">
         {{ end }}
 
-        <p>
-          <label for="expense-desc">Description:</label>
-          <input 
-            class="tui-input underline fullwidth" type="text" name="expense-desc" 
-            value="{{ .expense.Description }}" id="expense-desc"><br>
-        </p>
+        <label for="expense-desc">Description:</label>
+        <input 
+          class="tui-input underline" type="text" name="expense-desc" 
+          value="{{ .expense.Description }}" id="expense-desc">
 
-        <p>
-          <label for="expense-date">Date:</label>
-          <input 
-            class="tui-input underline fullwidth" type="text" name="expense-date" 
-            value="{{ formatDate .expense.ExpDate }}" id="expense-date"><br>
-        </p>
+        <label for="expense-date">Date:</label>
+        <input 
+          class="tui-input underline" type="text" name="expense-date" 
+          value="{{ formatDate .expense.ExpDate }}" id="expense-date">
 
-        <p>
-          <label for="expense-value">Value:</label>
-          <input 
-            class="tui-input underline fullwidth" type="text" name="expense-value" 
-            value="{{ .expense.Value }}" id="expense-value"><br>
-        </p>
-        <br>
+        <label for="expense-value">Value:</label>
+        <input 
+          class="tui-input underline" type="text" name="expense-value" 
+          value="{{ .expense.Value }}" id="expense-value">
 
-        <p>
-          <label for="newexp-type-dropdown">Type:</label>
-          <select name="newexp-type-dropdown" id="newexp-type-dropdown">
-            {{ range .types }}
-            <option 
-              {{ if eq .TypeID $.expense.ExpType.TypeID }}selected{{ end }}
-              value="{{ .TypeID }}">{{ .TypeName }}</option>
-            {{ end}}
-          </select>
-        </p>
+        <label for="newexp-type-dropdown">Type:</label>
+        <select name="newexp-type-dropdown" id="newexp-type-dropdown" class="tui-dropdown">
+          {{ range .types }}
+          <option 
+            {{ if eq .TypeID $.expense.ExpType.TypeID }}selected{{ end }}
+            value="{{ .TypeID }}">{{ .TypeName }}</option>
+          {{ end}}
+        </select>
 
-        <p>
-          <label for="newexp-cat-dropdown">Category:</label>
-          <select name="newexp-cat-dropdown" id="newexp-cat-dropdown">
-            {{ range .categories }}
-            <option 
-              {{ if eq .CategoryID $.expense.ExpCategory.CategoryID }}selected{{ end }}
-              value="{{ .CategoryID }}">{{ .CategoryName }}</option>
-            {{ end}}
-          </select>
-        </p>
+        <label for="newexp-cat-dropdown">Category:</label>
+        <select name="newexp-cat-dropdown" id="newexp-cat-dropdown" class="tui-dropdown">
+          {{ range .categories }}
+          <option 
+            {{ if eq .CategoryID $.expense.ExpCategory.CategoryID }}selected{{ end }}
+            value="{{ .CategoryID }}">{{ .CategoryName }}</option>
+          {{ end}}
+        </select>
 
-        <p>
-          <label for="newexp-store-dropdown">Store:</label>
-          <select name="newexp-store-dropdown" id="newexp-store-dropdown">
-            {{ range .stores }}
-            <option 
-              {{ if eq .StoreID $.expense.ExpStore.StoreID }}selected{{ end }}
-              value="{{ .StoreID }}">{{ .StoreName }}</option>
-            {{ end}}
-          </select>
-        </p>
-        <br>
-
-        <button
-          type="button"
-          onclick="addShareRow()"
-          >+ Share</button>
-        <table id="shares-table">
-          <tr>
-            <th>ID</th>
-            <th>USER</th>
-            <th>SHARE</th>
-          </tr>
-
-          <!-- Data row to be copied -->
-          <tr 
-            id="template-share-row" 
-            style="display: none;"
-          >
-            <td>
-              <input type="number" name="shares-ids[]" disabled readonly 
-                value="">
-            </td>
-            <td>
-              <select name="shares-user-ids[]" disabled>
-                {{ range .users }}
-                <option 
-                  {{ if eq .UserID $.expense.OwnerUser.UserID }}selected{{ end }}
-                  value="{{ .UserID }}">{{ .UserName }}</option>
-                {{ end }}
-              </select>
-            </td>
-            <td>
-              <input type="number" name="shares-percent[]" value="1" disabled>
-            </td>
-            <td class="row-delete-button">
-              <button type="button" onclick="deleteShareRow(this)">X</button>
-            </td>
-          </tr>
-
-          {{ range .expense.Shares }}
-            {{ $share := . }}
-            <tr>
-              <td>
-                <input 
-                  type="number" name="shares-ids[]" readonly 
-                  value="{{ $share.ExpShareID }}">
-              </td>
-              <td>
-                <select name="shares-user-ids[]">
-                  {{ range $.users }}
-                  <option 
-                    value="{{ .UserID }}"
-                    {{ if eq .UserID $share.User.UserID }}selected{{ end }}>
-                    {{ .UserName }}
-                  </option>
-                  {{ end }}
-                </select>
-              </td>
-              <td>
-                <input type="number" name="shares-percent[]" value="{{ $share.Share }}">
-              </td>
-              <td class="row-delete-button">
-                <button type="button" onclick="deleteShareRow(this)">X</button>
-              </td>
-            </tr>
-          {{ end }}
-        </table>
-        <br>
-
-        <button
-          type="button"
-          onclick="addPaymentRow()"
-          >+ Payment</button>
-        <div id="operation-state" class="warning">&nbsp;</div><br>
-        <table id="payments-table">
-          <tr>
-            <th>ID</th>
-            <th>USER</th>
-            <th>PAYED</th>
-          </tr>
-
-          <!-- Data row to be copied -->
-          <tr 
-            id="template-payment-row" 
-            style="display: none;"
-          >
-            <td >
-              <input type="number" name="payments-ids[]" disabled readonly
-                value="">
-            </td>
-            <td>
-              <select name="payments-user-ids[]" disabled>
-                {{ range .users }}
-                <option 
-                  {{ if eq .UserID $.expense.OwnerUser.UserID }}selected{{ end }}
-                  value="{{ .UserID }}">{{ .UserName }}</option>
-                {{ end }}
-              </select>
-            </td>
-            <td>
-              <input type="number" name="payments-payment[]" value="0" disabled>
-            </td>
-            <td class="row-delete-button">
-              <button type="button" onclick="deleteShareRow(this)">X</button>
-            </td>
-          </tr>
-
-          {{ range .expense.Payments }}
-            {{ $payment := . }}
-            <tr data-id="{{ $payment.ExpPaymID }}">
-              <td>
-                <input type="number" name="payments-ids[]" readonly
-                  value="{{ $payment.ExpPaymID }}">
-              </td>
-              <td>
-                <select name="payments-user-ids[]">
-                  {{ range $.users }}
-                  <option 
-                    value="{{ .UserID }}"
-                    {{ if eq .UserID $payment.User.UserID }}selected{{ end }}>
-                    {{ .UserName }}
-                  </option>
-                  {{ end }}
-                </select>
-              </td>
-              <td>
-                <input type="number" name="payments-payment[]" value="{{ $payment.PayedAmount }}">
-              </td>
-              <td class="row-delete-button">
-                <!-- <button type="button" onclick="deleteShareRow(this)">X</button> -->
-                <button
-                  type="button"
-                  class="delete-button"
-                  hx-delete="/payments/{{ $payment.ExpPaymID }}"
-                  hx-target="closest tr">X</button>
-              </td>
-            </tr>
-          {{ end }}
-        </table>
-        <br><br>
-
-        <button 
-          class="subbutton"
-          {{ if eq .method "put" }}
-          hx-put="/expenses/{{ .expense.ExpID }}" 
-          {{ end }}
-          {{ if eq .method "post" }}
-          hx-post="/expenses/new" 
-          {{ end }}
-          hx-swap="none"
-          type="submit" 
-          id="expense-submit-button">
-          {{- if eq .method "put" }}UPDATE{{- end }}
-          {{- if eq .method "post" }}CREATE{{- end }}</button>
-        {{ if eq .method "put" }}
-        <button
-          hx-delete="/expenses/{{ .expense.ExpID }}"
-          hx-swap="none"
-          type="button"
-          id="expense-delete-button">DELETE</button>
-        {{ end }}
+        <label for="newexp-store-dropdown">Store:</label>
+        <select name="newexp-store-dropdown" id="newexp-store-dropdown" class="tui-dropdown">
+          {{ range .stores }}
+          <option 
+            {{ if eq .StoreID $.expense.ExpStore.StoreID }}selected{{ end }}
+            value="{{ .StoreID }}">{{ .StoreName }}</option>
+          {{ end}}
+        </select>
       </div>
     </fieldset>
+
+    <fieldset id="shares-table-fields">
+      <legend>SHARES</legend>
+      <button
+        type="button"
+        onclick="addShareRow()"
+        >+ Share</button>
+      <table id="shares-table">
+        <tr>
+          <th>ID</th>
+          <th>USER</th>
+          <th>SHARE</th>
+        </tr>
+
+        <!-- Data row to be copied -->
+        <tr id="template-share-row" style="display: none;">
+          <td>
+            <input name="shares-ids[]" disabled readonly 
+              value="" class="tui-dropdown">
+          </td>
+          <td>
+            <select name="shares-user-ids[]" disabled class="tui-dropdown">
+              {{ range .users }}
+              <option 
+                {{ if eq .UserID $.expense.OwnerUser.UserID }}selected{{ end }}
+                value="{{ .UserID }}">{{ .UserName }}</option>
+              {{ end }}
+            </select>
+          </td>
+          <td>
+            <input type="number" name="shares-percent[]" 
+              value="1" disabled class="tui-dropdown">
+          </td>
+          <td class="row-delete-button">
+            <button type="button" onclick="deleteShareRow(this)">X</button>
+          </td>
+        </tr>
+
+        {{ range .expense.Shares }}
+          {{ $share := . }}
+          <tr>
+            <td>
+              <input 
+                name="shares-ids[]" readonly 
+                value="{{ $share.ExpShareID }}" class="tui-dropdown">
+            </td>
+            <td>
+              <select name="shares-user-ids[]" class="tui-dropdown">
+                {{ range $.users }}
+                <option 
+                  value="{{ .UserID }}"
+                  {{ if eq .UserID $share.User.UserID }}selected{{ end }}>
+                  {{ .UserName }}
+                </option>
+                {{ end }}
+              </select>
+            </td>
+            <td>
+              <input type="number" name="shares-percent[]" 
+                value="{{ $share.Share }}" class="tui-dropdown">
+            </td>
+            <td class="row-delete-button">
+              <button type="button" onclick="deleteShareRow(this)">X</button>
+            </td>
+          </tr>
+        {{ end }}
+      </table>
+    </fieldset>
+
+    <fieldset>
+      <legend>PAYMENTS</legend>
+      <button
+        type="button"
+        onclick="addPaymentRow()"
+        >+ Payment</button>
+      <div id="operation-state" class="warning">&nbsp;</div><br>
+      <table id="payments-table">
+        <tr>
+          <th>ID</th>
+          <th>USER</th>
+          <th>PAYED</th>
+        </tr>
+
+        <!-- Data row to be copied -->
+        <tr id="template-payment-row" style="display: none;">
+          <td >
+            <input name="payments-ids[]" disabled readonly
+              value="" class="tui-dropdown">
+          </td>
+          <td>
+            <select name="payments-user-ids[]" disabled class="tui-dropdown">
+              {{ range .users }}
+              <option 
+                {{ if eq .UserID $.expense.OwnerUser.UserID }}selected{{ end }}
+                value="{{ .UserID }}">{{ .UserName }}</option>
+              {{ end }}
+            </select>
+          </td>
+
+          <td>
+            <input type="number" name="payments-payment[]" value="0" disabled class="tui-dropdown">
+          </td>
+
+          <td class="row-delete-button">
+            <button type="button" onclick="deleteShareRow(this)">X</button>
+          </td>
+        </tr>
+
+        {{ range .expense.Payments }}
+          {{ $payment := . }}
+          <tr data-id="{{ $payment.ExpPaymID }}">
+            <td>
+              <input name="payments-ids[]" readonly
+                value="{{ $payment.ExpPaymID }}" class="tui-dropdown">
+            </td>
+            <td>
+              <select name="payments-user-ids[]" class="tui-dropdown">
+                {{ range $.users }}
+                <option 
+                  value="{{ .UserID }}"
+                  {{ if eq .UserID $payment.User.UserID }}selected{{ end }}>
+                  {{ .UserName }}
+                </option>
+                {{ end }}
+              </select>
+            </td>
+            <td>
+              <input type="number" name="payments-payment[]" 
+                value="{{ $payment.PayedAmount }}" class="tui-dropdown">
+            </td>
+            <td class="row-delete-button">
+              <!-- <button type="button" onclick="deleteShareRow(this)">X</button> -->
+              <button
+                type="button"
+                class="delete-button"
+                hx-delete="/payments/{{ $payment.ExpPaymID }}"
+                hx-target="closest tr">X</button>
+            </td>
+          </tr>
+        {{ end }}
+      </table>
+    </fieldset>
+
+    <br>
+    <button 
+      class="subbutton"
+      {{ if eq .method "put" }}
+      hx-put="/expenses/{{ .expense.ExpID }}" 
+      {{ end }}
+      {{ if eq .method "post" }}
+      hx-post="/expenses/new" 
+      {{ end }}
+      hx-swap="none"
+      type="submit" 
+      id="expense-submit-button">
+      {{- if eq .method "put" }}UPDATE{{- end }}
+      {{- if eq .method "post" }}CREATE{{- end }}</button>
+    {{ if eq .method "put" }}
+    <button
+      hx-delete="/expenses/{{ .expense.ExpID }}"
+      hx-swap="none"
+      type="button"
+      id="expense-delete-button">DELETE</button>
+    {{ end }}
   </form>
 </div>
 

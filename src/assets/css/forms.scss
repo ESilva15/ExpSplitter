@@ -2,22 +2,7 @@
   height: 100%;
 }
 
-.form-container {
-  display: block;
-  text-align: center;
-}
-
-.form-container.form-left {
-  text-align: left;
-}
-
-.fullwidth-label {
-  display: block;
-}
-
 .tui-input {
-  width: 50%;
-  max-width: 15ch;
   font-family: dejavu_monospace;
   font-size: var(--html_font_size);
   border: solid 2px;
@@ -28,17 +13,18 @@
   color: var(--text-color);
 }
 
-.tui-input.fullwidth {
-  width: 100%;
-  max-width: 100%;
-  text-align: left;
+.tui-dropdown {
+  font-family: dejavu_monospace;
+  font-size: var(--html_font_size);
+  border: solid 2px;
+  background-color: var(--background-color);
+  color: var(--text-color);
 }
 
 .tui-input.underline {
   border: none;
   border-bottom: 2px solid;
 }
-
 
 .subbutton:focus::before {
   content: ">";
@@ -48,28 +34,22 @@
   content: "<";
 }
 
-.form-container.form-inline {
-  text-align: left;
-  display: table;
+.form-inline {
+  display: grid;
+  grid-template-columns: auto 1fr; /* adjust 12ch based on your longest label */
+  gap: 0.5em 1em;
+  align-items: center;
   width: 100%;
-}
-
-.form-inline p {
-  display: table-row;
+  max-width: 40rem;
 }
 
 .form-inline label {
-  display: table-cell;
-  padding-right: 1em;
+  text-align: left;
   white-space: nowrap;
-  width: 10%;
 }
 
-.form-inline .input.tui-input {
-  display: table-cell;
+.form-inline input,
+.form-inline select {
   width: 100%;
-}
-
-.form-inline .subbutton {
-  display: block;
+  box-sizing: border-box;
 }
