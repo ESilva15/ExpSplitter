@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 
+	"expenses/config"
+
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -25,7 +27,9 @@ func NewCategory() Category {
 }
 
 func GetAllCategories() ([]Category, error) {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +57,9 @@ func GetAllCategories() ([]Category, error) {
 }
 
 func GetCategory(catID int) (Category, error) {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
 		return Category{}, err
 	}
@@ -73,7 +79,9 @@ func GetCategory(catID int) (Category, error) {
 }
 
 func (cat *Category) Insert() error {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
 	if err != nil {
 		return err
 	}
@@ -96,16 +104,13 @@ func (cat *Category) Insert() error {
 }
 
 func (cat *Category) Delete() error {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
 	if err != nil {
 		return err
 	}
 	defer db.Close()
-
-	_, err = db.Exec("PRAGMA foreign_keys = ON")
-	if err != nil {
-		return err
-	}
 
 	query := "DELETE FROM categories WHERE CategoryID = ?"
 	res, err := db.Exec(query, cat.CategoryID)
@@ -124,16 +129,13 @@ func (cat *Category) Delete() error {
 }
 
 func (cat *Category) Update() error {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
 	if err != nil {
 		return err
 	}
 	defer db.Close()
-
-	_, err = db.Exec("PRAGMA foreign_keys = ON")
-	if err != nil {
-		return err
-	}
 
 	query := "UPDATE categories SET CategoryName = ? WHERE CategoryID = ?"
 	res, err := db.Exec(query, cat.CategoryName, cat.CategoryID)

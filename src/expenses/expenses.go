@@ -1,6 +1,8 @@
 package expenses
 
 import (
+	"expenses/config"
+
 	"database/sql"
 	"fmt"
 	"log"
@@ -38,7 +40,9 @@ func NewExpense() Expense {
 }
 
 func GetAllExpenses() ([]Expense, error) {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +83,9 @@ func GetAllExpenses() ([]Expense, error) {
 }
 
 func GetExpense(expID int) (Expense, error) {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
 		return Expense{}, err
 	}
@@ -119,7 +125,9 @@ func GetExpense(expID int) (Expense, error) {
 }
 
 func (exp *Expense) Insert() error {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
 	if err != nil {
 		return err
 	}
@@ -168,7 +176,9 @@ func (exp *Expense) Insert() error {
 }
 
 func (exp *Expense) Update() error {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
 		return err
 	}
@@ -227,7 +237,9 @@ func (exp *Expense) Update() error {
 }
 
 func (e *Expense) Delete() error {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
 		return err
 	}
@@ -253,7 +265,9 @@ func (e *Expense) Delete() error {
 
 // SHITTY QUERIES THAT I NEED TO PUT IN SOMEWHERE MORE OGRANHJASLD
 func GetExpensesRange(start int64, end int64) ([]Expense, error) {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
 		return nil, err
 	}

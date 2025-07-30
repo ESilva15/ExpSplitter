@@ -1,6 +1,8 @@
 package expenses
 
 import (
+	"expenses/config"
+
 	"database/sql"
 	"fmt"
 	"log"
@@ -21,7 +23,9 @@ func NewType() Type {
 }
 
 func GetAllTypes() ([]Type, error) {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +53,9 @@ func GetAllTypes() ([]Type, error) {
 }
 
 func GetType(typID int) (Type, error) {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
 		return Type{}, err
 	}
@@ -69,7 +75,9 @@ func GetType(typID int) (Type, error) {
 }
 
 func (typ *Type) Insert() error {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
 	if err != nil {
 		return err
 	}
@@ -92,16 +100,13 @@ func (typ *Type) Insert() error {
 }
 
 func (typ *Type) Delete() error {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
 	if err != nil {
 		return err
 	}
 	defer db.Close()
-
-	_, err = db.Exec("PRAGMA foreign_keys = ON")
-	if err != nil {
-		return err
-	}
 
 	query := "DELETE FROM expenseTypes WHERE TypeID = ?"
 	res, err := db.Exec(query, typ.TypeID)
@@ -120,16 +125,13 @@ func (typ *Type) Delete() error {
 }
 
 func (typ *Type) Update() error {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
 	if err != nil {
 		return err
 	}
 	defer db.Close()
-
-	_, err = db.Exec("PRAGMA foreign_keys = ON")
-	if err != nil {
-		return err
-	}
 
 	query := "UPDATE expenseTypes SET TypeName = ? WHERE TypeID = ?"
 	res, err := db.Exec(query, typ.TypeName, typ.TypeID)

@@ -1,6 +1,8 @@
 package expenses
 
 import (
+	"expenses/config"
+
 	"database/sql"
 	"fmt"
 	"log"
@@ -21,7 +23,9 @@ func NewStore() Store {
 }
 
 func GetAllStores() ([]Store, error) {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +53,9 @@ func GetAllStores() ([]Store, error) {
 }
 
 func GetStore(storeID int) (Store, error) {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
 		return Store{}, err
 	}
@@ -69,7 +75,9 @@ func GetStore(storeID int) (Store, error) {
 }
 
 func (s *Store) Insert() error {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
 	if err != nil {
 		return err
 	}
@@ -92,16 +100,13 @@ func (s *Store) Insert() error {
 }
 
 func (s *Store) Update() error {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
 	if err != nil {
 		return err
 	}
 	defer db.Close()
-
-	_, err = db.Exec("PRAGMA foreign_keys = ON")
-	if err != nil {
-		return err
-	}
 
 	query := "UPDATE stores SET StoreName = ? WHERE StoreID = ?"
 	res, err := db.Exec(query, s.StoreName, s.StoreID)
@@ -120,16 +125,13 @@ func (s *Store) Update() error {
 }
 
 func (s *Store) Delete() error {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
 	if err != nil {
 		return err
 	}
 	defer db.Close()
-
-	_, err = db.Exec("PRAGMA foreign_keys = ON")
-	if err != nil {
-		return err
-	}
 
 	query := "DELETE FROM stores WHERE StoreID = ?"
 	res, err := db.Exec(query, s.StoreID)

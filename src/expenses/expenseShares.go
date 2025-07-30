@@ -1,6 +1,8 @@
 package expenses
 
 import (
+	"expenses/config"
+
 	"database/sql"
 	"fmt"
 	"log"
@@ -15,7 +17,9 @@ type ExpenseShare struct {
 }
 
 func (e *Expense) GetShares() error {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
 		return err
 	}
@@ -47,7 +51,9 @@ func (e *Expense) GetShares() error {
 }
 
 func (sh *ExpenseShare) Insert(expID int) error {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
 	if err != nil {
 		return err
 	}
@@ -74,7 +80,9 @@ func (sh *ExpenseShare) Insert(expID int) error {
 }
 
 func (sh *ExpenseShare) Update() error {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
 		return err
 	}

@@ -1,6 +1,8 @@
 package expenses
 
 import (
+	"expenses/config"
+
 	"database/sql"
 	"log"
 
@@ -20,7 +22,9 @@ func NewUser() User {
 }
 
 func GetAllUsers() ([]User, error) {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
 		return nil, err
 	}

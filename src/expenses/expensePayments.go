@@ -1,6 +1,8 @@
 package expenses
 
 import (
+	"expenses/config"
+
 	"database/sql"
 	"log"
 	"fmt"
@@ -15,7 +17,9 @@ type ExpensePayment struct {
 }
 
 func (e *Expense) GetPayments() error {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
 		return err
 	}
@@ -47,7 +51,9 @@ func (e *Expense) GetPayments() error {
 }
 
 func (p *ExpensePayment) Insert(expID int) error {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
 	if err != nil {
 		return err
 	}
@@ -74,7 +80,9 @@ func (p *ExpensePayment) Insert(expID int) error {
 }
 
 func (p *ExpensePayment) Update() error {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
 		return err
 	}
@@ -102,7 +110,9 @@ func (p *ExpensePayment) Update() error {
 }
 
 func (p *ExpensePayment) Delete() error {
-	db, err := sql.Open("sqlite3", "./data/data.db")
+	cfg := config.GetInstance()
+
+	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
 		return err
 	}
