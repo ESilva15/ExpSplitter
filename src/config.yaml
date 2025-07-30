@@ -1,2 +1,4 @@
 assets: "./assets/"
 port: 8081
+dbpath: "./data/data.db"
+dbsys: "sqlite3"
