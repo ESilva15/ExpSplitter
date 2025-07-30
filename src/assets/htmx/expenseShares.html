@@ -14,7 +14,7 @@
   <tr id="template-share-row" style="display: none;">
     <td>
       <input name="shares-ids[]" disabled readonly 
-        value="" class="tui-dropdown">
+        value="" class="tui-input">
     </td>
     <td>
       <select name="shares-user-ids[]" disabled class="tui-dropdown">
@@ -27,7 +27,7 @@
     </td>
     <td>
       <input type="number" name="shares-percent[]" 
-        value="1" disabled class="tui-dropdown">
+        value="1" disabled class="tui-input">
     </td>
     <td class="row-delete-button">
       <button type="button" onclick="deleteShareRow(this)">X</button>
@@ -40,7 +40,7 @@
       <td>
         <input 
           name="shares-ids[]" readonly 
-          value="{{ $share.ExpShareID }}" class="tui-dropdown">
+          value="{{ $share.ExpShareID }}" class="tui-input">
       </td>
       <td>
         <select name="shares-user-ids[]" class="tui-dropdown">
@@ -55,7 +55,7 @@
       </td>
       <td>
         <input type="number" name="shares-percent[]" 
-          value="{{ $share.Share }}" class="tui-dropdown">
+          value="{{ $share.Share }}" class="tui-input">
       </td>
       <td class="row-delete-button">
         <button type="button" onclick="deleteShareRow(this)">X</button>

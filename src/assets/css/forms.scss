@@ -11,6 +11,11 @@
   resize: horizontal;
   background-color: var(--background-color);
   color: var(--text-color);
+
+  appearance: none;
+  margin: 0;
+  -webkite-appearance: none;
+  -moz-appearance: textfield;
 }
 
 .tui-dropdown {
@@ -36,7 +41,7 @@
 
 .form-inline {
   display: grid;
-  grid-template-columns: auto 1fr; /* adjust 12ch based on your longest label */
+  grid-template-columns: auto 1fr;
   gap: 0.5em 1em;
   align-items: center;
   width: 100%;

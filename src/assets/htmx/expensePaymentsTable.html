@@ -15,7 +15,7 @@
   <tr id="template-payment-row" style="display: none;">
     <td >
       <input name="payments-ids[]" disabled readonly
-        value="" class="tui-dropdown">
+        value="" class="tui-input">
     </td>
     <td>
       <select name="payments-user-ids[]" disabled class="tui-dropdown">
@@ -28,7 +28,7 @@
     </td>
 
     <td>
-      <input type="number" name="payments-payment[]" value="0" disabled class="tui-dropdown">
+      <input type="number" name="payments-payment[]" value="0" disabled class="tui-input">
     </td>
 
     <td class="row-delete-button">
@@ -41,7 +41,7 @@
     <tr data-id="{{ $payment.ExpPaymID }}">
       <td>
         <input name="payments-ids[]" readonly
-          value="{{ $payment.ExpPaymID }}" class="tui-dropdown">
+          value="{{ $payment.ExpPaymID }}" class="tui-input">
       </td>
       <td>
         <select name="payments-user-ids[]" class="tui-dropdown">
@@ -56,7 +56,7 @@
       </td>
       <td>
         <input type="number" name="payments-payment[]" 
-          value="{{ $payment.PayedAmount }}" class="tui-dropdown">
+          value="{{ $payment.PayedAmount }}" class="tui-input">
       </td>
       <td class="row-delete-button">
         <!-- <button type="button" onclick="deleteShareRow(this)">X</button> -->
