@@ -127,6 +127,10 @@ dt {
     0 0 1px var(--text-color);
 }
 
+.text-color {
+  color: var(--text-color) !important;
+}
+
 #container {
   width: 100%;
   margin: auto;
