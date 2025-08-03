@@ -1,7 +1,7 @@
 build = ./build/expensesweb
 registry = dir.esilva.org
 repo = esilva
-tag = v0.0.46-alpha
+tag = v0.0.51-alpha
 
 build_release_alpine:
 	rm -rf build && mkdir -p $(build)
