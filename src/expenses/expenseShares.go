@@ -1,11 +1,12 @@
 package expenses
 
 import (
+	"context"
 	"expenses/config"
+	"expenses/expenses/db/repository"
 
 	"database/sql"
 	"fmt"
-	"log"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -16,38 +17,23 @@ type ExpenseShare struct {
 	Share      float32
 }
 
-func (e *Expense) GetShares() error {
+func GetShares(expID int64) ([]repository.GetSharesRow, error) {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
-		return err
+		return []repository.GetSharesRow{}, err
 	}
 	defer db.Close()
 
-	query := "SELECT ExpShareID,Share,users.UserID,users.UserName " +
-		"FROM expensesShares " +
-		"JOIN users ON users.UserID = expensesShares.UserID " +
-		"WHERE ExpID = ?"
-
-	rows, err := db.Query(query, e.ExpID)
+	queries := repository.New(db)
+	shares, err := queries.GetShares(ctx, expID)
 	if err != nil {
-		return err
+		return []repository.GetSharesRow{}, err
 	}
 
-	for rows.Next() {
-		share := &ExpenseShare{}
-		err := rows.Scan(
-			&share.ExpShareID, &share.Share,
-			&share.User.UserID, &share.User.UserName,
-		)
-		if err != nil {
-			log.Fatalf("Failed to parse data from db: %v", err)
-		}
-		e.Shares = append(e.Shares, *share)
-	}
-
-	return nil
+	return shares, nil
 }
 
 func (sh *ExpenseShare) Insert(expID int) error {

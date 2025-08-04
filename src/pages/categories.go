@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"database/sql"
 	"expenses/expenses"
 
 	"encoding/json"
@@ -31,19 +32,19 @@ func categoriesGlobalPage(c *gin.Context) {
 }
 
 func categoryPage(c *gin.Context) {
-	categoryID, err := strconv.Atoi(c.Param("id"))
+	categoryID, err := strconv.ParseInt(c.Param("id"), 10, 16)
 	if err != nil {
 		NotFoundView(c, "No such category")
 		return
 	}
 
 	category, err := expenses.GetCategory(categoryID)
-	if err != nil {
-		ServerErrorView(c, "The server too makes mistakes")
+	if err == sql.ErrNoRows {
+		NotFoundView(c, fmt.Sprintf("Could not find category `%d`", categoryID))
 		return
 	}
-	if category.CategoryID == -1 {
-		NotFoundView(c, fmt.Sprintf("Could not find category `%d`", categoryID))
+	if err != nil {
+		ServerErrorView(c, "The server too makes mistakes")
 		return
 	}
 

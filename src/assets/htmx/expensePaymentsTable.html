@@ -21,7 +21,7 @@
       <select name="payments-user-ids[]" disabled class="tui-dropdown">
         {{ range .users }}
         <option 
-          {{ if eq .UserID $.expense.OwnerUser.UserID }}selected{{ end }}
+          {{ if eq .UserID $.expense.User.UserID }}selected{{ end }}
           value="{{ .UserID }}">{{ .UserName }}</option>
         {{ end }}
       </select>
@@ -36,12 +36,12 @@
     </td>
   </tr>
 
-  {{ range .expense.Payments }}
+  {{ range .payments }}
     {{ $payment := . }}
-    <tr data-id="{{ $payment.ExpPaymID }}">
+    <tr data-id="{{ $payment.ExpensesPayment.ExpPaymID }}">
       <td>
         <input name="payments-ids[]" readonly
-          value="{{ $payment.ExpPaymID }}" class="tui-input">
+          value="{{ $payment.ExpensesPayment.ExpPaymID }}" class="tui-input">
       </td>
       <td>
         <select name="payments-user-ids[]" class="tui-dropdown">
@@ -56,14 +56,13 @@
       </td>
       <td>
         <input type="number" name="payments-payment[]" 
-          value="{{ $payment.PayedAmount }}" class="tui-input">
+          value="{{ formatPrice $payment.ExpensesPayment.Payed }}" class="tui-input">
       </td>
       <td class="row-delete-button">
-        <!-- <button type="button" onclick="deleteShareRow(this)">X</button> -->
         <button
           type="button"
           class="delete-button"
-          hx-delete="/payments/{{ $payment.ExpPaymID }}"
+          hx-delete="/payments/{{ $payment.ExpensesPayment.ExpPaymID }}"
           hx-target="closest tr">X</button>
       </td>
     </tr>

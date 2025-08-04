@@ -10,29 +10,29 @@
         <input 
           readonly
           class="tui-input underline" type="text" name="expense-id" 
-          value="{{ .expense.ExpID }}" id="expense-id">
+          value="{{ .expense.Expense.ExpID }}" id="expense-id">
         {{ end }}
 
         <label for="expense-desc">Description:</label>
         <input 
           class="tui-input underline" type="text" name="expense-desc" 
-          value="{{ .expense.Description }}" id="expense-desc">
+          value="{{ .expense.Expense.Description }}" id="expense-desc">
 
         <label for="expense-date">Date:</label>
         <input 
           class="tui-input underline" type="text" name="expense-date" 
-          value="{{ formatDate .expense.ExpDate }}" id="expense-date">
+          value="{{ formatDate .expense.Expense.ExpDate }}" id="expense-date">
 
         <label for="expense-value">Value:</label>
         <input 
           class="tui-input underline" type="text" name="expense-value" 
-          value="{{ .expense.Value }}" id="expense-value">
+          value="{{ formatPrice .expense.Expense.Value }}" id="expense-value">
 
         <label for="newexp-type-dropdown">Type:</label>
         <select name="newexp-type-dropdown" id="newexp-type-dropdown" class="tui-dropdown">
           {{ range .types }}
           <option 
-            {{ if eq .TypeID $.expense.ExpType.TypeID }}selected{{ end }}
+            {{ if eq .TypeID $.expense.ExpenseType.TypeID }}selected{{ end }}
             value="{{ .TypeID }}">{{ .TypeName }}</option>
           {{ end}}
         </select>
@@ -41,7 +41,7 @@
         <select name="newexp-cat-dropdown" id="newexp-cat-dropdown" class="tui-dropdown">
           {{ range .categories }}
           <option 
-            {{ if eq .CategoryID $.expense.ExpCategory.CategoryID }}selected{{ end }}
+            {{ if eq .CategoryID $.expense.Category.CategoryID }}selected{{ end }}
             value="{{ .CategoryID }}">{{ .CategoryName }}</option>
           {{ end}}
         </select>
@@ -50,7 +50,7 @@
         <select name="newexp-store-dropdown" id="newexp-store-dropdown" class="tui-dropdown">
           {{ range .stores }}
           <option 
-            {{ if eq .StoreID $.expense.ExpStore.StoreID }}selected{{ end }}
+            {{ if eq .StoreID $.expense.Store.StoreID }}selected{{ end }}
             value="{{ .StoreID }}">{{ .StoreName }}</option>
           {{ end}}
         </select>
@@ -71,7 +71,7 @@
     <button 
       class="subbutton"
       {{ if eq .method "put" }}
-      hx-put="/expenses/{{ .expense.ExpID }}" 
+      hx-put="/expenses/{{ .expense.Expense.ExpID }}" 
       {{ end }}
       {{ if eq .method "post" }}
       hx-post="/expenses/new" 
@@ -86,7 +86,7 @@
       onclick="confirmDelete(this)"
       type="button"
       class="delete-button"
-      data-delete-url="/expenses/{{ .expense.ExpID }}"
+      data-delete-url="/expenses/{{ .expense.Expense.ExpID }}"
       id="expense-delete-button">DELETE</button>
     {{ end }}
   </form>

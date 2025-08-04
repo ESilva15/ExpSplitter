@@ -21,7 +21,7 @@ var tmplFuncMap = template.FuncMap{
 	"formatDate": func(ts int64) string {
 		return time.Unix(ts, 0).Format("02-Jan-2006")
 	},
-	"formatPrice": func(v float32) string {
+	"formatPrice": func(v float64) string {
 		return fmt.Sprintf("%.2f", v)
 	},
 }

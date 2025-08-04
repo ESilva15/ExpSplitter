@@ -1,0 +1,14 @@
+version: "2"
+sql:
+  - engine: "sqlite"
+    queries: "queries/"
+    # Convert this to use a migrations/ (migrate)
+    schema: "schema.sql"
+    gen:
+      go:
+        package: "repository"
+        out: "repository"
+        rename:
+          expenseTypes: "ExpenseTypes"
+          expenseShares: "ExpenseShares"
+          expensePayments: "ExpensePayments"

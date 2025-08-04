@@ -6,3 +6,4 @@ used
 - [ ] Ability to attach a document to an expense
 - [ ] Debts table
 - [ ] Ability to export data in multiple formats and with a selection of columns
+- [ ] Migrate every column named "ExpenseSomething" to "ExpSomething"

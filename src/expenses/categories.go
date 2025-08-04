@@ -1,11 +1,12 @@
 package expenses
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
-	"log"
 
 	"expenses/config"
+	repo "expenses/expenses/db/repository"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -26,8 +27,9 @@ func NewCategory() Category {
 	}
 }
 
-func GetAllCategories() ([]Category, error) {
+func GetAllCategories() ([]repo.Category, error) {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
@@ -35,47 +37,29 @@ func GetAllCategories() ([]Category, error) {
 	}
 	defer db.Close()
 
-	query := "SELECT CategoryID,CategoryName " +
-		"FROM categories"
-
-	var categoryList []Category
-	rows, err := db.Query(query)
+	queries := repo.New(db)
+	categories, err := queries.GetCategories(ctx)
 	if err != nil {
-		return nil, err
+		return []repo.Category{}, nil
 	}
 
-	for rows.Next() {
-		exp := &Category{}
-		err := rows.Scan(&exp.CategoryID, &exp.CategoryName)
-		if err != nil {
-			log.Fatalf("Failed to parse data from db: %v", err)
-		}
-		categoryList = append(categoryList, *exp)
-	}
-
-	return categoryList, nil
+	return categories, nil
 }
 
-func GetCategory(catID int) (Category, error) {
+func GetCategory(catID int64) (repo.Category, error) {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
-		return Category{}, err
+		return repo.Category{}, err
 	}
 	defer db.Close()
 
-	query := "SELECT CategoryID,CategoryName " +
-		"FROM categories " +
-		"WHERE CategoryID = ?"
+	queries := repo.New(db)
+	category, err := queries.GetCategory(ctx, catID)
 
-	cat := Category{CategoryID: -1}
-	err = db.QueryRow(query, catID).Scan(&cat.CategoryID, &cat.CategoryName)
-	if err != nil {
-		return Category{CategoryID: -1}, nil
-	}
-
-	return cat, nil
+	return category, nil
 }
 
 func (cat *Category) Insert() error {

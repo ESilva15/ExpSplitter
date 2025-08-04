@@ -1,7 +1,9 @@
 package expenses
 
 import (
+	"context"
 	"expenses/config"
+	"expenses/expenses/db/repository"
 
 	"database/sql"
 	"fmt"
@@ -39,8 +41,9 @@ func NewExpense() Expense {
 	}
 }
 
-func GetAllExpenses() ([]Expense, error) {
+func GetAllExpenses() ([]repository.GetExpensesRow, error) {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
@@ -48,80 +51,32 @@ func GetAllExpenses() ([]Expense, error) {
 	}
 	defer db.Close()
 
-	query := "SELECT ExpID,Description,Value," +
-		"Stores.StoreID,Stores.StoreName," +
-		"Categories.CategoryID,Categories.CategoryName," +
-		"Users.UserID,Users.UserName," +
-		"ExpDate,CreationDate " +
-		"FROM expenses " +
-		"JOIN Stores ON stores.StoreID = expenses.StoreID " +
-		"JOIN Categories ON categories.CategoryID = expenses.CategoryID " +
-		"JOIN Users ON UserID = OwnerUserId"
-
-	var expList []Expense
-	rows, err := db.Query(query)
+	queries := repository.New(db)
+	expenses, err := queries.GetExpenses(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	for rows.Next() {
-		exp := &Expense{}
-		err := rows.Scan(
-			&exp.ExpID, &exp.Description, &exp.Value,
-			&exp.ExpStore.StoreID, &exp.ExpStore.StoreName,
-			&exp.ExpCategory.CategoryID, &exp.ExpCategory.CategoryName,
-			&exp.OwnerUser.UserID, &exp.OwnerUser.UserName,
-			&exp.ExpDate, &exp.CreationDate,
-		)
-		if err != nil {
-			log.Fatalf("Failed to parse data from db: %v", err)
-		}
-		expList = append(expList, *exp)
-	}
-
-	return expList, nil
+	return expenses, nil
 }
 
-func GetExpense(expID int) (Expense, error) {
+func GetExpense(expID int64) (repository.GetExpenseRow, error) {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
-		return Expense{}, err
+		return repository.GetExpenseRow{}, err
 	}
 	defer db.Close()
 
-	query := "SELECT ExpID,Description,Value," +
-		"Stores.StoreID,Stores.StoreName," +
-		"Categories.CategoryID,Categories.CategoryName," +
-		"Users.UserID,Users.UserName," +
-		"expenseTypes.TypeID,expenseTypes.TypeName, " +
-		"ExpDate,CreationDate " +
-		"FROM expenses " +
-		"JOIN Stores ON stores.StoreID = expenses.StoreID " +
-		"JOIN Categories ON categories.CategoryID = expenses.CategoryID " +
-		"JOIN Users ON UserID = OwnerUserId " +
-		"JOIN expenseTypes ON expenseTypes.TypeID = expenses.TypeID " +
-		"WHERE ExpID = ?"
-
-	exp := Expense{ExpID: -1}
-	err = db.QueryRow(query, expID).Scan(
-		&exp.ExpID, &exp.Description, &exp.Value,
-		&exp.ExpStore.StoreID, &exp.ExpStore.StoreName,
-		&exp.ExpCategory.CategoryID, &exp.ExpCategory.CategoryName,
-		&exp.OwnerUser.UserID, &exp.OwnerUser.UserName,
-		&exp.ExpType.TypeID, &exp.ExpType.TypeName,
-		&exp.ExpDate, &exp.CreationDate,
-	)
-	if err == sql.ErrNoRows {
-		return Expense{ExpID: -1}, err
-	}
-
+	queries := repository.New(db)
+	expense, err := queries.GetExpense(ctx, expID)
 	if err != nil {
-		return Expense{}, err
+		return repository.GetExpenseRow{}, err
 	}
 
-	return exp, nil
+	return expense, nil
 }
 
 func (exp *Expense) Insert() error {

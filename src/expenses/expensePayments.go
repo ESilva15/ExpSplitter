@@ -1,10 +1,11 @@
 package expenses
 
 import (
+	"context"
 	"expenses/config"
+	"expenses/expenses/db/repository"
 
 	"database/sql"
-	"log"
 	"fmt"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -16,38 +17,23 @@ type ExpensePayment struct {
 	PayedAmount float32
 }
 
-func (e *Expense) GetPayments() error {
+func GetPayments(expID int64) ([]repository.GetPaymentsRow, error) {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
-		return err
+		return []repository.GetPaymentsRow{}, err
 	}
 	defer db.Close()
 
-	query := "SELECT ExpPaymID,Payed,users.UserID,users.UserName " +
-		"FROM expensesPayments " +
-		"JOIN users ON users.UserID = expensesPayments.UserID " +
-		"WHERE ExpID = ?"
-
-	rows, err := db.Query(query, e.ExpID)
+	queries := repository.New(db)
+	payments, err := queries.GetPayments(ctx, expID)
 	if err != nil {
-		return err
+		return []repository.GetPaymentsRow{}, err
 	}
 
-	for rows.Next() {
-		paym := &ExpensePayment{}
-		err := rows.Scan(
-			&paym.ExpPaymID, &paym.PayedAmount,
-			&paym.User.UserID, &paym.User.UserName,
-		)
-		if err != nil {
-			log.Fatalf("Failed to parse data from db: %v", err)
-		}
-		e.Payments = append(e.Payments, *paym)
-	}
-
-	return nil
+	return payments, nil
 }
 
 func (p *ExpensePayment) Insert(expID int) error {

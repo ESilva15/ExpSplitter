@@ -1,9 +1,11 @@
 package pages
 
 import (
+	"database/sql"
 	"encoding/json"
 	"expenses/expenses"
 	"fmt"
+	"log"
 	"strconv"
 
 	"net/http"
@@ -43,23 +45,29 @@ func ExpensesGlobalPage(c *gin.Context) {
 }
 
 func expensePage(c *gin.Context) {
-	expenseID, err := strconv.Atoi(c.Param("id"))
+	expenseID, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.Redirect(404, "/404")
 	}
 
 	expense, err := expenses.GetExpense(expenseID)
-	err = expense.GetPayments()
-	if err != nil {
-		ServerErrorView(c, "failed to fetch payments")
+	if err == sql.ErrNoRows {
+		NotFoundView(c, "didn't find requested expense")
 		return
 	}
 
-	err = expense.GetShares()
+	shares, err := expenses.GetShares(expense.Expense.ExpID)
+	if err != nil {
+		ServerErrorView(c, "failed to fetch shares")
+		return
+	}
+
+	payments, err := expenses.GetPayments(expense.Expense.ExpID)
 	if err != nil {
 		ServerErrorView(c, "failed to fetch payments")
 		return
 	}
+	log.Println(payments)
 
 	categories, err := expenses.GetAllCategories()
 	if err != nil {
@@ -85,16 +93,11 @@ func expensePage(c *gin.Context) {
 		return
 	}
 
-	summary, err := expense.GetSummary()
-	if err != nil {
-		ServerErrorView(c, "failed to get summary")
-		return
-	}
-
-	if expense.ExpID == -1 {
-		NotFoundView(c, fmt.Sprintf("ID `%d` doesn't exist", expenseID))
-		return
-	}
+	// summary, err := expense.GetSummary()
+	// if err != nil {
+	// 	ServerErrorView(c, "failed to get summary")
+	// 	return
+	// }
 
 	c.HTML(http.StatusOK, "terminal", gin.H{
 		"page":         "expense",
@@ -105,8 +108,10 @@ func expensePage(c *gin.Context) {
 		"categories":   categories,
 		"stores":       stores,
 		"types":        types,
-		"summary":      summary,
 		"users":        users,
+		"shares":       shares,
+		"payments":     payments,
+		// "summary":      summary,
 	})
 }
 
@@ -139,12 +144,12 @@ func newExpensePage(c *gin.Context) {
 		"page":         "expenseNew",
 		"renderNavBar": false,
 		"content":      "newExpense",
-		"method":     "post",
-		"expense":    expenses.NewExpense(),
-		"categories": categories,
-		"stores":     stores,
-		"types":      types,
-		"users":      users,
+		"method":       "post",
+		"expense":      expenses.NewExpense(),
+		"categories":   categories,
+		"stores":       stores,
+		"types":        types,
+		"users":        users,
 	})
 }
 
