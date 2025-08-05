@@ -11,32 +11,26 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type ExpensePayment struct {
-	ExpPaymID   int
-	User        User
-	PayedAmount float32
-}
-
-func GetPayments(expID int64) ([]repository.GetPaymentsRow, error) {
+func GetPayments(expID int64) ([]ExpensePayment, error) {
 	cfg := config.GetInstance()
 	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
-		return []repository.GetPaymentsRow{}, err
+		return []ExpensePayment{}, err
 	}
 	defer db.Close()
 
 	queries := repository.New(db)
 	payments, err := queries.GetPayments(ctx, expID)
 	if err != nil {
-		return []repository.GetPaymentsRow{}, err
+		return []ExpensePayment{}, err
 	}
 
-	return payments, nil
+	return mapRepoGetPaymentsRows(payments), nil
 }
 
-func (p *ExpensePayment) Insert(expID int) error {
+func (p *ExpensePayment) Insert(expID int64) error {
 	cfg := config.GetInstance()
 
 	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")

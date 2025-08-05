@@ -67,19 +67,19 @@ func TestCalculateDebtsTestCase1(t *testing.T) {
 		ExpID:       1,
 		Description: "Test Exp",
 		Value:       150.0,
-		ExpType: Type{
+		Type: Type{
 			TypeID:   1,
 			TypeName: "Despesa",
 		},
-		ExpCategory: Category{
+		Category: Category{
 			CategoryID:   0,
 			CategoryName: "Groceries",
 		},
-		OwnerUser: User{
+		Owner: User{
 			UserID:   1,
 			UserName: "ESilva",
 		},
-		ExpDate: 1753307982,
+		Date: 1753307982,
 		Payments: []ExpensePayment{
 			{
 				ExpPaymID: 0,

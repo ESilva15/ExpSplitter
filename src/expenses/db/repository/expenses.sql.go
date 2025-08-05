@@ -7,6 +7,7 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 )
 
 const getExpense = `-- name: GetExpense :one
@@ -129,4 +130,40 @@ func (q *Queries) GetExpenses(ctx context.Context) ([]GetExpensesRow, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const insertExpense = `-- name: InsertExpense :execresult
+INSERT INTO expenses(
+  "Description","Value",
+  "StoreID",
+  "CategoryID",
+  "TypeID",
+  "OwnerUserID",
+  "ExpDate","CreationDate"
+)
+VALUES(?, ?, ? , ?, ?, ?, ?, ?)
+`
+
+type InsertExpenseParams struct {
+	Description  string
+	Value        float64
+	StoreID      int64
+	CategoryID   int64
+	TypeID       int64
+	OwnerUserID  int64
+	ExpDate      int64
+	CreationDate int64
+}
+
+func (q *Queries) InsertExpense(ctx context.Context, arg InsertExpenseParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, insertExpense,
+		arg.Description,
+		arg.Value,
+		arg.StoreID,
+		arg.CategoryID,
+		arg.TypeID,
+		arg.OwnerUserID,
+		arg.ExpDate,
+		arg.CreationDate,
+	)
 }

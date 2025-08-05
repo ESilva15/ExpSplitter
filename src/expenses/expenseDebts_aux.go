@@ -1,16 +1,16 @@
 package expenses
 
 type DebtCalculator struct {
-	Shares    map[User]float32
-	Payments  map[User]float32
-	Expense   *Expense
+	Shares   map[User]float64
+	Payments map[User]float64
+	Expense  *Expense
 }
 
 func NewDebtCalculator(e *Expense) *DebtCalculator {
 	return &DebtCalculator{
-		Shares:    make(map[User]float32),
-		Payments:  make(map[User]float32),
-		Expense:   e,
+		Shares:   make(map[User]float64),
+		Payments: make(map[User]float64),
+		Expense:  e,
 	}
 }
 
@@ -28,7 +28,7 @@ func (dc *DebtCalculator) mapPayments() {
 }
 
 func (dc *DebtCalculator) getDebts() []Debt {
-	debts := []Debt{}	
+	debts := []Debt{}
 
 	for user := range dc.Payments {
 		debt := (dc.Shares[user] * dc.Expense.Value) - dc.Payments[user]

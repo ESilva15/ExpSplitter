@@ -11,10 +11,10 @@
   </tr>
   {{ range .expenses }}
   <tr>
-    <th><a href="/expenses/{{ .Expense.ExpID }}">{{ .Expense.ExpID }}</th>
-    <th spellcheck="false" contenteditable>{{ .Expense.Description }}</th>
-    <th spellcheck="false" contenteditable>{{ formatPrice .Expense.Value }}</th>
-    <th spellcheck="false" contenteditable>{{ formatDate .Expense.ExpDate }}</th>
+    <th><a href="/expenses/{{ .ExpID }}">{{ .ExpID }}</th>
+    <th spellcheck="false" contenteditable>{{ .Description }}</th>
+    <th spellcheck="false" contenteditable>{{ formatPrice .Value }}</th>
+    <th spellcheck="false" contenteditable>{{ formatDate .Date }}</th>
     <th spellcheck="false">{{ .Category.CategoryName }}</th>
   </tr>
   {{ end }}

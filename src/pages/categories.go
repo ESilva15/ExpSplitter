@@ -82,19 +82,19 @@ func createCategory(c *gin.Context) {
 }
 
 func updateCategory(c *gin.Context) {
-	categoryID, err := strconv.Atoi(c.Param("id"))
+	categoryID, err := strconv.ParseInt(c.Param("id"), 10, 16)
 	if err != nil {
 		NotFoundView(c, "No such category")
 		return
 	}
 
 	categoryName := c.PostForm("category-name")
-	category := expenses.Category{
+	cat := expenses.Category{
 		CategoryID:   categoryID,
 		CategoryName: categoryName,
 	}
 
-	err = category.Update()
+	err = cat.Update()
 	if err != nil {
 		errMsg, _ := json.Marshal(err.Error())
 		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":%s}", errMsg))
@@ -105,16 +105,17 @@ func updateCategory(c *gin.Context) {
 }
 
 func deleteCategory(c *gin.Context) {
-	categoryID, err := strconv.Atoi(c.Param("id"))
+	categoryID, err := strconv.ParseInt(c.Param("id"), 10, 16)
 	if err != nil {
 		NotFoundView(c, "No such category")
 		return
 	}
 
-	category := expenses.Category{
+	cat := expenses.Category{
 		CategoryID: categoryID,
 	}
-	err = category.Delete()
+
+	err = cat.Delete()
 	if err == expenses.ErrNotFound {
 		errMsg := fmt.Sprintf("category %d not found", categoryID)
 		c.String(http.StatusNotFound, errMsg)

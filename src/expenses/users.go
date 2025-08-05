@@ -10,7 +10,7 @@ import (
 )
 
 type User struct {
-	UserID   int
+	UserID   int64
 	UserName string
 }
 

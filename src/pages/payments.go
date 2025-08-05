@@ -10,7 +10,7 @@ import (
 )
 
 func deletePayment(c *gin.Context) {
-	paymentID, err := strconv.Atoi(c.Param("id"))
+	paymentID, err := strconv.ParseInt(c.Param("id"), 10, 16)
 	if err != nil {
 		NotFoundView(c, "failed to fetch payment")
 		return

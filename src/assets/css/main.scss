@@ -128,7 +128,7 @@ dt {
 }
 
 .text-color {
-  color: var(--text-color) !important;
+  color: var(--text-color);
 }
 
 #container {
@@ -210,7 +210,7 @@ dt {
 }
 
 .warning {
-  color: var(--warning-color);
+  color: var(--warning-color) !important;
 }
 
 @media (max-width: 900px) {

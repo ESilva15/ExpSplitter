@@ -19,9 +19,8 @@
       <div class="scanline"></div>
 
       <fieldset class="main-container neon-text {{ if .warning }}warning{{ end }}">
-        <legend id="home-button"
-          class="neon-text {{ if .warning }}warning{{ end }}">
-          <a class="text-color" href="/">EXPENSES</a>
+        <legend id="home-button" class="neon-text">
+          <a class="text-color {{ if .warning }}warning{{ end }}" href="/">EXPENSES</a>
         </legend>
         <div id="main-container-content" class="main-container-content">
           {{ if .renderNavBar }}

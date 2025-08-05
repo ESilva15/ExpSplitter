@@ -16,7 +16,7 @@ var (
 )
 
 type Category struct {
-	CategoryID   int
+	CategoryID   int64
 	CategoryName string
 }
 
@@ -27,7 +27,7 @@ func NewCategory() Category {
 	}
 }
 
-func GetAllCategories() ([]repo.Category, error) {
+func GetAllCategories() ([]Category, error) {
 	cfg := config.GetInstance()
 	ctx := context.Background()
 
@@ -40,30 +40,31 @@ func GetAllCategories() ([]repo.Category, error) {
 	queries := repo.New(db)
 	categories, err := queries.GetCategories(ctx)
 	if err != nil {
-		return []repo.Category{}, nil
+		return []Category{}, nil
 	}
 
-	return categories, nil
+	return mapRepoCategories(categories), nil
 }
 
-func GetCategory(catID int64) (repo.Category, error) {
+func GetCategory(catID int64) (Category, error) {
 	cfg := config.GetInstance()
 	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
-		return repo.Category{}, err
+		return Category{}, err
 	}
 	defer db.Close()
 
 	queries := repo.New(db)
 	category, err := queries.GetCategory(ctx, catID)
 
-	return category, nil
+	return mapRepoCategory(category), err
 }
 
 func (cat *Category) Insert() error {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
 	if err != nil {
@@ -71,8 +72,8 @@ func (cat *Category) Insert() error {
 	}
 	defer db.Close()
 
-	query := "INSERT INTO categories(CategoryName) VALUES(?)"
-	res, err := db.Exec(query, cat.CategoryName)
+	queries := repo.New(db)
+	res, err := queries.InsertCategory(ctx, cat.CategoryName)
 	if err != nil {
 		return err
 	}
@@ -89,6 +90,7 @@ func (cat *Category) Insert() error {
 
 func (cat *Category) Delete() error {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
 	if err != nil {
@@ -96,11 +98,8 @@ func (cat *Category) Delete() error {
 	}
 	defer db.Close()
 
-	query := "DELETE FROM categories WHERE CategoryID = ?"
-	res, err := db.Exec(query, cat.CategoryID)
-	if err != nil {
-		return err
-	}
+	queries := repo.New(db)
+	res, err := queries.DeleteCategory(ctx, cat.CategoryID)
 
 	rowsAffected, err := res.RowsAffected()
 	if err != nil {
@@ -114,6 +113,7 @@ func (cat *Category) Delete() error {
 
 func (cat *Category) Update() error {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
 	if err != nil {
@@ -121,8 +121,11 @@ func (cat *Category) Update() error {
 	}
 	defer db.Close()
 
-	query := "UPDATE categories SET CategoryName = ? WHERE CategoryID = ?"
-	res, err := db.Exec(query, cat.CategoryName, cat.CategoryID)
+	queries := repo.New(db)
+	res, err := queries.UpdateCategory(ctx, repo.UpdateCategoryParams{
+		CategoryName: cat.CategoryName,
+		CategoryID:   cat.CategoryID,
+	})
 	if err != nil {
 		return err
 	}

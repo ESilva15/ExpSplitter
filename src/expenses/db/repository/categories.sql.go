@@ -7,7 +7,16 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 )
+
+const deleteCategory = `-- name: DeleteCategory :execresult
+DELETE FROM categories WHERE "CategoryID" = ?
+`
+
+func (q *Queries) DeleteCategory(ctx context.Context, categoryid int64) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deleteCategory, categoryid)
+}
 
 const getCategories = `-- name: GetCategories :many
 SELECT CategoryID, CategoryName FROM categories
@@ -45,4 +54,25 @@ func (q *Queries) GetCategory(ctx context.Context, categoryid int64) (Category, 
 	var i Category
 	err := row.Scan(&i.CategoryID, &i.CategoryName)
 	return i, err
+}
+
+const insertCategory = `-- name: InsertCategory :execresult
+INSERT INTO categories("CategoryName") VALUES(?)
+`
+
+func (q *Queries) InsertCategory(ctx context.Context, categoryname string) (sql.Result, error) {
+	return q.db.ExecContext(ctx, insertCategory, categoryname)
+}
+
+const updateCategory = `-- name: UpdateCategory :execresult
+UPDATE categories SET "CategoryName" = ? WHERE "CategoryID" = ?
+`
+
+type UpdateCategoryParams struct {
+	CategoryName string
+	CategoryID   int64
+}
+
+func (q *Queries) UpdateCategory(ctx context.Context, arg UpdateCategoryParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updateCategory, arg.CategoryName, arg.CategoryID)
 }

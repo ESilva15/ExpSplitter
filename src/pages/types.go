@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"database/sql"
 	"expenses/expenses"
 
 	"fmt"
@@ -30,19 +31,19 @@ func typesGlobalPage(c *gin.Context) {
 }
 
 func typePage(c *gin.Context) {
-	typeID, err := strconv.Atoi(c.Param("id"))
+	typeID, err := strconv.ParseInt(c.Param("id"), 10, 16)
 	if err != nil {
 		NotFoundView(c, "requested type doesn't exist")
 		return
 	}
 
 	typ, err := expenses.GetType(typeID)
-	if err != nil {
-		ServerErrorView(c, "failed to retrieve requested type")
+	if err == sql.ErrNoRows {
+		NotFoundView(c, fmt.Sprintf("Couldn't find type `%d`", typeID))
 		return
 	}
-	if typ.TypeID == -1 {
-		NotFoundView(c, fmt.Sprintf("Couldn't find type `%d`", typeID))
+	if err != nil {
+		ServerErrorView(c, "failed to retrieve requested type")
 		return
 	}
 
@@ -80,7 +81,7 @@ func createType(c *gin.Context) {
 }
 
 func deleteType(c *gin.Context) {
-	typeID, err := strconv.Atoi(c.Param("id"))
+	typeID, err := strconv.ParseInt(c.Param("id"), 10, 16)
 	if err != nil {
 		c.Redirect(404, "/404")
 	}
@@ -105,7 +106,7 @@ func deleteType(c *gin.Context) {
 }
 
 func updateType(c *gin.Context) {
-	typeID, err := strconv.Atoi(c.Param("id"))
+	typeID, err := strconv.ParseInt(c.Param("id"), 10, 16)
 	if err != nil {
 		c.Redirect(404, "/404")
 	}

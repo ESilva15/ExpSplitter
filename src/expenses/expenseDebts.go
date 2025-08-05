@@ -2,7 +2,7 @@ package expenses
 
 type Debt struct {
 	Debtor User
-	Sum    float32
+	Sum    float64
 }
 
 func sortBySum(a, b Debt) int {

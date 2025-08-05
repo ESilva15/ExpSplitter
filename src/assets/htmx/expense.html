@@ -10,29 +10,29 @@
         <input 
           readonly
           class="tui-input underline" type="text" name="expense-id" 
-          value="{{ .expense.Expense.ExpID }}" id="expense-id">
+          value="{{ .expense.ExpID }}" id="expense-id">
         {{ end }}
 
         <label for="expense-desc">Description:</label>
         <input 
           class="tui-input underline" type="text" name="expense-desc" 
-          value="{{ .expense.Expense.Description }}" id="expense-desc">
+          value="{{ .expense.Description }}" id="expense-desc">
 
         <label for="expense-date">Date:</label>
         <input 
           class="tui-input underline" type="text" name="expense-date" 
-          value="{{ formatDate .expense.Expense.ExpDate }}" id="expense-date">
+          value="{{ formatDate .expense.Date }}" id="expense-date">
 
         <label for="expense-value">Value:</label>
         <input 
           class="tui-input underline" type="text" name="expense-value" 
-          value="{{ formatPrice .expense.Expense.Value }}" id="expense-value">
+          value="{{ formatPrice .expense.Value }}" id="expense-value">
 
         <label for="newexp-type-dropdown">Type:</label>
         <select name="newexp-type-dropdown" id="newexp-type-dropdown" class="tui-dropdown">
           {{ range .types }}
           <option 
-            {{ if eq .TypeID $.expense.ExpenseType.TypeID }}selected{{ end }}
+            {{ if eq .TypeID $.expense.Type.TypeID }}selected{{ end }}
             value="{{ .TypeID }}">{{ .TypeName }}</option>
           {{ end}}
         </select>
@@ -71,7 +71,7 @@
     <button 
       class="subbutton"
       {{ if eq .method "put" }}
-      hx-put="/expenses/{{ .expense.Expense.ExpID }}" 
+      hx-put="/expenses/{{ .expense.ExpID }}" 
       {{ end }}
       {{ if eq .method "post" }}
       hx-post="/expenses/new" 
@@ -86,7 +86,7 @@
       onclick="confirmDelete(this)"
       type="button"
       class="delete-button"
-      data-delete-url="/expenses/{{ .expense.Expense.ExpID }}"
+      data-delete-url="/expenses/{{ .expense.ExpID }}"
       id="expense-delete-button">DELETE</button>
     {{ end }}
   </form>

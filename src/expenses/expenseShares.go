@@ -11,32 +11,26 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type ExpenseShare struct {
-	ExpShareID int
-	User       User
-	Share      float32
-}
-
-func GetShares(expID int64) ([]repository.GetSharesRow, error) {
+func GetShares(expID int64) ([]ExpenseShare, error) {
 	cfg := config.GetInstance()
 	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
-		return []repository.GetSharesRow{}, err
+		return []ExpenseShare{}, err
 	}
 	defer db.Close()
 
 	queries := repository.New(db)
 	shares, err := queries.GetShares(ctx, expID)
 	if err != nil {
-		return []repository.GetSharesRow{}, err
+		return []ExpenseShare{}, err
 	}
 
-	return shares, nil
+	return mapRepoGetSharesRows(shares), nil
 }
 
-func (sh *ExpenseShare) Insert(expID int) error {
+func (sh *ExpenseShare) Insert(expID int64) error {
 	cfg := config.GetInstance()
 
 	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")

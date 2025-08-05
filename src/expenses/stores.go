@@ -1,17 +1,18 @@
 package expenses
 
 import (
+	"context"
 	"expenses/config"
+	repo "expenses/expenses/db/repository"
 
 	"database/sql"
 	"fmt"
-	"log"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
 type Store struct {
-	StoreID   int
+	StoreID   int64
 	StoreName string
 }
 
@@ -24,36 +25,26 @@ func NewStore() Store {
 
 func GetAllStores() ([]Store, error) {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
-		return nil, err
+		return []Store{}, err
 	}
 	defer db.Close()
 
-	query := "SELECT StoreID,StoreName " +
-		"FROM stores"
-
-	var storeList []Store
-	rows, err := db.Query(query)
+	queries := repo.New(db)
+	storeList, err := queries.GetStores(ctx)
 	if err != nil {
-		return nil, err
+		return []Store{}, err
 	}
 
-	for rows.Next() {
-		store := &Store{}
-		err := rows.Scan(&store.StoreID, &store.StoreName)
-		if err != nil {
-			log.Fatalf("Failed to parse data from db: %v", err)
-		}
-		storeList = append(storeList, *store)
-	}
-
-	return storeList, nil
+	return mapRepoStores(storeList), nil
 }
 
-func GetStore(storeID int) (Store, error) {
+func GetStore(storeID int64) (Store, error) {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
@@ -61,21 +52,18 @@ func GetStore(storeID int) (Store, error) {
 	}
 	defer db.Close()
 
-	query := "SELECT StoreID,StoreName " +
-		"FROM stores " +
-		"WHERE StoreID = ?"
-
-	store := Store{StoreID: -1}
-	err = db.QueryRow(query, storeID).Scan(&store.StoreID, &store.StoreName)
+	queries := repo.New(db)
+	store, err := queries.GetStore(ctx, storeID)
 	if err != nil {
-		return Store{StoreID: -1}, nil
+		return Store{}, err
 	}
 
-	return store, nil
+	return mapRepoStore(store), nil
 }
 
 func (s *Store) Insert() error {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
 	if err != nil {
@@ -83,11 +71,8 @@ func (s *Store) Insert() error {
 	}
 	defer db.Close()
 
-	query := "INSERT INTO stores(StoreName) VALUES(?)"
-	res, err := db.Exec(query, s.StoreName)
-	if err != nil {
-		return err
-	}
+	queries := repo.New(db)
+	res, err := queries.InsertStore(ctx, s.StoreName)
 
 	rowsAffected, err := res.RowsAffected()
 	if err != nil {
@@ -101,6 +86,7 @@ func (s *Store) Insert() error {
 
 func (s *Store) Update() error {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
 	if err != nil {
@@ -108,11 +94,11 @@ func (s *Store) Update() error {
 	}
 	defer db.Close()
 
-	query := "UPDATE stores SET StoreName = ? WHERE StoreID = ?"
-	res, err := db.Exec(query, s.StoreName, s.StoreID)
-	if err != nil {
-		return err
-	}
+	queries := repo.New(db)
+	res, err := queries.UpdateStore(ctx, repo.UpdateStoreParams{
+		StoreID:   s.StoreID,
+		StoreName: s.StoreName,
+	})
 
 	rowsAffected, err := res.RowsAffected()
 	if err != nil {
@@ -126,6 +112,7 @@ func (s *Store) Update() error {
 
 func (s *Store) Delete() error {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
 	if err != nil {
@@ -133,11 +120,8 @@ func (s *Store) Delete() error {
 	}
 	defer db.Close()
 
-	query := "DELETE FROM stores WHERE StoreID = ?"
-	res, err := db.Exec(query, s.StoreID)
-	if err != nil {
-		return err
-	}
+	queries := repo.New(db)
+	res, err := queries.DeleteStore(ctx, s.StoreID)
 
 	rowsAffected, err := res.RowsAffected()
 	if err != nil {

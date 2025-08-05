@@ -16,7 +16,7 @@ func processFormShares(c *gin.Context) ([]expenses.ExpenseShare, error) {
 	formShares := c.PostFormArray("shares-percent[]")
 
 	for i := range sharesUserIDs {
-		userID, err := strconv.Atoi(sharesUserIDs[i])
+		userID, err := strconv.ParseInt(sharesUserIDs[i], 10, 16)
 		if err != nil {
 			return nil, err
 		}
@@ -31,11 +31,11 @@ func processFormShares(c *gin.Context) ([]expenses.ExpenseShare, error) {
 			User: expenses.User{
 				UserID: userID,
 			},
-			Share: float32(share),
-		}	
+			Share: share,
+		}
 
 		if formSharesIDs[i] != "" {
-			id, err := strconv.Atoi(formSharesIDs[i])
+			id, err := strconv.ParseInt(formSharesIDs[i], 10, 16)
 			if err != nil {
 				return nil, err
 			}
@@ -54,9 +54,9 @@ func processFormPayments(c *gin.Context) ([]expenses.ExpensePayment, error) {
 	paymentsUserIDs := c.PostFormArray("payments-user-ids[]")
 	formPaymentsIDs := c.PostFormArray("payments-ids[]")
 	formPaymentsValues := c.PostFormArray("payments-payment[]")
-	
+
 	for k := range paymentsUserIDs {
-		userID, err := strconv.Atoi(paymentsUserIDs[k])
+		userID, err := strconv.ParseInt(paymentsUserIDs[k], 10, 16)
 		if err != nil {
 			return nil, err
 		}
@@ -71,11 +71,11 @@ func processFormPayments(c *gin.Context) ([]expenses.ExpensePayment, error) {
 			User: expenses.User{
 				UserID: userID,
 			},
-			PayedAmount: float32(payed),
-		} 
+			PayedAmount: payed,
+		}
 
 		if formPaymentsIDs[k] != "" {
-			id, err := strconv.Atoi(formPaymentsIDs[k])
+			id, err := strconv.ParseInt(formPaymentsIDs[k], 10, 16)
 			if err != nil {
 				return nil, err
 			}
@@ -105,19 +105,19 @@ func expenseFromForm(c *gin.Context) (*expenses.Expense, error) {
 	}
 
 	newTyp := c.PostForm("newexp-type-dropdown")
-	typID, err := strconv.Atoi(newTyp)
+	typID, err := strconv.ParseInt(newTyp, 10, 16)
 	if err != nil {
 		return nil, err
 	}
 
 	newCat := c.PostForm("newexp-cat-dropdown")
-	catID, err := strconv.Atoi(newCat)
+	catID, err := strconv.ParseInt(newCat, 10, 16)
 	if err != nil {
 		return nil, err
 	}
 
 	newStore := c.PostForm("newexp-store-dropdown")
-	storeID, err := strconv.Atoi(newStore)
+	storeID, err := strconv.ParseInt(newStore, 10, 16)
 	if err != nil {
 		return nil, err
 	}
@@ -133,25 +133,25 @@ func expenseFromForm(c *gin.Context) (*expenses.Expense, error) {
 
 	newExp := expenses.Expense{
 		Description: newDescription,
-		ExpDate:     date,
-		Value:       float32(value),
-		ExpType: expenses.Type{
+		Date:        date,
+		Value:       value,
+		Type: expenses.Type{
 			TypeID: typID,
 		},
-		ExpCategory: expenses.Category{
+		Category: expenses.Category{
 			CategoryID: catID,
 		},
-		ExpStore: expenses.Store{
+		Store: expenses.Store{
 			StoreID: storeID,
 		},
-		OwnerUser: expenses.User{
+		Owner: expenses.User{
 			// TODO
 			// This needs to be dynamic - to be added once we have logins and whatnot
 			UserID: 1,
 		},
 		CreationDate: time.Now().Unix(),
-		Shares: shares,
-		Payments: payments,
+		Shares:       shares,
+		Payments:     payments,
 	}
 	return &newExp, nil
 }

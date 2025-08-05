@@ -33,3 +33,14 @@ JOIN
   "expenseTypes" as types ON types.TypeID = expenses.TypeID
 WHERE 
   "ExpID" = ?;
+
+-- name: InsertExpense :execresult
+INSERT INTO expenses(
+  "Description","Value",
+  "StoreID",
+  "CategoryID",
+  "TypeID",
+  "OwnerUserID",
+  "ExpDate","CreationDate"
+)
+VALUES(?, ?, ? , ?, ?, ?, ?, ?);

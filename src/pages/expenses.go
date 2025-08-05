@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"expenses/expenses"
 	"fmt"
-	"log"
 	"strconv"
 
 	"net/http"
@@ -56,18 +55,17 @@ func expensePage(c *gin.Context) {
 		return
 	}
 
-	shares, err := expenses.GetShares(expense.Expense.ExpID)
+	shares, err := expenses.GetShares(expense.ExpID)
 	if err != nil {
 		ServerErrorView(c, "failed to fetch shares")
 		return
 	}
 
-	payments, err := expenses.GetPayments(expense.Expense.ExpID)
+	payments, err := expenses.GetPayments(expense.ExpID)
 	if err != nil {
 		ServerErrorView(c, "failed to fetch payments")
 		return
 	}
-	log.Println(payments)
 
 	categories, err := expenses.GetAllCategories()
 	if err != nil {
@@ -171,7 +169,7 @@ func createExpense(c *gin.Context) {
 }
 
 func updateExpense(c *gin.Context) {
-	expenseID, err := strconv.Atoi(c.Param("id"))
+	expenseID, err := strconv.ParseInt(c.Param("id"), 10, 16)
 	if err != nil {
 		c.Header("HX-Redirect", "/404")
 		return
@@ -197,7 +195,7 @@ func updateExpense(c *gin.Context) {
 }
 
 func deleteExpense(c *gin.Context) {
-	expenseID, err := strconv.Atoi(c.Param("id"))
+	expenseID, err := strconv.ParseInt(c.Param("id"), 10, 16)
 	if err != nil {
 		c.Header("HX-Redirect", "/404")
 		return

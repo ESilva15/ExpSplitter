@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"database/sql"
 	"expenses/expenses"
 	"fmt"
 
@@ -30,19 +31,19 @@ func storesGlobalPage(c *gin.Context) {
 }
 
 func storePage(c *gin.Context) {
-	storeID, err := strconv.Atoi(c.Param("id"))
+	storeID, err := strconv.ParseInt(c.Param("id"), 10, 16)
 	if err != nil {
 		NotFoundView(c, "didn't find request store")
 		return
 	}
 
 	store, err := expenses.GetStore(storeID)
-	if err != nil {
-		ServerErrorView(c, fmt.Sprintf("error getting store: %+v", err.Error()))
+	if err == sql.ErrNoRows {
+		NotFoundView(c, fmt.Sprintf("didn't find store with ID `%d`", storeID))
 		return
 	}
-	if store.StoreID == -1 {
-		NotFoundView(c, fmt.Sprintf("didn't store with ID `%d`", storeID))
+	if err != nil {
+		ServerErrorView(c, fmt.Sprintf("error getting store: %+v", err.Error()))
 		return
 	}
 
@@ -80,7 +81,7 @@ func createStore(c *gin.Context) {
 }
 
 func updateStore(c *gin.Context) {
-	storeID, err := strconv.Atoi(c.Param("id"))
+	storeID, err := strconv.ParseInt(c.Param("id"), 10, 16)
 	if err != nil {
 		c.Redirect(404, "/404")
 	}
@@ -101,7 +102,7 @@ func updateStore(c *gin.Context) {
 }
 
 func deleteStore(c *gin.Context) {
-	storeID, err := strconv.Atoi(c.Param("id"))
+	storeID, err := strconv.ParseInt(c.Param("id"), 10, 16)
 	if err != nil {
 		c.Redirect(404, "/404")
 	}

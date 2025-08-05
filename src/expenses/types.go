@@ -1,17 +1,18 @@
 package expenses
 
 import (
+	"context"
 	"expenses/config"
+	repo "expenses/expenses/db/repository"
 
 	"database/sql"
 	"fmt"
-	"log"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
 type Type struct {
-	TypeID   int
+	TypeID   int64
 	TypeName string
 }
 
@@ -24,36 +25,26 @@ func NewType() Type {
 
 func GetAllTypes() ([]Type, error) {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
-		return nil, err
+		return []Type{}, err
 	}
 	defer db.Close()
 
-	query := "SELECT TypeID,TypeName " +
-		"FROM expenseTypes"
-
-	var typeList []Type
-	rows, err := db.Query(query)
+	queries := repo.New(db)
+	typeList, err := queries.GetTypes(ctx)
 	if err != nil {
-		return nil, err
+		return []Type{}, err
 	}
 
-	for rows.Next() {
-		nType := &Type{}
-		err := rows.Scan(&nType.TypeID, &nType.TypeName)
-		if err != nil {
-			log.Fatalf("Failed to parse data from db: %v", err)
-		}
-		typeList = append(typeList, *nType)
-	}
-
-	return typeList, nil
+	return mapRepoTypes(typeList), nil
 }
 
-func GetType(typID int) (Type, error) {
+func GetType(typID int64) (Type, error) {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
@@ -61,21 +52,18 @@ func GetType(typID int) (Type, error) {
 	}
 	defer db.Close()
 
-	query := "SELECT TypeID,TypeName " +
-		"FROM expenseTypes " +
-		"WHERE TypeID = ?"
-
-	nType := Type{TypeID: -1}
-	err = db.QueryRow(query, typID).Scan(&nType.TypeID, &nType.TypeName)
+	queries := repo.New(db)
+	typ, err := queries.GetType(ctx, typID)
 	if err != nil {
-		return Type{TypeID: -1}, nil
+		return Type{}, err
 	}
 
-	return nType, nil
+	return mapRepoType(typ), nil
 }
 
 func (typ *Type) Insert() error {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
 	if err != nil {
@@ -83,12 +71,15 @@ func (typ *Type) Insert() error {
 	}
 	defer db.Close()
 
-	query := "INSERT INTO expenseTypes(TypeName) VALUES(?)"
-	res, err := db.Exec(query, typ.TypeName)
+	queries := repo.New(db)
+	res, err := queries.InsertType(ctx, typ.TypeName)
 	if err != nil {
 		return err
 	}
 
+	// TODO
+	// Move all theses things outside of this, I'll handle it wherever I'm doing
+	// logics
 	rowsAffected, err := res.RowsAffected()
 	if err != nil {
 		return err
@@ -101,6 +92,7 @@ func (typ *Type) Insert() error {
 
 func (typ *Type) Delete() error {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
 	if err != nil {
@@ -108,8 +100,8 @@ func (typ *Type) Delete() error {
 	}
 	defer db.Close()
 
-	query := "DELETE FROM expenseTypes WHERE TypeID = ?"
-	res, err := db.Exec(query, typ.TypeID)
+	queries := repo.New(db)
+	res, err := queries.DeleteType(ctx, typ.TypeID)
 	if err != nil {
 		return err
 	}
@@ -126,6 +118,7 @@ func (typ *Type) Delete() error {
 
 func (typ *Type) Update() error {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
 	if err != nil {
@@ -133,8 +126,11 @@ func (typ *Type) Update() error {
 	}
 	defer db.Close()
 
-	query := "UPDATE expenseTypes SET TypeName = ? WHERE TypeID = ?"
-	res, err := db.Exec(query, typ.TypeName, typ.TypeID)
+	queries := repo.New(db)
+	res, err := queries.UpdateType(ctx, repo.UpdateTypeParams{
+		TypeID:   typ.TypeID,
+		TypeName: typ.TypeName,
+	})
 	if err != nil {
 		return err
 	}

@@ -17,7 +17,7 @@ type ExpenseDebtOverview struct {
 
 type UserDebtSummary struct {
 	Debtor expenses.User
-	Total  float32
+	Total  float64
 }
 
 func overviewPartialPage(c *gin.Context) {
@@ -70,7 +70,7 @@ func getResults(c *gin.Context) {
 	// 	}
 	// }
 
-	userDebtSummary := make(map[expenses.User]float32)
+	userDebtSummary := make(map[expenses.User]float64)
 	expensesWithDebts := []ExpenseDebtOverview{}
 	for _, exp := range queriedExpenses {
 		if len(exp.Shares) <= 1 {
@@ -97,7 +97,7 @@ func getResults(c *gin.Context) {
 
 	c.HTML(http.StatusOK, "overviewResults", gin.H{
 		"expenses": expensesWithDebts,
-		"summary": userDebtSummary,
+		"summary":  userDebtSummary,
 	})
 }
 

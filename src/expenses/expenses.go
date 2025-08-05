@@ -3,7 +3,7 @@ package expenses
 import (
 	"context"
 	"expenses/config"
-	"expenses/expenses/db/repository"
+	repo "expenses/expenses/db/repository"
 
 	"database/sql"
 	"fmt"
@@ -12,75 +12,47 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type Expense struct {
-	ExpID        int
-	Description  string
-	Value        float32
-	ExpStore     Store
-	ExpType      Type
-	ExpCategory  Category
-	OwnerUser    User
-	ExpDate      int64
-	Payments     []ExpensePayment
-	Shares       []ExpenseShare
-	CreationDate int64
-}
-
-func NewExpense() Expense {
-	return Expense{
-		ExpID:        -1,
-		Description:  "",
-		Value:        0.0,
-		ExpStore:     NewStore(),
-		ExpCategory:  NewCategory(),
-		OwnerUser:    NewUser(),
-		ExpDate:      0,
-		Payments:     []ExpensePayment{},
-		Shares:       []ExpenseShare{},
-		CreationDate: 0,
-	}
-}
-
-func GetAllExpenses() ([]repository.GetExpensesRow, error) {
+func GetAllExpenses() ([]Expense, error) {
 	cfg := config.GetInstance()
 	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
-		return nil, err
+		return []Expense{}, err
 	}
 	defer db.Close()
 
-	queries := repository.New(db)
+	queries := repo.New(db)
 	expenses, err := queries.GetExpenses(ctx)
 	if err != nil {
-		return nil, err
+		return []Expense{}, err
 	}
 
-	return expenses, nil
+	return mapRepoGetExpensesRows(expenses), nil
 }
 
-func GetExpense(expID int64) (repository.GetExpenseRow, error) {
+func GetExpense(expID int64) (Expense, error) {
 	cfg := config.GetInstance()
 	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
-		return repository.GetExpenseRow{}, err
+		return Expense{}, err
 	}
 	defer db.Close()
 
-	queries := repository.New(db)
+	queries := repo.New(db)
 	expense, err := queries.GetExpense(ctx, expID)
 	if err != nil {
-		return repository.GetExpenseRow{}, err
+		return Expense{}, err
 	}
 
-	return expense, nil
+	return mapRepoGetExpenseRow(expense), nil
 }
 
 func (exp *Expense) Insert() error {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
 	if err != nil {
@@ -88,16 +60,23 @@ func (exp *Expense) Insert() error {
 	}
 	defer db.Close()
 
-	query := "INSERT INTO expenses(" +
-		"Description,Value,StoreID,CategoryID,TypeID,OwnerUserID,ExpDate,CreationDate" +
-		") " +
-		"VALUES(?, ?, ? , ?, ?, ?, ?, ?)"
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
 
-	// TODO
-	// Add a transaction here so that it fails when necessary
-	res, err := db.Exec(query, exp.Description, exp.Value, exp.ExpStore.StoreID,
-		exp.ExpCategory.CategoryID, exp.ExpType.TypeID, 1, exp.ExpDate, exp.CreationDate,
-	)
+	queries := repo.New(tx)
+	res, err := queries.InsertExpense(ctx, repo.InsertExpenseParams{
+		Description:  exp.Description,
+		Value:        exp.Value,
+		StoreID:      exp.Store.StoreID,
+		CategoryID:   exp.Category.CategoryID,
+		TypeID:       exp.Type.TypeID,
+		OwnerUserID:  exp.Owner.UserID,
+		ExpDate:      exp.Date,
+		CreationDate: exp.CreationDate,
+	})
 	if err != nil {
 		return err
 	}
@@ -106,7 +85,9 @@ func (exp *Expense) Insert() error {
 	if err != nil {
 		return fmt.Errorf("failed to retrieve last inserted expense ID: %v", err)
 	}
-	exp.ExpID = int(expenseID)
+
+	exp.ExpID = expenseID
+
 	for _, share := range exp.Shares {
 		err := share.Insert(exp.ExpID)
 		if err != nil {
@@ -125,6 +106,12 @@ func (exp *Expense) Insert() error {
 		return err
 	} else if rowsAffected == 0 {
 		return fmt.Errorf("no rows were created")
+	}
+
+	if err = tx.Commit(); err != nil {
+		// TODO
+		// Add some kind of log here otherwise we could jusr return the commit res
+		return err
 	}
 
 	return nil
@@ -151,9 +138,9 @@ func (exp *Expense) Update() error {
 		"WHERE ExpID = ?"
 
 	res, err := db.Exec(query,
-		exp.Description, exp.Value, exp.ExpStore.StoreID, 
-		exp.ExpCategory.CategoryID, exp.ExpType.TypeID, exp.OwnerUser.UserID, 
-		exp.ExpDate, exp.ExpID,
+		exp.Description, exp.Value, exp.Store.StoreID,
+		exp.Category.CategoryID, exp.Type.TypeID, exp.Owner.UserID,
+		exp.Date, exp.ExpID,
 	)
 	if err != nil {
 		return err
@@ -236,7 +223,7 @@ func GetExpensesRange(start int64, end int64) ([]Expense, error) {
 		"FROM expenses " +
 		"JOIN Stores ON stores.StoreID = expenses.StoreID " +
 		"JOIN Categories ON categories.CategoryID = expenses.CategoryID " +
-		"JOIN Users ON UserID = OwnerUserId "+
+		"JOIN Users ON UserID = OwnerUserId " +
 		"WHERE ExpDate >= ? and ExpDate <= ?"
 
 	var expList []Expense
@@ -249,10 +236,10 @@ func GetExpensesRange(start int64, end int64) ([]Expense, error) {
 		exp := &Expense{}
 		err := rows.Scan(
 			&exp.ExpID, &exp.Description, &exp.Value,
-			&exp.ExpStore.StoreID, &exp.ExpStore.StoreName,
-			&exp.ExpCategory.CategoryID, &exp.ExpCategory.CategoryName,
-			&exp.OwnerUser.UserID, &exp.OwnerUser.UserName,
-			&exp.ExpDate, &exp.CreationDate,
+			&exp.Store.StoreID, &exp.Store.StoreName,
+			&exp.Category.CategoryID, &exp.Category.CategoryName,
+			&exp.Owner.UserID, &exp.Owner.UserName,
+			&exp.Date, &exp.CreationDate,
 		)
 		if err != nil {
 			log.Fatalf("Failed to parse data from db: %v", err)

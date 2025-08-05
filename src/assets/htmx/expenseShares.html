@@ -20,7 +20,7 @@
       <select name="shares-user-ids[]" disabled class="tui-dropdown">
         {{ range .users }}
         <option 
-          {{ if eq .UserID $.expense.User.UserID }}selected{{ end }}
+          {{ if eq .UserID $.expense.Owner.UserID }}selected{{ end }}
           value="{{ .UserID }}">{{ .UserName }}</option>
         {{ end }}
       </select>
@@ -40,7 +40,7 @@
       <td>
         <input 
           name="shares-ids[]" readonly 
-          value="{{ $share.ExpensesShare.ExpShareID }}" class="tui-input">
+          value="{{ $share.ExpShareID }}" class="tui-input">
       </td>
       <td>
         <select name="shares-user-ids[]" class="tui-dropdown">
@@ -55,7 +55,7 @@
       </td>
       <td>
         <input type="number" name="shares-percent[]" 
-          value="{{ $share.ExpensesShare.Share }}" class="tui-input">
+          value="{{ $share.Share }}" class="tui-input">
       </td>
       <td class="row-delete-button">
         <button type="button" onclick="deleteShareRow(this)">X</button>

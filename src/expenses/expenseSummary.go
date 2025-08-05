@@ -2,8 +2,8 @@ package expenses
 
 type UserExpenseSummary struct {
 	User       User
-	Share      float32
-	PayedTotal float32
+	Share      float64
+	PayedTotal float64
 }
 
 func NewUserExpenseSummary() UserExpenseSummary {
