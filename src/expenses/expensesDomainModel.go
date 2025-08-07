@@ -1,6 +1,7 @@
 package expenses
 
 import (
+	mod "expenses/expenses/models"
 	repo "expenses/expenses/db/repository"
 )
 
@@ -10,7 +11,7 @@ type Expense struct {
 	Value        float64
 	Store        Store
 	Type         Type
-	Category     Category
+	Category     mod.Category
 	Owner        User
 	Date         int64
 	Payments     []ExpensePayment
@@ -24,7 +25,7 @@ func NewExpense() Expense {
 		Description:  "",
 		Value:        0.0,
 		Store:        NewStore(),
-		Category:     NewCategory(),
+		Category:     mod.NewCategory(),
 		Owner:        NewUser(),
 		Date:         0,
 		Payments:     []ExpensePayment{},
@@ -46,7 +47,7 @@ func mapRepoGetExpenseRow(e repo.GetExpenseRow) Expense {
 			TypeID:   e.ExpenseType.TypeID,
 			TypeName: e.ExpenseType.TypeName,
 		},
-		Category: Category{
+		Category: mod.Category{
 			CategoryID:   e.Category.CategoryID,
 			CategoryName: e.Category.CategoryName,
 		},
@@ -74,7 +75,7 @@ func mapRepoGetExpenseRowMulti(e repo.GetExpensesRow) Expense {
 			TypeID:   e.ExpenseType.TypeID,
 			TypeName: e.ExpenseType.TypeName,
 		},
-		Category: Category{
+		Category: mod.Category{
 			CategoryID:   e.Category.CategoryID,
 			CategoryName: e.Category.CategoryName,
 		},

@@ -4,17 +4,13 @@ import (
 	"context"
 	"expenses/config"
 	repo "expenses/expenses/db/repository"
+	experr "expenses/expenses/errors"
 
 	"database/sql"
 	"fmt"
 
 	_ "github.com/mattn/go-sqlite3"
 )
-
-type Type struct {
-	TypeID   int64
-	TypeName string
-}
 
 func NewType() Type {
 	return Type{
@@ -110,7 +106,7 @@ func (typ *Type) Delete() error {
 	if err != nil {
 		return err
 	} else if rowsAffected == 0 {
-		return ErrNotFound
+		return experr.ErrNotFound
 	}
 
 	return nil
@@ -139,7 +135,7 @@ func (typ *Type) Update() error {
 	if err != nil {
 		return err
 	} else if rowsAffected == 0 {
-		return ErrNotFound
+		return experr.ErrNotFound
 	}
 
 	return nil

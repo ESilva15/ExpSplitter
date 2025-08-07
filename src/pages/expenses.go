@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"expenses/expenses"
+	experr "expenses/expenses/errors"
 	"fmt"
 	"strconv"
 
@@ -204,7 +205,7 @@ func deleteExpense(c *gin.Context) {
 	}
 
 	err = payment.Delete()
-	if err == expenses.ErrNotFound {
+	if err == experr.ErrNotFound {
 		errMsg := fmt.Sprintf("category %d not found", expenseID)
 		c.String(http.StatusNotFound, errMsg)
 		return

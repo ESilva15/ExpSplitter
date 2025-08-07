@@ -3,6 +3,7 @@ package pages
 import (
 	"database/sql"
 	"expenses/expenses"
+	experr "expenses/expenses/errors"
 
 	"fmt"
 	"net/http"
@@ -90,7 +91,7 @@ func deleteType(c *gin.Context) {
 		TypeID: typeID,
 	}
 	err = typ.Delete()
-	if err == expenses.ErrNotFound {
+	if err == experr.ErrNotFound {
 		errMsg := fmt.Sprintf("category %d not found", typeID)
 		c.String(http.StatusNotFound, errMsg)
 		return

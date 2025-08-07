@@ -3,6 +3,7 @@ package pages
 import (
 	"database/sql"
 	"expenses/expenses"
+	experr "expenses/expenses/errors"
 
 	"encoding/json"
 	"fmt"
@@ -68,12 +69,8 @@ func newCategoryPage(c *gin.Context) {
 
 func createCategory(c *gin.Context) {
 	newCatName := c.PostForm("category-name")
+	err := expenses.CreateCategory(newCatName)
 
-	newCat := expenses.Category{
-		CategoryName: newCatName,
-	}
-
-	err := newCat.Insert()
 	if err != nil {
 		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
 	}
@@ -87,14 +84,9 @@ func updateCategory(c *gin.Context) {
 		NotFoundView(c, "No such category")
 		return
 	}
-
 	categoryName := c.PostForm("category-name")
-	cat := expenses.Category{
-		CategoryID:   categoryID,
-		CategoryName: categoryName,
-	}
 
-	err = cat.Update()
+	err = expenses.UpdateCategory(categoryID, categoryName)
 	if err != nil {
 		errMsg, _ := json.Marshal(err.Error())
 		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":%s}", errMsg))
@@ -111,12 +103,8 @@ func deleteCategory(c *gin.Context) {
 		return
 	}
 
-	cat := expenses.Category{
-		CategoryID: categoryID,
-	}
-
-	err = cat.Delete()
-	if err == expenses.ErrNotFound {
+	err = expenses.DeleteCategory(categoryID)
+	if err == experr.ErrNotFound {
 		errMsg := fmt.Sprintf("category %d not found", categoryID)
 		c.String(http.StatusNotFound, errMsg)
 		return

@@ -1,6 +1,7 @@
 package pages
 
 import (
+	mod "expenses/expenses/models"
 	"expenses/expenses"
 	"strconv"
 	"time"
@@ -138,7 +139,7 @@ func expenseFromForm(c *gin.Context) (*expenses.Expense, error) {
 		Type: expenses.Type{
 			TypeID: typID,
 		},
-		Category: expenses.Category{
+		Category: mod.Category{
 			CategoryID: catID,
 		},
 		Store: expenses.Store{

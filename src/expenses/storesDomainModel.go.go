@@ -2,6 +2,11 @@ package expenses
 
 import repo "expenses/expenses/db/repository"
 
+type Store struct {
+	StoreID   int64
+	StoreName string
+}
+
 func mapRepoStore(rs repo.Store) Store {
 	return Store{
 		StoreID:   rs.StoreID,

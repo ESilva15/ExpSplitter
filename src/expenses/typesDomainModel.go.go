@@ -2,6 +2,11 @@ package expenses
 
 import repo "expenses/expenses/db/repository"
 
+type Type struct {
+	TypeID   int64
+	TypeName string
+}
+
 func mapRepoType(rt repo.ExpenseType) Type {
 	return Type{
 		TypeID:   rt.TypeID,

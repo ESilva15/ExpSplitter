@@ -2,6 +2,7 @@ package pages
 
 import (
 	"expenses/expenses"
+	experr "expenses/expenses/errors"
 	"strconv"
 	"fmt"
 	"net/http"
@@ -21,7 +22,7 @@ func deletePayment(c *gin.Context) {
 	} 
 
 	err = payment.Delete()
-	if err == expenses.ErrNotFound {
+	if err == experr.ErrNotFound {
 		errMsg := fmt.Sprintf("category %d not found", paymentID)
 		c.String(http.StatusNotFound, errMsg)
 		return
