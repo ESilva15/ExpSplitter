@@ -7,7 +7,6 @@ import (
 
 	"database/sql"
 	"fmt"
-	"log"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -23,7 +22,10 @@ func GetAllExpenses() ([]Expense, error) {
 	defer db.Close()
 
 	queries := repo.New(db)
-	expenses, err := queries.GetExpenses(ctx)
+	expenses, err := queries.GetExpenses(ctx, repo.GetExpensesParams{
+		Startdate: nil,
+		Enddate:   nil,
+	})
 	if err != nil {
 		return []Expense{}, err
 	}
@@ -60,13 +62,13 @@ func (exp *Expense) Insert() error {
 	}
 	defer db.Close()
 
-	tx, err := db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
+	// tx, err := db.Begin()
+	// if err != nil {
+	// 	return err
+	// }
+	// defer tx.Rollback()
 
-	queries := repo.New(tx)
+	queries := repo.New(db)
 	res, err := queries.InsertExpense(ctx, repo.InsertExpenseParams{
 		Description:  exp.Description,
 		Value:        exp.Value,
@@ -108,17 +110,18 @@ func (exp *Expense) Insert() error {
 		return fmt.Errorf("no rows were created")
 	}
 
-	if err = tx.Commit(); err != nil {
-		// TODO
-		// Add some kind of log here otherwise we could jusr return the commit res
-		return err
-	}
+	// if err = tx.Commit(); err != nil {
+	// TODO
+	// Add some kind of log here otherwise we could jusr return the commit res
+	// 	return err
+	// }
 
 	return nil
 }
 
-func (exp *Expense) Update() error {
+func (e *Expense) Update() error {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
@@ -126,29 +129,24 @@ func (exp *Expense) Update() error {
 	}
 	defer db.Close()
 
-	query := "UPDATE expenses " +
-		"SET " +
-		"Description = ?," +
-		"Value = ?," +
-		"StoreID = ?," +
-		"CategoryID = ?," +
-		"TypeID = ?," +
-		"OwnerUserID = ?," +
-		"ExpDate = ?" +
-		"WHERE ExpID = ?"
-
-	res, err := db.Exec(query,
-		exp.Description, exp.Value, exp.Store.StoreID,
-		exp.Category.CategoryID, exp.Type.TypeID, exp.Owner.UserID,
-		exp.Date, exp.ExpID,
-	)
+	queries := repo.New(db)
+	res, err := queries.UpdateExpense(ctx, repo.UpdateExpenseParams{
+		ExpID:       e.ExpID,
+		Description: e.Description,
+		Value:       e.Value,
+		StoreID:     e.Store.StoreID,
+		CategoryID:  e.Category.CategoryID,
+		TypeID:      e.Type.TypeID,
+		OwnerUserID: e.Owner.UserID,
+		ExpDate:     e.Date,
+	})
 	if err != nil {
 		return err
 	}
 
-	for _, share := range exp.Shares {
+	for _, share := range e.Shares {
 		if share.ExpShareID == -1 {
-			err := share.Insert(exp.ExpID)
+			err := share.Insert(e.ExpID)
 			if err != nil {
 				return err
 			}
@@ -157,9 +155,9 @@ func (exp *Expense) Update() error {
 		}
 	}
 
-	for _, paym := range exp.Payments {
+	for _, paym := range e.Payments {
 		if paym.ExpPaymID == -1 {
-			err := paym.Insert(exp.ExpID)
+			err := paym.Insert(e.ExpID)
 			if err != nil {
 				return err
 			}
@@ -180,6 +178,7 @@ func (exp *Expense) Update() error {
 
 func (e *Expense) Delete() error {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
@@ -187,10 +186,8 @@ func (e *Expense) Delete() error {
 	}
 	defer db.Close()
 
-	query := "DELETE FROM expenses " +
-		"WHERE ExpID = ?"
-
-	res, err := db.Exec(query, e.ExpID)
+	queries := repo.New(db)
+	res, err := queries.DeleteExpense(ctx, e.ExpID)
 	if err != nil {
 		return err
 	}
@@ -208,44 +205,22 @@ func (e *Expense) Delete() error {
 // SHITTY QUERIES THAT I NEED TO PUT IN SOMEWHERE MORE OGRANHJASLD
 func GetExpensesRange(start int64, end int64) ([]Expense, error) {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
-		return nil, err
+		return []Expense{}, err
 	}
 	defer db.Close()
 
-	query := "SELECT ExpID,Description,Value," +
-		"Stores.StoreID,Stores.StoreName," +
-		"Categories.CategoryID,Categories.CategoryName," +
-		"Users.UserID,Users.UserName," +
-		"ExpDate,CreationDate " +
-		"FROM expenses " +
-		"JOIN Stores ON stores.StoreID = expenses.StoreID " +
-		"JOIN Categories ON categories.CategoryID = expenses.CategoryID " +
-		"JOIN Users ON UserID = OwnerUserId " +
-		"WHERE ExpDate >= ? and ExpDate <= ?"
-
-	var expList []Expense
-	rows, err := db.Query(query, start, end)
+	queries := repo.New(db)
+	expenses, err := queries.GetExpenses(ctx, repo.GetExpensesParams{
+		Startdate: start,
+		Enddate:   end,
+	})
 	if err != nil {
-		return nil, err
+		return []Expense{}, err
 	}
 
-	for rows.Next() {
-		exp := &Expense{}
-		err := rows.Scan(
-			&exp.ExpID, &exp.Description, &exp.Value,
-			&exp.Store.StoreID, &exp.Store.StoreName,
-			&exp.Category.CategoryID, &exp.Category.CategoryName,
-			&exp.Owner.UserID, &exp.Owner.UserName,
-			&exp.Date, &exp.CreationDate,
-		)
-		if err != nil {
-			log.Fatalf("Failed to parse data from db: %v", err)
-		}
-		expList = append(expList, *exp)
-	}
-
-	return expList, nil
+	return mapRepoGetExpensesRows(expenses), nil
 }

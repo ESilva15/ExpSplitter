@@ -13,7 +13,11 @@ JOIN
 JOIN 
   Users ON UserID = OwnerUserId
 JOIN
-  "expenseTypes" as types ON types.TypeID = expenses.TypeID;
+  "expenseTypes" as types ON types.TypeID = expenses.TypeID
+WHERE
+  (sqlc.narg(startDate) IS NULL OR expenses."ExpDate" >= sqlc.narg(startDate))
+  AND
+  (sqlc.narg(endDate) IS NULL OR expenses."ExpDate" <= sqlc.narg(endDate));
 
 -- name: GetExpense :one
 SELECT 
@@ -44,3 +48,18 @@ INSERT INTO expenses(
   "ExpDate","CreationDate"
 )
 VALUES(?, ?, ? , ?, ?, ?, ?, ?);
+
+-- name: DeleteExpense :execresult
+DELETE FROM expenses WHERE "ExpID" = ?;
+
+-- name: UpdateExpense :execresult
+UPDATE expenses
+SET
+  "Description" = ?,
+  "Value" = ?,
+  "StoreID" = ?,
+  "CategoryID" = ?,
+  "TypeID" = ?,
+  "OwnerUserID" = ?,
+  "ExpDate" = ?
+WHERE "ExpID" = ?;

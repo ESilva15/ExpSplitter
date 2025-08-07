@@ -7,6 +7,7 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 )
 
 const getShares = `-- name: GetShares :many
@@ -53,4 +54,37 @@ func (q *Queries) GetShares(ctx context.Context, expid int64) ([]GetSharesRow, e
 		return nil, err
 	}
 	return items, nil
+}
+
+const insertShare = `-- name: InsertShare :execresult
+INSERT INTO "expensesShares"(
+  "ExpID", "UserID", "Share"
+)
+VALUES(?, ?, ?)
+`
+
+type InsertShareParams struct {
+	ExpID  int64
+	UserID int64
+	Share  float64
+}
+
+func (q *Queries) InsertShare(ctx context.Context, arg InsertShareParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, insertShare, arg.ExpID, arg.UserID, arg.Share)
+}
+
+const updateShare = `-- name: UpdateShare :execresult
+UPDATE expensesShares
+SET "UserID" = ?, "Share" = ?
+WHERE "ExpShareID" = ?
+`
+
+type UpdateShareParams struct {
+	UserID     int64
+	Share      float64
+	ExpShareID int64
+}
+
+func (q *Queries) UpdateShare(ctx context.Context, arg UpdateShareParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updateShare, arg.UserID, arg.Share, arg.ExpShareID)
 }

@@ -3,7 +3,7 @@ package expenses
 import (
 	"context"
 	"expenses/config"
-	"expenses/expenses/db/repository"
+	repo "expenses/expenses/db/repository"
 
 	"database/sql"
 	"fmt"
@@ -11,27 +11,29 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func GetPayments(expID int64) ([]ExpensePayment, error) {
+func (e *Expense) GetPayments() error {
 	cfg := config.GetInstance()
 	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
-		return []ExpensePayment{}, err
+		return err
 	}
 	defer db.Close()
 
-	queries := repository.New(db)
-	payments, err := queries.GetPayments(ctx, expID)
+	queries := repo.New(db)
+	payments, err := queries.GetPayments(ctx, e.ExpID)
 	if err != nil {
-		return []ExpensePayment{}, err
+		return err
 	}
 
-	return mapRepoGetPaymentsRows(payments), nil
+	e.Payments = mapRepoGetPaymentsRows(payments)
+	return nil
 }
 
 func (p *ExpensePayment) Insert(expID int64) error {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
 	if err != nil {
@@ -39,12 +41,12 @@ func (p *ExpensePayment) Insert(expID int64) error {
 	}
 	defer db.Close()
 
-	query := "INSERT INTO expensesPayments(" +
-		"ExpID,UserID,Payed" +
-		") " +
-		"VALUES(?, ?, ?)"
-
-	res, err := db.Exec(query, expID, p.User.UserID, p.PayedAmount)
+	queries := repo.New(db)
+	res, err := queries.InsertPayment(ctx, repo.InsertPaymentParams{
+		ExpID:  expID,
+		UserID: p.User.UserID,
+		Payed:  p.PayedAmount,
+	})
 	if err != nil {
 		return err
 	}
@@ -61,6 +63,7 @@ func (p *ExpensePayment) Insert(expID int64) error {
 
 func (p *ExpensePayment) Update() error {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
@@ -68,13 +71,12 @@ func (p *ExpensePayment) Update() error {
 	}
 	defer db.Close()
 
-	query := "UPDATE expensesPayments " +
-		"SET " +
-		"UserID = ?," +
-		"Payed = ? " +
-		"WHERE ExpPaymID = ?"
-
-	res, err := db.Exec(query, p.User.UserID, p.PayedAmount, p.ExpPaymID)
+	queries := repo.New(db)
+	res, err := queries.UpdatePayment(ctx, repo.UpdatePaymentParams{
+		ExpPaymID: p.ExpPaymID,
+		Payed:     p.PayedAmount,
+		UserID:    p.User.UserID,
+	})
 	if err != nil {
 		return err
 	}
@@ -91,6 +93,7 @@ func (p *ExpensePayment) Update() error {
 
 func (p *ExpensePayment) Delete() error {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
@@ -98,10 +101,8 @@ func (p *ExpensePayment) Delete() error {
 	}
 	defer db.Close()
 
-	query := "DELETE FROM expensesPayments " +
-		"WHERE ExpPaymID = ?"
-
-	res, err := db.Exec(query, p.ExpPaymID)
+	queries := repo.New(db)
+	res, err := queries.DeletePayment(ctx, p.ExpPaymID)
 	if err != nil {
 		return err
 	}

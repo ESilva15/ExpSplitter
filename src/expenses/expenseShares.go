@@ -4,6 +4,7 @@ import (
 	"context"
 	"expenses/config"
 	"expenses/expenses/db/repository"
+	repo "expenses/expenses/db/repository"
 
 	"database/sql"
 	"fmt"
@@ -11,27 +12,29 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func GetShares(expID int64) ([]ExpenseShare, error) {
+func (e *Expense) GetShares() error {
 	cfg := config.GetInstance()
 	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
-		return []ExpenseShare{}, err
+		return err
 	}
 	defer db.Close()
 
 	queries := repository.New(db)
-	shares, err := queries.GetShares(ctx, expID)
+	shares, err := queries.GetShares(ctx, e.ExpID)
 	if err != nil {
-		return []ExpenseShare{}, err
+		return err
 	}
 
-	return mapRepoGetSharesRows(shares), nil
+	e.Shares = mapRepoGetSharesRows(shares)
+	return nil
 }
 
 func (sh *ExpenseShare) Insert(expID int64) error {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
 	if err != nil {
@@ -39,12 +42,12 @@ func (sh *ExpenseShare) Insert(expID int64) error {
 	}
 	defer db.Close()
 
-	query := "INSERT INTO expensesShares(" +
-		"ExpID,UserID,Share" +
-		") " +
-		"VALUES(?, ?, ?)"
-
-	res, err := db.Exec(query, expID, sh.User.UserID, sh.Share)
+	queries := repo.New(db)
+	res, err := queries.InsertShare(ctx, repo.InsertShareParams{
+		ExpID:  expID,
+		Share:  sh.Share,
+		UserID: sh.User.UserID,
+	})
 	if err != nil {
 		return err
 	}
@@ -61,6 +64,7 @@ func (sh *ExpenseShare) Insert(expID int64) error {
 
 func (sh *ExpenseShare) Update() error {
 	cfg := config.GetInstance()
+	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
@@ -68,13 +72,12 @@ func (sh *ExpenseShare) Update() error {
 	}
 	defer db.Close()
 
-	query := "UPDATE expensesShares " +
-		"SET " +
-		"UserID = ?," +
-		"Share = ? " +
-		"WHERE ExpShareID = ?"
-
-	res, err := db.Exec(query, sh.User.UserID, sh.Share, sh.ExpShareID)
+	queries := repo.New(db)
+	res, err := queries.UpdateShare(ctx, repo.UpdateShareParams{
+		ExpShareID: sh.ExpShareID,
+		Share:      sh.Share,
+		UserID:     sh.User.UserID,
+	})
 	if err != nil {
 		return err
 	}

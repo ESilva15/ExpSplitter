@@ -57,18 +57,18 @@ func getResults(c *gin.Context) {
 	}
 
 	// Get the expenses and shares for each expense
-	// for k := range queriedExpenses {
-	// 	err = queriedExpenses[k].GetShares()
-	// 	if err != nil {
-	// 		log.Printf("failed to get shares: %v", err)
-	// 		return
-	// 	}
-	// 	err = queriedExpenses[k].GetPayments()
-	// 	if err != nil {
-	// 		log.Printf("failed to get payments: %v", err)
-	// 		return
-	// 	}
-	// }
+	for k := range queriedExpenses {
+		err = queriedExpenses[k].GetShares()
+		if err != nil {
+			log.Printf("failed to get shares: %v", err)
+			return
+		}
+		err = queriedExpenses[k].GetPayments()
+		if err != nil {
+			log.Printf("failed to get payments: %v", err)
+			return
+		}
+	}
 
 	userDebtSummary := make(map[expenses.User]float64)
 	expensesWithDebts := []ExpenseDebtOverview{}

@@ -6,3 +6,17 @@ FROM
 JOIN 
   users as users ON users.UserID = payments.UserID
 WHERE "ExpID" = ?;
+
+-- name: InsertPayment :execresult
+INSERT INTO "expensesPayments"(
+  "ExpID", "UserID", "Payed"
+)
+VALUES(?, ?, ?);
+
+-- name: UpdatePayment :execresult
+UPDATE expensesPayments
+SET "UserID" = ?, "Payed" = ?
+WHERE "ExpPaymID" = ?;
+
+-- name: DeletePayment :execresult
+DELETE FROM "expensesPayments" WHERE "ExpPaymID" = ?;

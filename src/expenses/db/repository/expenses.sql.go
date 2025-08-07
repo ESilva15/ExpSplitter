@@ -10,6 +10,14 @@ import (
 	"database/sql"
 )
 
+const deleteExpense = `-- name: DeleteExpense :execresult
+DELETE FROM expenses WHERE "ExpID" = ?
+`
+
+func (q *Queries) DeleteExpense(ctx context.Context, expid int64) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deleteExpense, expid)
+}
+
 const getExpense = `-- name: GetExpense :one
 SELECT 
   expenses.ExpID, expenses.Description, expenses.Value, expenses.StoreID, expenses.CategoryID, expenses.OwnerUserID, expenses.TypeID, expenses.ExpDate, expenses.CreationDate,
@@ -80,7 +88,16 @@ JOIN
   Users ON UserID = OwnerUserId
 JOIN
   "expenseTypes" as types ON types.TypeID = expenses.TypeID
+WHERE
+  (?1 IS NULL OR expenses."ExpDate" >= ?1)
+  AND
+  (?2 IS NULL OR expenses."ExpDate" <= ?2)
 `
+
+type GetExpensesParams struct {
+	Startdate interface{}
+	Enddate   interface{}
+}
 
 type GetExpensesRow struct {
 	Expense     Expense
@@ -90,8 +107,8 @@ type GetExpensesRow struct {
 	ExpenseType ExpenseType
 }
 
-func (q *Queries) GetExpenses(ctx context.Context) ([]GetExpensesRow, error) {
-	rows, err := q.db.QueryContext(ctx, getExpenses)
+func (q *Queries) GetExpenses(ctx context.Context, arg GetExpensesParams) ([]GetExpensesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getExpenses, arg.Startdate, arg.Enddate)
 	if err != nil {
 		return nil, err
 	}
@@ -165,5 +182,42 @@ func (q *Queries) InsertExpense(ctx context.Context, arg InsertExpenseParams) (s
 		arg.OwnerUserID,
 		arg.ExpDate,
 		arg.CreationDate,
+	)
+}
+
+const updateExpense = `-- name: UpdateExpense :execresult
+UPDATE expenses
+SET
+  "Description" = ?,
+  "Value" = ?,
+  "StoreID" = ?,
+  "CategoryID" = ?,
+  "TypeID" = ?,
+  "OwnerUserID" = ?,
+  "ExpDate" = ?
+WHERE "ExpID" = ?
+`
+
+type UpdateExpenseParams struct {
+	Description string
+	Value       float64
+	StoreID     int64
+	CategoryID  int64
+	TypeID      int64
+	OwnerUserID int64
+	ExpDate     int64
+	ExpID       int64
+}
+
+func (q *Queries) UpdateExpense(ctx context.Context, arg UpdateExpenseParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updateExpense,
+		arg.Description,
+		arg.Value,
+		arg.StoreID,
+		arg.CategoryID,
+		arg.TypeID,
+		arg.OwnerUserID,
+		arg.ExpDate,
+		arg.ExpID,
 	)
 }

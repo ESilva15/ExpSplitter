@@ -7,7 +7,16 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 )
+
+const deletePayment = `-- name: DeletePayment :execresult
+DELETE FROM "expensesPayments" WHERE "ExpPaymID" = ?
+`
+
+func (q *Queries) DeletePayment(ctx context.Context, exppaymid int64) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deletePayment, exppaymid)
+}
 
 const getPayments = `-- name: GetPayments :many
 SELECT 
@@ -53,4 +62,37 @@ func (q *Queries) GetPayments(ctx context.Context, expid int64) ([]GetPaymentsRo
 		return nil, err
 	}
 	return items, nil
+}
+
+const insertPayment = `-- name: InsertPayment :execresult
+INSERT INTO "expensesPayments"(
+  "ExpID", "UserID", "Payed"
+)
+VALUES(?, ?, ?)
+`
+
+type InsertPaymentParams struct {
+	ExpID  int64
+	UserID int64
+	Payed  float64
+}
+
+func (q *Queries) InsertPayment(ctx context.Context, arg InsertPaymentParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, insertPayment, arg.ExpID, arg.UserID, arg.Payed)
+}
+
+const updatePayment = `-- name: UpdatePayment :execresult
+UPDATE expensesPayments
+SET "UserID" = ?, "Payed" = ?
+WHERE "ExpPaymID" = ?
+`
+
+type UpdatePaymentParams struct {
+	UserID    int64
+	Payed     float64
+	ExpPaymID int64
+}
+
+func (q *Queries) UpdatePayment(ctx context.Context, arg UpdatePaymentParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updatePayment, arg.UserID, arg.Payed, arg.ExpPaymID)
 }

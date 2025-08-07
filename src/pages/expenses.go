@@ -55,13 +55,13 @@ func expensePage(c *gin.Context) {
 		return
 	}
 
-	shares, err := expenses.GetShares(expense.ExpID)
+	err = expense.GetShares()
 	if err != nil {
 		ServerErrorView(c, "failed to fetch shares")
 		return
 	}
 
-	payments, err := expenses.GetPayments(expense.ExpID)
+	err = expense.GetPayments()
 	if err != nil {
 		ServerErrorView(c, "failed to fetch payments")
 		return
@@ -107,8 +107,6 @@ func expensePage(c *gin.Context) {
 		"stores":       stores,
 		"types":        types,
 		"users":        users,
-		"shares":       shares,
-		"payments":     payments,
 		// "summary":      summary,
 	})
 }

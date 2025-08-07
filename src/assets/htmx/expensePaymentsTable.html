@@ -36,7 +36,7 @@
     </td>
   </tr>
 
-  {{ range .payments }}
+  {{ range .expense.Payments }}
     {{ $payment := . }}
     <tr data-id="{{ $payment.ExpPaymID }}">
       <td>
