@@ -1,130 +1,36 @@
 package expenses
 
 import (
-	"context"
-	experr "expenses/expenses/errors"
-	"expenses/config"
-	repo "expenses/expenses/db/repository"
-
-	"database/sql"
-	"fmt"
-
-	_ "github.com/mattn/go-sqlite3"
+	mod "expenses/expenses/models"
 )
 
-func NewStore() Store {
-	return Store{
-		StoreID:   -1,
-		StoreName: "",
-	}
+func GetAllStores() ([]mod.Store, error) {
+	return mod.GetAllStores()
 }
 
-func GetAllStores() ([]Store, error) {
-	cfg := config.GetInstance()
-	ctx := context.Background()
-
-	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
-	if err != nil {
-		return []Store{}, err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
-	storeList, err := queries.GetStores(ctx)
-	if err != nil {
-		return []Store{}, err
-	}
-
-	return mapRepoStores(storeList), nil
+func GetStore(id int64) (mod.Store, error) {
+	return mod.GetStore(id)
 }
 
-func GetStore(storeID int64) (Store, error) {
-	cfg := config.GetInstance()
-	ctx := context.Background()
-
-	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
-	if err != nil {
-		return Store{}, err
+func NewStore(name string) error {
+	newStore := mod.Store{
+		StoreName: name,
 	}
-	defer db.Close()
-
-	queries := repo.New(db)
-	store, err := queries.GetStore(ctx, storeID)
-	if err != nil {
-		return Store{}, err
-	}
-
-	return mapRepoStore(store), nil
+	return newStore.Insert()
 }
 
-func (s *Store) Insert() error {
-	cfg := config.GetInstance()
-	ctx := context.Background()
-
-	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
-	res, err := queries.InsertStore(ctx, s.StoreName)
-
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
-		return fmt.Errorf("no rows were created")
+func UpdateStore(id int64, name string) error {
+	store := mod.Store{
+		StoreID:   id,
+		StoreName: name,
 	}
 
-	return nil
+	return store.Update()
 }
 
-func (s *Store) Update() error {
-	cfg := config.GetInstance()
-	ctx := context.Background()
-
-	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
-	if err != nil {
-		return err
+func DeleteStore(id int64) error {
+	store := mod.Store{
+		StoreID: id,
 	}
-	defer db.Close()
-
-	queries := repo.New(db)
-	res, err := queries.UpdateStore(ctx, repo.UpdateStoreParams{
-		StoreID:   s.StoreID,
-		StoreName: s.StoreName,
-	})
-
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
-		return experr.ErrNotFound
-	}
-
-	return nil
-}
-
-func (s *Store) Delete() error {
-	cfg := config.GetInstance()
-	ctx := context.Background()
-
-	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
-	res, err := queries.DeleteStore(ctx, s.StoreID)
-
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
-		return experr.ErrNotFound
-	}
-
-	return nil
+	return store.Delete()
 }

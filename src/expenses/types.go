@@ -1,142 +1,35 @@
 package expenses
 
 import (
-	"context"
-	"expenses/config"
-	repo "expenses/expenses/db/repository"
-	experr "expenses/expenses/errors"
-
-	"database/sql"
-	"fmt"
-
-	_ "github.com/mattn/go-sqlite3"
+	mod "expenses/expenses/models"
 )
 
-func NewType() Type {
-	return Type{
-		TypeID:   -1,
-		TypeName: "",
-	}
+func GetAllTypes() ([]mod.Type, error) {
+	return mod.GetAllTypes()
 }
 
-func GetAllTypes() ([]Type, error) {
-	cfg := config.GetInstance()
-	ctx := context.Background()
-
-	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
-	if err != nil {
-		return []Type{}, err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
-	typeList, err := queries.GetTypes(ctx)
-	if err != nil {
-		return []Type{}, err
-	}
-
-	return mapRepoTypes(typeList), nil
+func GetType(id int64) (mod.Type, error) {
+	return mod.GetType(id)
 }
 
-func GetType(typID int64) (Type, error) {
-	cfg := config.GetInstance()
-	ctx := context.Background()
-
-	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
-	if err != nil {
-		return Type{}, err
+func NewType(name string) error {
+	newTyp := mod.Type{
+		TypeName: name,
 	}
-	defer db.Close()
-
-	queries := repo.New(db)
-	typ, err := queries.GetType(ctx, typID)
-	if err != nil {
-		return Type{}, err
-	}
-
-	return mapRepoType(typ), nil
+	return newTyp.Insert()
 }
 
-func (typ *Type) Insert() error {
-	cfg := config.GetInstance()
-	ctx := context.Background()
-
-	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
-	if err != nil {
-		return err
+func DeleteType(id int64) error {
+	typ := mod.Type{
+		TypeID: id,
 	}
-	defer db.Close()
-
-	queries := repo.New(db)
-	res, err := queries.InsertType(ctx, typ.TypeName)
-	if err != nil {
-		return err
-	}
-
-	// TODO
-	// Move all theses things outside of this, I'll handle it wherever I'm doing
-	// logics
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
-		return fmt.Errorf("no rows were created")
-	}
-
-	return nil
+	return typ.Delete()
 }
 
-func (typ *Type) Delete() error {
-	cfg := config.GetInstance()
-	ctx := context.Background()
-
-	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
-	if err != nil {
-		return err
+func UpdateType(id int64, name string) error {
+	newTyp := mod.Type{
+		TypeID:   id,
+		TypeName: name,
 	}
-	defer db.Close()
-
-	queries := repo.New(db)
-	res, err := queries.DeleteType(ctx, typ.TypeID)
-	if err != nil {
-		return err
-	}
-
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
-		return experr.ErrNotFound
-	}
-
-	return nil
-}
-
-func (typ *Type) Update() error {
-	cfg := config.GetInstance()
-	ctx := context.Background()
-
-	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
-	res, err := queries.UpdateType(ctx, repo.UpdateTypeParams{
-		TypeID:   typ.TypeID,
-		TypeName: typ.TypeName,
-	})
-	if err != nil {
-		return err
-	}
-
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
-		return experr.ErrNotFound
-	}
-
-	return nil
+	return newTyp.Update()
 }

@@ -2,8 +2,8 @@ package pages
 
 import (
 	"expenses/expenses"
+	mod "expenses/expenses/models"
 	"log"
-	"time"
 
 	"net/http"
 
@@ -11,12 +11,12 @@ import (
 )
 
 type ExpenseDebtOverview struct {
-	Exp     *expenses.Expense
+	Exp     *mod.Expense
 	Debtors []expenses.Debt
 }
 
 type UserDebtSummary struct {
-	Debtor expenses.User
+	Debtor mod.User
 	Total  float64
 }
 
@@ -33,24 +33,10 @@ func overviewPage(c *gin.Context) {
 }
 
 func getResults(c *gin.Context) {
-	startDateStr := c.PostForm("range-start") + " 00:00:00"
-	endDateStr := c.PostForm("range-end") + " 23:59:59"
+	startDate := c.PostForm("range-start") + " 00:00:00"
+	endDate := c.PostForm("range-end") + " 23:59:59"
 
-	startDateTime, err := time.ParseInLocation("02-Jan-2006 15:04:05", startDateStr, time.UTC)
-	if err != nil {
-		log.Printf("error startDate: %v", err)
-		return
-	}
-	startDate := startDateTime.Unix()
-
-	endDateTime, err := time.ParseInLocation("02-Jan-2006 15:04:05", endDateStr, time.UTC)
-	if err != nil {
-		log.Printf("error endDate: %v", err)
-		return
-	}
-	endDate := endDateTime.Unix()
-
-	queriedExpenses, err := expenses.GetExpensesRange(startDate, endDate)
+	queriedExpenses, err := expenses.GetExpensesRanged(startDate, endDate)
 	if err != nil {
 		log.Printf("getting expenses: %v", err)
 		return
@@ -70,14 +56,14 @@ func getResults(c *gin.Context) {
 		}
 	}
 
-	userDebtSummary := make(map[expenses.User]float64)
+	userDebtSummary := make(map[mod.User]float64)
 	expensesWithDebts := []ExpenseDebtOverview{}
 	for _, exp := range queriedExpenses {
 		if len(exp.Shares) <= 1 {
 			continue
 		}
 
-		expenseDebts, err := exp.CalculateDebts()
+		expenseDebts, err := expenses.CalculateDebts(&exp)
 		if err != nil {
 			// whatevs yo
 			continue

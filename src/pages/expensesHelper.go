@@ -1,95 +1,31 @@
 package pages
 
 import (
-	mod "expenses/expenses/models"
 	"expenses/expenses"
+	mod "expenses/expenses/models"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-func processFormShares(c *gin.Context) ([]expenses.ExpenseShare, error) {
-	shares := []expenses.ExpenseShare{}
+func processFormShares(c *gin.Context) ([]mod.ExpenseShare, error) {
+	userIDS := c.PostFormArray("shares-user-ids[]")
+	shareIDs := c.PostFormArray("shares-ids[]")
+	shares := c.PostFormArray("shares-percent[]")
 
-	sharesUserIDs := c.PostFormArray("shares-user-ids[]")
-	formSharesIDs := c.PostFormArray("shares-ids[]")
-	formShares := c.PostFormArray("shares-percent[]")
-
-	for i := range sharesUserIDs {
-		userID, err := strconv.ParseInt(sharesUserIDs[i], 10, 16)
-		if err != nil {
-			return nil, err
-		}
-
-		share, err := strconv.ParseFloat(formShares[i], 32)
-		if err != nil {
-			return nil, err
-		}
-
-		newShare := expenses.ExpenseShare{
-			ExpShareID: -1,
-			User: expenses.User{
-				UserID: userID,
-			},
-			Share: share,
-		}
-
-		if formSharesIDs[i] != "" {
-			id, err := strconv.ParseInt(formSharesIDs[i], 10, 16)
-			if err != nil {
-				return nil, err
-			}
-			newShare.ExpShareID = id
-		}
-
-		shares = append(shares, newShare)
-	}
-
-	return shares, nil
+	return expenses.ParseFormShares(userIDS, shares, shareIDs)
 }
 
-func processFormPayments(c *gin.Context) ([]expenses.ExpensePayment, error) {
-	payments := []expenses.ExpensePayment{}
+func processFormPayments(c *gin.Context) ([]mod.ExpensePayment, error) {
+	userIDs := c.PostFormArray("payments-user-ids[]")
+	paymentIDs := c.PostFormArray("payments-ids[]")
+	values := c.PostFormArray("payments-payment[]")
 
-	paymentsUserIDs := c.PostFormArray("payments-user-ids[]")
-	formPaymentsIDs := c.PostFormArray("payments-ids[]")
-	formPaymentsValues := c.PostFormArray("payments-payment[]")
-
-	for k := range paymentsUserIDs {
-		userID, err := strconv.ParseInt(paymentsUserIDs[k], 10, 16)
-		if err != nil {
-			return nil, err
-		}
-
-		payed, err := strconv.ParseFloat(formPaymentsValues[k], 32)
-		if err != nil {
-			return nil, err
-		}
-
-		newPayment := expenses.ExpensePayment{
-			ExpPaymID: -1,
-			User: expenses.User{
-				UserID: userID,
-			},
-			PayedAmount: payed,
-		}
-
-		if formPaymentsIDs[k] != "" {
-			id, err := strconv.ParseInt(formPaymentsIDs[k], 10, 16)
-			if err != nil {
-				return nil, err
-			}
-			newPayment.ExpPaymID = id
-		}
-
-		payments = append(payments, newPayment)
-	}
-
-	return payments, nil
+	return expenses.ParseFormPayments(userIDs, paymentIDs, values)
 }
 
-func expenseFromForm(c *gin.Context) (*expenses.Expense, error) {
+func expenseFromForm(c *gin.Context) (*mod.Expense, error) {
 	newDescription := c.PostForm("expense-desc")
 	newDate := c.PostForm("expense-date")
 
@@ -105,20 +41,20 @@ func expenseFromForm(c *gin.Context) (*expenses.Expense, error) {
 		return nil, err
 	}
 
-	newTyp := c.PostForm("newexp-type-dropdown")
-	typID, err := strconv.ParseInt(newTyp, 10, 16)
+	typID, err := expenses.ParseID(c.PostForm("newexp-type-dropdown"))
 	if err != nil {
 		return nil, err
 	}
 
-	newCat := c.PostForm("newexp-cat-dropdown")
-	catID, err := strconv.ParseInt(newCat, 10, 16)
+	catID, err := expenses.ParseID(c.PostForm("newexp-cat-dropdown"))
 	if err != nil {
 		return nil, err
 	}
 
-	newStore := c.PostForm("newexp-store-dropdown")
-	storeID, err := strconv.ParseInt(newStore, 10, 16)
+	// TODO:
+	// Move the names of the dropdowns to a variable that can be passed to the
+	// html page
+	storeID, err := expenses.ParseID(c.PostForm("newexp-store-dropdown"))
 	if err != nil {
 		return nil, err
 	}
@@ -132,20 +68,20 @@ func expenseFromForm(c *gin.Context) (*expenses.Expense, error) {
 		return nil, err
 	}
 
-	newExp := expenses.Expense{
+	newExp := mod.Expense{
 		Description: newDescription,
 		Date:        date,
 		Value:       value,
-		Type: expenses.Type{
+		Type: mod.Type{
 			TypeID: typID,
 		},
 		Category: mod.Category{
 			CategoryID: catID,
 		},
-		Store: expenses.Store{
+		Store: mod.Store{
 			StoreID: storeID,
 		},
-		Owner: expenses.User{
+		Owner: mod.User{
 			// TODO
 			// This needs to be dynamic - to be added once we have logins and whatnot
 			UserID: 1,

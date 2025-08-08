@@ -3,25 +3,21 @@ package pages
 import (
 	"expenses/expenses"
 	experr "expenses/expenses/errors"
-	"strconv"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
 func deletePayment(c *gin.Context) {
-	paymentID, err := strconv.ParseInt(c.Param("id"), 10, 16)
+	paymentID, err := expenses.ParseID(c.Param("id"))
 	if err != nil {
 		NotFoundView(c, "failed to fetch payment")
 		return
 	}
 
-	payment := expenses.ExpensePayment{
-		ExpPaymID: paymentID,
-	} 
-
-	err = payment.Delete()
+	err = expenses.DeletePayment(paymentID)
 	if err == experr.ErrNotFound {
 		errMsg := fmt.Sprintf("category %d not found", paymentID)
 		c.String(http.StatusNotFound, errMsg)

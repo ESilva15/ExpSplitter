@@ -1,15 +1,19 @@
 package expenses
 
+import (
+	mod "expenses/expenses/models"
+)
+
 type DebtCalculator struct {
-	Shares   map[User]float64
-	Payments map[User]float64
-	Expense  *Expense
+	Shares   map[mod.User]float64
+	Payments map[mod.User]float64
+	Expense  *mod.Expense
 }
 
-func NewDebtCalculator(e *Expense) *DebtCalculator {
+func NewDebtCalculator(e *mod.Expense) *DebtCalculator {
 	return &DebtCalculator{
-		Shares:   make(map[User]float64),
-		Payments: make(map[User]float64),
+		Shares:   make(map[mod.User]float64),
+		Payments: make(map[mod.User]float64),
 		Expense:  e,
 	}
 }

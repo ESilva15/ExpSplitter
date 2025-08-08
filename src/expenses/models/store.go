@@ -2,77 +2,67 @@ package models
 
 import (
 	"context"
-	"database/sql"
-	config "expenses/config"
+	"expenses/config"
 	repo "expenses/expenses/db/repository"
 	experr "expenses/expenses/errors"
+
+	"database/sql"
 	"fmt"
+
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type Category struct {
-	CategoryID   int64
-	CategoryName string
+type Store struct {
+	StoreID   int64
+	StoreName string
 }
 
-func NewCategory() Category {
-	return Category{
-		CategoryID:   -1,
-		CategoryName: "",
+func NewStore() Store {
+	return Store{
+		StoreID:   -1,
+		StoreName: "",
 	}
 }
 
-func MapRepoCategory(rc repo.Category) Category {
-	return Category{
-		CategoryID:   rc.CategoryID,
-		CategoryName: rc.CategoryName,
-	}
-}
-
-func MapRepoCategories(rc []repo.Category) []Category {
-	categories := make([]Category, len(rc))
-	for k, cat := range rc {
-		categories[k] = MapRepoCategory(cat)
-	}
-	return categories
-}
-
-func GetAllCategories() ([]Category, error) {
+func GetAllStores() ([]Store, error) {
 	cfg := config.GetInstance()
 	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
-		return nil, err
+		return []Store{}, err
 	}
 	defer db.Close()
 
 	queries := repo.New(db)
-	categories, err := queries.GetCategories(ctx)
+	storeList, err := queries.GetStores(ctx)
 	if err != nil {
-		return []Category{}, nil
+		return []Store{}, err
 	}
 
-	return MapRepoCategories(categories), nil
+	return mapRepoStores(storeList), nil
 }
 
-func GetCategory(catID int64) (Category, error) {
+func GetStore(storeID int64) (Store, error) {
 	cfg := config.GetInstance()
 	ctx := context.Background()
 
 	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
 	if err != nil {
-		return Category{}, err
+		return Store{}, err
 	}
 	defer db.Close()
 
 	queries := repo.New(db)
-	category, err := queries.GetCategory(ctx, catID)
+	store, err := queries.GetStore(ctx, storeID)
+	if err != nil {
+		return Store{}, err
+	}
 
-	return MapRepoCategory(category), err
+	return mapRepoStore(store), nil
 }
 
-func (cat *Category) Insert() error {
+func (s *Store) Insert() error {
 	cfg := config.GetInstance()
 	ctx := context.Background()
 
@@ -83,10 +73,7 @@ func (cat *Category) Insert() error {
 	defer db.Close()
 
 	queries := repo.New(db)
-	res, err := queries.InsertCategory(ctx, cat.CategoryName)
-	if err != nil {
-		return err
-	}
+	res, err := queries.InsertStore(ctx, s.StoreName)
 
 	rowsAffected, err := res.RowsAffected()
 	if err != nil {
@@ -98,7 +85,7 @@ func (cat *Category) Insert() error {
 	return nil
 }
 
-func (cat *Category) Delete() error {
+func (s *Store) Update() error {
 	cfg := config.GetInstance()
 	ctx := context.Background()
 
@@ -109,7 +96,10 @@ func (cat *Category) Delete() error {
 	defer db.Close()
 
 	queries := repo.New(db)
-	res, err := queries.DeleteCategory(ctx, cat.CategoryID)
+	res, err := queries.UpdateStore(ctx, repo.UpdateStoreParams{
+		StoreID:   s.StoreID,
+		StoreName: s.StoreName,
+	})
 
 	rowsAffected, err := res.RowsAffected()
 	if err != nil {
@@ -121,7 +111,7 @@ func (cat *Category) Delete() error {
 	return nil
 }
 
-func (cat *Category) Update() error {
+func (s *Store) Delete() error {
 	cfg := config.GetInstance()
 	ctx := context.Background()
 
@@ -132,13 +122,7 @@ func (cat *Category) Update() error {
 	defer db.Close()
 
 	queries := repo.New(db)
-	res, err := queries.UpdateCategory(ctx, repo.UpdateCategoryParams{
-		CategoryName: cat.CategoryName,
-		CategoryID:   cat.CategoryID,
-	})
-	if err != nil {
-		return err
-	}
+	res, err := queries.DeleteStore(ctx, s.StoreID)
 
 	rowsAffected, err := res.RowsAffected()
 	if err != nil {

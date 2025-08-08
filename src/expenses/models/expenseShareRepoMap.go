@@ -1,14 +1,6 @@
-package expenses
+package models
 
-import (
-	repo "expenses/expenses/db/repository"
-)
-
-type ExpenseShare struct {
-	ExpShareID int64
-	User       User
-	Share      float64
-}
+import repo "expenses/expenses/db/repository"
 
 func mapRepoGetSharesRow(s repo.GetSharesRow) ExpenseShare {
 	return ExpenseShare{

@@ -1,226 +1,41 @@
 package expenses
 
 import (
-	"context"
-	"expenses/config"
-	repo "expenses/expenses/db/repository"
-
-	"database/sql"
-	"fmt"
-
-	_ "github.com/mattn/go-sqlite3"
+	mod "expenses/expenses/models"
+	"log"
+	"time"
 )
 
-func GetAllExpenses() ([]Expense, error) {
-	cfg := config.GetInstance()
-	ctx := context.Background()
-
-	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
-	if err != nil {
-		return []Expense{}, err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
-	expenses, err := queries.GetExpenses(ctx, repo.GetExpensesParams{
-		Startdate: nil,
-		Enddate:   nil,
-	})
-	if err != nil {
-		return []Expense{}, err
-	}
-
-	return mapRepoGetExpensesRows(expenses), nil
+func GetAllExpenses() ([]mod.Expense, error) {
+	return mod.GetAllExpenses()
 }
 
-func GetExpense(expID int64) (Expense, error) {
-	cfg := config.GetInstance()
-	ctx := context.Background()
-
-	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
+func GetExpensesRanged(startDate string, endDate string) ([]mod.Expense, error) {
+	startDateTime, err := time.ParseInLocation("02-Jan-2006 15:04:05", startDate, time.UTC)
 	if err != nil {
-		return Expense{}, err
+		log.Printf("error startDate: %v", err)
+		return []mod.Expense{}, nil
 	}
-	defer db.Close()
+	start := startDateTime.Unix()
 
-	queries := repo.New(db)
-	expense, err := queries.GetExpense(ctx, expID)
+	endDateTime, err := time.ParseInLocation("02-Jan-2006 15:04:05", endDate, time.UTC)
 	if err != nil {
-		return Expense{}, err
+		log.Printf("error endDate: %v", err)
+		return []mod.Expense{}, nil
 	}
+	end := endDateTime.Unix()
 
-	return mapRepoGetExpenseRow(expense), nil
+	return mod.GetExpensesRange(start, end)
 }
 
-func (exp *Expense) Insert() error {
-	cfg := config.GetInstance()
-	ctx := context.Background()
-
-	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	// tx, err := db.Begin()
-	// if err != nil {
-	// 	return err
-	// }
-	// defer tx.Rollback()
-
-	queries := repo.New(db)
-	res, err := queries.InsertExpense(ctx, repo.InsertExpenseParams{
-		Description:  exp.Description,
-		Value:        exp.Value,
-		StoreID:      exp.Store.StoreID,
-		CategoryID:   exp.Category.CategoryID,
-		TypeID:       exp.Type.TypeID,
-		OwnerUserID:  exp.Owner.UserID,
-		ExpDate:      exp.Date,
-		CreationDate: exp.CreationDate,
-	})
-	if err != nil {
-		return err
-	}
-
-	expenseID, err := res.LastInsertId()
-	if err != nil {
-		return fmt.Errorf("failed to retrieve last inserted expense ID: %v", err)
-	}
-
-	exp.ExpID = expenseID
-
-	for _, share := range exp.Shares {
-		err := share.Insert(exp.ExpID)
-		if err != nil {
-			return err
-		}
-	}
-	for _, paym := range exp.Payments {
-		err := paym.Insert(exp.ExpID)
-		if err != nil {
-			return err
-		}
-	}
-
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
-		return fmt.Errorf("no rows were created")
-	}
-
-	// if err = tx.Commit(); err != nil {
-	// TODO
-	// Add some kind of log here otherwise we could jusr return the commit res
-	// 	return err
-	// }
-
-	return nil
+func GetExpense(id int64) (mod.Expense, error) {
+	return mod.GetExpense(id)
 }
 
-func (e *Expense) Update() error {
-	cfg := config.GetInstance()
-	ctx := context.Background()
-
-	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
-	res, err := queries.UpdateExpense(ctx, repo.UpdateExpenseParams{
-		ExpID:       e.ExpID,
-		Description: e.Description,
-		Value:       e.Value,
-		StoreID:     e.Store.StoreID,
-		CategoryID:  e.Category.CategoryID,
-		TypeID:      e.Type.TypeID,
-		OwnerUserID: e.Owner.UserID,
-		ExpDate:     e.Date,
-	})
-	if err != nil {
-		return err
+func DeleteExpense(id int64) error {
+	expense := mod.Expense{
+		ExpID: id,
 	}
 
-	for _, share := range e.Shares {
-		if share.ExpShareID == -1 {
-			err := share.Insert(e.ExpID)
-			if err != nil {
-				return err
-			}
-		} else {
-			share.Update()
-		}
-	}
-
-	for _, paym := range e.Payments {
-		if paym.ExpPaymID == -1 {
-			err := paym.Insert(e.ExpID)
-			if err != nil {
-				return err
-			}
-		} else {
-			paym.Update()
-		}
-	}
-
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
-		return fmt.Errorf("no rows were updated")
-	}
-
-	return nil
-}
-
-func (e *Expense) Delete() error {
-	cfg := config.GetInstance()
-	ctx := context.Background()
-
-	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
-	res, err := queries.DeleteExpense(ctx, e.ExpID)
-	if err != nil {
-		return err
-	}
-
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
-		return fmt.Errorf("no rows were created")
-	}
-
-	return nil
-}
-
-// SHITTY QUERIES THAT I NEED TO PUT IN SOMEWHERE MORE OGRANHJASLD
-func GetExpensesRange(start int64, end int64) ([]Expense, error) {
-	cfg := config.GetInstance()
-	ctx := context.Background()
-
-	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
-	if err != nil {
-		return []Expense{}, err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
-	expenses, err := queries.GetExpenses(ctx, repo.GetExpensesParams{
-		Startdate: start,
-		Enddate:   end,
-	})
-	if err != nil {
-		return []Expense{}, err
-	}
-
-	return mapRepoGetExpensesRows(expenses), nil
+	return expense.Delete()
 }

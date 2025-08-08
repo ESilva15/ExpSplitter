@@ -1,7 +1,11 @@
 package expenses
 
+import (
+	mod "expenses/expenses/models"
+)
+
 type Debt struct {
-	Debtor User
+	Debtor mod.User
 	Sum    float64
 }
 
@@ -15,7 +19,7 @@ func sortBySum(a, b Debt) int {
 	return 0
 }
 
-func (e *Expense) CalculateDebts() ([]Debt, error) {
+func CalculateDebts(e *mod.Expense) ([]Debt, error) {
 	dc := NewDebtCalculator(e)
 	dc.mapShares()
 	dc.mapPayments()

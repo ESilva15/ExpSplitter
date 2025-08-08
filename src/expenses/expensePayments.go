@@ -1,118 +1,54 @@
 package expenses
 
 import (
-	"context"
-	"expenses/config"
-	repo "expenses/expenses/db/repository"
-
-	"database/sql"
-	"fmt"
-
-	_ "github.com/mattn/go-sqlite3"
+	mod "expenses/expenses/models"
+	"strconv"
 )
 
-func (e *Expense) GetPayments() error {
-	cfg := config.GetInstance()
-	ctx := context.Background()
+// TODO
+// Do not pass an array of strings here, have a separate function to do the
+// conversion that the user calls before calling this
+// Can even create a struct to then hold the data
+func ParseFormPayments(userIDs []string, paymentsIDs []string,
+	values []string) ([]mod.ExpensePayment, error) {
+	payments := []mod.ExpensePayment{}
+	for k := range userIDs {
+		userID, err := strconv.ParseInt(userIDs[k], 10, 16)
+		if err != nil {
+			return nil, err
+		}
 
-	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
-	if err != nil {
-		return err
+		payed, err := strconv.ParseFloat(values[k], 32)
+		if err != nil {
+			return nil, err
+		}
+
+		newPayment := mod.ExpensePayment{
+			ExpPaymID: -1,
+			User: mod.User{
+				UserID: userID,
+			},
+			PayedAmount: payed,
+		}
+
+		if paymentsIDs[k] != "" {
+			id, err := strconv.ParseInt(paymentsIDs[k], 10, 16)
+			if err != nil {
+				return nil, err
+			}
+			newPayment.ExpPaymID = id
+		}
+
+		payments = append(payments, newPayment)
 	}
-	defer db.Close()
 
-	queries := repo.New(db)
-	payments, err := queries.GetPayments(ctx, e.ExpID)
-	if err != nil {
-		return err
-	}
-
-	e.Payments = mapRepoGetPaymentsRows(payments)
-	return nil
+	return payments, nil
 }
 
-func (p *ExpensePayment) Insert(expID int64) error {
-	cfg := config.GetInstance()
-	ctx := context.Background()
-
-	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
-	res, err := queries.InsertPayment(ctx, repo.InsertPaymentParams{
-		ExpID:  expID,
-		UserID: p.User.UserID,
-		Payed:  p.PayedAmount,
-	})
-	if err != nil {
-		return err
+func DeletePayment(id int64) error {
+	payment := mod.ExpensePayment{
+		ExpPaymID: id,
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
-		return fmt.Errorf("no rows were created")
-	}
-
-	return nil
-}
-
-func (p *ExpensePayment) Update() error {
-	cfg := config.GetInstance()
-	ctx := context.Background()
-
-	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
-	res, err := queries.UpdatePayment(ctx, repo.UpdatePaymentParams{
-		ExpPaymID: p.ExpPaymID,
-		Payed:     p.PayedAmount,
-		UserID:    p.User.UserID,
-	})
-	if err != nil {
-		return err
-	}
-
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
-		return fmt.Errorf("no rows were created")
-	}
-
-	return nil
-}
-
-func (p *ExpensePayment) Delete() error {
-	cfg := config.GetInstance()
-	ctx := context.Background()
-
-	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
-	res, err := queries.DeletePayment(ctx, p.ExpPaymID)
-	if err != nil {
-		return err
-	}
-
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
-		return fmt.Errorf("no rows were created")
-	}
-
-	return nil
+	return payment.Delete()
 }

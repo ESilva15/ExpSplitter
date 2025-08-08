@@ -1,14 +1,6 @@
-package expenses
+package models
 
-import (
-	repo "expenses/expenses/db/repository"
-)
-
-type ExpensePayment struct {
-	ExpPaymID   int64
-	User        User
-	PayedAmount float64
-}
+import repo "expenses/expenses/db/repository"
 
 func mapRepoGetPaymentsRow(s repo.GetPaymentsRow) ExpensePayment {
 	return ExpensePayment{

@@ -79,7 +79,7 @@ func createCategory(c *gin.Context) {
 }
 
 func updateCategory(c *gin.Context) {
-	categoryID, err := strconv.ParseInt(c.Param("id"), 10, 16)
+	categoryID, err := expenses.ParseID(c.Param("id"))
 	if err != nil {
 		NotFoundView(c, "No such category")
 		return
@@ -97,7 +97,7 @@ func updateCategory(c *gin.Context) {
 }
 
 func deleteCategory(c *gin.Context) {
-	categoryID, err := strconv.ParseInt(c.Param("id"), 10, 16)
+	categoryID, err := expenses.ParseID(c.Param("id"))
 	if err != nil {
 		NotFoundView(c, "No such category")
 		return

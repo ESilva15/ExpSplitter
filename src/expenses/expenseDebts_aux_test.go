@@ -1,38 +1,39 @@
 package expenses
 
 import (
+	mod "expenses/expenses/models"
 	"reflect"
 	"slices"
 	"testing"
 )
 
 var (
-	user1 = User{
+	user1 = mod.User{
 		UserID:   1,
 		UserName: "Fernando Silva",
 	}
-	user2 = User{
+	user2 = mod.User{
 		UserID:   2,
 		UserName: "Paulo Fultre",
 	}
-	user3 = User{
+	user3 = mod.User{
 		UserID:   3,
 		UserName: "Afonso Esteves",
 	}
-	user4 = User{
+	user4 = mod.User{
 		UserID:   4,
 		UserName: "Sílvio Vieira",
 	}
 
-	expense1 = Expense{
+	expense1 = mod.Expense{
 		ExpID: 0,
 		Value: 150,
-		Shares: []ExpenseShare{
+		Shares: []mod.ExpenseShare{
 			{ExpShareID: 0, User: user1, Share: 0.4},
 			{ExpShareID: 1, User: user2, Share: 0.4},
 			{ExpShareID: 2, User: user3, Share: 0.2},
 		},
-		Payments: []ExpensePayment{
+		Payments: []mod.ExpensePayment{
 			{ExpPaymID: 0, User: user1, PayedAmount: 50},
 			{ExpPaymID: 1, User: user1, PayedAmount: 50},
 			{ExpPaymID: 2, User: user2, PayedAmount: 0},
@@ -41,16 +42,16 @@ var (
 		},
 	}
 
-	expense2 = Expense{
+	expense2 = mod.Expense{
 		ExpID: 0,
 		Value: 160,
-		Shares: []ExpenseShare{
+		Shares: []mod.ExpenseShare{
 			{ExpShareID: 0, User: user1, Share: 0.3},
 			{ExpShareID: 1, User: user2, Share: 0.3},
 			{ExpShareID: 2, User: user3, Share: 0.3},
 			{ExpShareID: 3, User: user4, Share: 0.1},
 		},
-		Payments: []ExpensePayment{
+		Payments: []mod.ExpensePayment{
 			{ExpPaymID: 0, User: user1, PayedAmount: 40},
 			{ExpPaymID: 1, User: user1, PayedAmount: 40},
 			{ExpPaymID: 2, User: user2, PayedAmount: 5},
@@ -64,13 +65,13 @@ var (
 )
 
 func TestSharesAndPaymentsMapping(t *testing.T) {
-	expectedPayments := map[User]float32{
+	expectedPayments := map[mod.User]float32{
 		user1: 100,
 		user2: 0,
 		user3: 60,
 	}
 
-	expectedShares := map[User]float32{
+	expectedShares := map[mod.User]float32{
 		user1: 0.4,
 		user2: 0.4,
 		user3: 0.2,

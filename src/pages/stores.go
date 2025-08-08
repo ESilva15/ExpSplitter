@@ -67,13 +67,9 @@ func newStorePage(c *gin.Context) {
 }
 
 func createStore(c *gin.Context) {
-	newStoreName := c.PostForm("store-name")
+	storeName := c.PostForm("store-name")
 
-	newStore := expenses.Store{
-		StoreName: newStoreName,
-	}
-
-	err := newStore.Insert()
+	err := expenses.NewStore(storeName)
 	if err != nil {
 		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
 	}
@@ -82,18 +78,13 @@ func createStore(c *gin.Context) {
 }
 
 func updateStore(c *gin.Context) {
-	storeID, err := strconv.ParseInt(c.Param("id"), 10, 16)
+	storeID, err := expenses.ParseID(c.Param("id"))
 	if err != nil {
 		c.Redirect(404, "/404")
 	}
 	newName := c.PostForm("store-name")
 
-	newStore := expenses.Store{
-		StoreID:   storeID,
-		StoreName: newName,
-	}
-
-	err = newStore.Update()
+	err = expenses.UpdateStore(storeID, newName)
 	if err != nil {
 		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
 		return
@@ -103,15 +94,12 @@ func updateStore(c *gin.Context) {
 }
 
 func deleteStore(c *gin.Context) {
-	storeID, err := strconv.ParseInt(c.Param("id"), 10, 16)
+	storeID, err := expenses.ParseID(c.Param("id"))
 	if err != nil {
 		c.Redirect(404, "/404")
 	}
 
-	store := expenses.Store{
-		StoreID: storeID,
-	}
-	err = store.Delete()
+	err = expenses.DeleteStore(storeID)
 	if err == experr.ErrNotFound {
 		errMsg := fmt.Sprintf("category %d not found", storeID)
 		c.String(http.StatusNotFound, errMsg)

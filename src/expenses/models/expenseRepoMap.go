@@ -1,38 +1,6 @@
-package expenses
+package models
 
-import (
-	mod "expenses/expenses/models"
-	repo "expenses/expenses/db/repository"
-)
-
-type Expense struct {
-	ExpID        int64
-	Description  string
-	Value        float64
-	Store        Store
-	Type         Type
-	Category     mod.Category
-	Owner        User
-	Date         int64
-	Payments     []ExpensePayment
-	Shares       []ExpenseShare
-	CreationDate int64
-}
-
-func NewExpense() Expense {
-	return Expense{
-		ExpID:        -1,
-		Description:  "",
-		Value:        0.0,
-		Store:        NewStore(),
-		Category:     mod.NewCategory(),
-		Owner:        NewUser(),
-		Date:         0,
-		Payments:     []ExpensePayment{},
-		Shares:       []ExpenseShare{},
-		CreationDate: 0,
-	}
-}
+import repo "expenses/expenses/db/repository"
 
 func mapRepoGetExpenseRow(e repo.GetExpenseRow) Expense {
 	return Expense{
@@ -47,7 +15,7 @@ func mapRepoGetExpenseRow(e repo.GetExpenseRow) Expense {
 			TypeID:   e.ExpenseType.TypeID,
 			TypeName: e.ExpenseType.TypeName,
 		},
-		Category: mod.Category{
+		Category: Category{
 			CategoryID:   e.Category.CategoryID,
 			CategoryName: e.Category.CategoryName,
 		},
@@ -75,7 +43,7 @@ func mapRepoGetExpenseRowMulti(e repo.GetExpensesRow) Expense {
 			TypeID:   e.ExpenseType.TypeID,
 			TypeName: e.ExpenseType.TypeName,
 		},
-		Category: mod.Category{
+		Category: Category{
 			CategoryID:   e.Category.CategoryID,
 			CategoryName: e.Category.CategoryName,
 		},
@@ -88,12 +56,4 @@ func mapRepoGetExpenseRowMulti(e repo.GetExpensesRow) Expense {
 		Payments:     []ExpensePayment{},
 		CreationDate: e.Expense.CreationDate,
 	}
-}
-
-func mapRepoGetExpensesRows(er []repo.GetExpensesRow) []Expense {
-	expenses := make([]Expense, len(er))
-	for k, exp := range er {
-		expenses[k] = mapRepoGetExpenseRowMulti(exp)
-	}
-	return expenses
 }

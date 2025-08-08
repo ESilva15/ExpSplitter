@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"expenses/expenses"
 	experr "expenses/expenses/errors"
+	mod "expenses/expenses/models"
 	"fmt"
 	"strconv"
 
@@ -45,9 +46,10 @@ func ExpensesGlobalPage(c *gin.Context) {
 }
 
 func expensePage(c *gin.Context) {
-	expenseID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	expenseID, err := expenses.ParseID(c.Param("id"))
 	if err != nil {
-		c.Redirect(404, "/404")
+		ServerErrorView(c, "failed to parse requested expenses id")
+		return
 	}
 
 	expense, err := expenses.GetExpense(expenseID)
@@ -142,7 +144,7 @@ func newExpensePage(c *gin.Context) {
 		"renderNavBar": false,
 		"content":      "newExpense",
 		"method":       "post",
-		"expense":      expenses.NewExpense(),
+		"expense":      mod.NewExpense(),
 		"categories":   categories,
 		"stores":       stores,
 		"types":        types,
@@ -168,7 +170,7 @@ func createExpense(c *gin.Context) {
 }
 
 func updateExpense(c *gin.Context) {
-	expenseID, err := strconv.ParseInt(c.Param("id"), 10, 16)
+	expenseID, err := expenses.ParseID(c.Param("id"))
 	if err != nil {
 		c.Header("HX-Redirect", "/404")
 		return
@@ -200,11 +202,7 @@ func deleteExpense(c *gin.Context) {
 		return
 	}
 
-	payment := expenses.Expense{
-		ExpID: expenseID,
-	}
-
-	err = payment.Delete()
+	err = expenses.DeleteExpense(expenseID)
 	if err == experr.ErrNotFound {
 		errMsg := fmt.Sprintf("category %d not found", expenseID)
 		c.String(http.StatusNotFound, errMsg)

@@ -69,11 +69,7 @@ func newTypePage(c *gin.Context) {
 func createType(c *gin.Context) {
 	newTypName := c.PostForm("type-name")
 
-	newTyp := expenses.Type{
-		TypeName: newTypName,
-	}
-
-	err := newTyp.Insert()
+	err := expenses.NewType(newTypName)
 	if err != nil {
 		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
 	}
@@ -82,15 +78,12 @@ func createType(c *gin.Context) {
 }
 
 func deleteType(c *gin.Context) {
-	typeID, err := strconv.ParseInt(c.Param("id"), 10, 16)
+	typeID, err := expenses.ParseID(c.Param("id"))
 	if err != nil {
 		c.Redirect(404, "/404")
 	}
 
-	typ := expenses.Type{
-		TypeID: typeID,
-	}
-	err = typ.Delete()
+	err = expenses.DeleteType(typeID)
 	if err == experr.ErrNotFound {
 		errMsg := fmt.Sprintf("category %d not found", typeID)
 		c.String(http.StatusNotFound, errMsg)
@@ -107,18 +100,13 @@ func deleteType(c *gin.Context) {
 }
 
 func updateType(c *gin.Context) {
-	typeID, err := strconv.ParseInt(c.Param("id"), 10, 16)
+	typeID, err := expenses.ParseID(c.Param("id"))
 	if err != nil {
 		c.Redirect(404, "/404")
 	}
 	newName := c.PostForm("type-name")
 
-	newTyp := expenses.Type{
-		TypeID:   typeID,
-		TypeName: newName,
-	}
-
-	err = newTyp.Update()
+	err = expenses.UpdateType(typeID, newName)
 	if err != nil {
 		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
 		return
