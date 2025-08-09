@@ -1,3 +1,5 @@
+-- 0001_initial.up.sql
+
 CREATE TABLE expenses (
   "ExpID" integer PRIMARY KEY AUTOINCREMENT,
   "Description" text NOT NULL,

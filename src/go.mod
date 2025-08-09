@@ -6,6 +6,7 @@ require (
 	github.com/gin-gonic/gin v1.10.1
 	github.com/golang-migrate/migrate/v4 v4.18.3
 	github.com/mattn/go-sqlite3 v1.14.28
+	github.com/shopspring/decimal v1.2.0
 	github.com/spf13/cobra v1.9.1
 	github.com/stretchr/testify v1.9.0
 	gopkg.in/yaml.v2 v2.4.0

@@ -1,3 +1,5 @@
+-- 0001_initial.down.sql
+
 DROP TABLE IF EXISTS expensesShares;
 DROP TABLE IF EXISTS expensesPayments;
 DROP TABLE IF EXISTS stores;
