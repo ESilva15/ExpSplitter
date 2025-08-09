@@ -1,10 +1,9 @@
 package models
 
 import (
-	"expenses/config"
-
+	"context"
 	"database/sql"
-	"log"
+	repo "expenses/expenses/db/repository"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -21,32 +20,14 @@ func NewUser() User {
 	}
 }
 
-func GetAllUsers() ([]User, error) {
-	cfg := config.GetInstance()
+func GetAllUsers(tx *sql.Tx) ([]User, error) {
+	ctx := context.Background()
 
-	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
+	queries := repo.New(tx)
+	userList, err := queries.GetUsers(ctx)
 	if err != nil {
-		return nil, err
-	}
-	defer db.Close()
-
-	query := "SELECT UserID,UserName " +
-		"FROM users"
-
-	var userList []User
-	rows, err := db.Query(query)
-	if err != nil {
-		return nil, err
+		return []User{}, err
 	}
 
-	for rows.Next() {
-		user := &User{}
-		err := rows.Scan(&user.UserID, &user.UserName)
-		if err != nil {
-			log.Fatalf("Failed to parse data from db: %v", err)
-		}
-		userList = append(userList, *user)
-	}
-
-	return userList, nil
+	return mapRepoUsers(userList), nil
 }

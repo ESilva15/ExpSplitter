@@ -4,32 +4,90 @@ import (
 	mod "expenses/expenses/models"
 )
 
-func GetAllTypes() ([]mod.Type, error) {
-	return mod.GetAllTypes()
+func (s *Service) GetAllTypes() ([]mod.Type, error) {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return []mod.Type{}, err
+	}
+	defer tx.Rollback()
+
+	types, err := mod.GetAllTypes(tx)
+	if err != nil {
+		return []mod.Type{}, err
+	}
+
+	return types, tx.Commit()
 }
 
-func GetType(id int64) (mod.Type, error) {
-	return mod.GetType(id)
+func (s *Service) GetType(id int64) (mod.Type, error) {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return mod.Type{}, err
+	}
+	defer tx.Rollback()
+
+	typ, err := mod.GetType(tx, id)
+	if err != nil {
+		return mod.Type{}, err
+	}
+
+	return typ, tx.Commit()
 }
 
-func NewType(name string) error {
+func (s *Service) NewType(name string) error {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
 	newTyp := mod.Type{
 		TypeName: name,
 	}
-	return newTyp.Insert()
+
+	err = newTyp.Insert(tx)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }
 
-func DeleteType(id int64) error {
+func (s *Service) DeleteType(id int64) error {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
 	typ := mod.Type{
 		TypeID: id,
 	}
-	return typ.Delete()
+
+	err = typ.Delete(tx)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }
 
-func UpdateType(id int64, name string) error {
+func (s *Service) UpdateType(id int64, name string) error {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
 	newTyp := mod.Type{
 		TypeID:   id,
 		TypeName: name,
 	}
-	return newTyp.Update()
+
+	err = newTyp.Update(tx)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }

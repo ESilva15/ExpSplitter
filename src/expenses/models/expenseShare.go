@@ -38,17 +38,10 @@ func (e *Expense) GetShares() error {
 	return nil
 }
 
-func (sh *ExpenseShare) Insert(expID int64) error {
-	cfg := config.GetInstance()
+func (sh *ExpenseShare) Insert(tx *sql.Tx, expID int64) error {
 	ctx := context.Background()
 
-	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
+	queries := repo.New(tx)
 	res, err := queries.InsertShare(ctx, repo.InsertShareParams{
 		ExpID:  expID,
 		Share:  sh.Share,

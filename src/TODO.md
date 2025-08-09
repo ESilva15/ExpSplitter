@@ -1,6 +1,7 @@
 # TODO
 - [ ] On the categories page, add a column of how many times a given category is
 used
+- [ ] Multiple categories per expense
 - [X] Make all the other items update/create page be like expenses
 - [ ] Make working with the DB better, yo
 - [ ] Ability to attach a document to an expense
@@ -10,6 +11,6 @@ used
 - [ ] Make the models just return errors and not do any handling themselves
 - [ ] Reduce the size of the font file
 - [ ] Add some migration tool
-- [ ] The shares float values aren't being stored correctly : (
 - [ ] Ownership on the image for the expenses webapp dir need to be changed
 - [ ] The button for deleting share rows isn't working at all unlike the payments
+- [ ] Use shopspring/decimal for money handling

@@ -6,11 +6,19 @@ import (
 	"time"
 )
 
-func GetAllExpenses() ([]mod.Expense, error) {
-	return mod.GetAllExpenses()
+func (s *Service) GetAllExpenses() ([]mod.Expense, error) {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return []mod.Expense{}, err
+	}
+	defer tx.Rollback()
+
+	expenses, err := mod.GetAllExpenses(tx)
+
+	return expenses, tx.Commit()
 }
 
-func GetExpensesRanged(startDate string, endDate string) ([]mod.Expense, error) {
+func (s *Service) GetExpensesRanged(startDate string, endDate string) ([]mod.Expense, error) {
 	startDateTime, err := time.ParseInLocation("02-Jan-2006 15:04:05", startDate, time.UTC)
 	if err != nil {
 		log.Printf("error startDate: %v", err)
@@ -25,17 +33,77 @@ func GetExpensesRanged(startDate string, endDate string) ([]mod.Expense, error) 
 	}
 	end := endDateTime.Unix()
 
-	return mod.GetExpensesRange(start, end)
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return []mod.Expense{}, err
+	}
+	defer tx.Rollback()
+
+	expenses, err := mod.GetExpensesRange(tx, start, end)
+
+	return expenses, tx.Commit()
 }
 
-func GetExpense(id int64) (mod.Expense, error) {
-	return mod.GetExpense(id)
+func (s *Service) GetExpense(id int64) (mod.Expense, error) {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return mod.Expense{}, err
+	}
+	defer tx.Rollback()
+
+	expense, err := mod.GetExpense(tx, id)
+	if err != nil {
+		return mod.Expense{}, err
+	}
+
+	return expense, tx.Commit()
 }
 
-func DeleteExpense(id int64) error {
+func (s *Service) DeleteExpense(id int64) error {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
 	expense := mod.Expense{
 		ExpID: id,
 	}
 
-	return expense.Delete()
+	err = expense.Delete()
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func (s *Service) NewExpense(exp mod.Expense) error {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	err = exp.Insert(tx)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func (s *Service) UpdateExpense(exp mod.Expense) error {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	err = exp.Update(tx)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }

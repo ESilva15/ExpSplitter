@@ -2,7 +2,7 @@ package pages
 
 import (
 	"database/sql"
-	"expenses/expenses"
+	exp "expenses/expenses"
 	experr "expenses/expenses/errors"
 
 	"fmt"
@@ -17,7 +17,7 @@ const (
 )
 
 func typesGlobalPage(c *gin.Context) {
-	types, err := expenses.GetAllTypes()
+	types, err := exp.Serv.GetAllTypes()
 	if err != nil {
 		ServerErrorView(c, "the server failed to get the types")
 		return
@@ -38,7 +38,7 @@ func typePage(c *gin.Context) {
 		return
 	}
 
-	typ, err := expenses.GetType(typeID)
+	typ, err := exp.Serv.GetType(typeID)
 	if err == sql.ErrNoRows {
 		NotFoundView(c, fmt.Sprintf("Couldn't find type `%d`", typeID))
 		return
@@ -69,7 +69,7 @@ func newTypePage(c *gin.Context) {
 func createType(c *gin.Context) {
 	newTypName := c.PostForm("type-name")
 
-	err := expenses.NewType(newTypName)
+	err := exp.Serv.NewType(newTypName)
 	if err != nil {
 		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
 	}
@@ -78,12 +78,12 @@ func createType(c *gin.Context) {
 }
 
 func deleteType(c *gin.Context) {
-	typeID, err := expenses.ParseID(c.Param("id"))
+	typeID, err := exp.ParseID(c.Param("id"))
 	if err != nil {
 		c.Redirect(404, "/404")
 	}
 
-	err = expenses.DeleteType(typeID)
+	err = exp.Serv.DeleteType(typeID)
 	if err == experr.ErrNotFound {
 		errMsg := fmt.Sprintf("category %d not found", typeID)
 		c.String(http.StatusNotFound, errMsg)
@@ -100,13 +100,13 @@ func deleteType(c *gin.Context) {
 }
 
 func updateType(c *gin.Context) {
-	typeID, err := expenses.ParseID(c.Param("id"))
+	typeID, err := exp.ParseID(c.Param("id"))
 	if err != nil {
 		c.Redirect(404, "/404")
 	}
 	newName := c.PostForm("type-name")
 
-	err = expenses.UpdateType(typeID, newName)
+	err = exp.Serv.UpdateType(typeID, newName)
 	if err != nil {
 		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
 		return

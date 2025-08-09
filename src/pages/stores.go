@@ -2,7 +2,7 @@ package pages
 
 import (
 	"database/sql"
-	"expenses/expenses"
+	exp "expenses/expenses"
 	experr "expenses/expenses/errors"
 	"fmt"
 
@@ -17,7 +17,7 @@ const (
 )
 
 func storesGlobalPage(c *gin.Context) {
-	stores, err := expenses.GetAllStores()
+	stores, err := exp.Serv.GetAllStores()
 	if err != nil {
 		ServerErrorView(c, "Failed to fetch stores content")
 		return
@@ -38,7 +38,7 @@ func storePage(c *gin.Context) {
 		return
 	}
 
-	store, err := expenses.GetStore(storeID)
+	store, err := exp.Serv.GetStore(storeID)
 	if err == sql.ErrNoRows {
 		NotFoundView(c, fmt.Sprintf("didn't find store with ID `%d`", storeID))
 		return
@@ -69,7 +69,7 @@ func newStorePage(c *gin.Context) {
 func createStore(c *gin.Context) {
 	storeName := c.PostForm("store-name")
 
-	err := expenses.NewStore(storeName)
+	err := exp.Serv.NewStore(storeName)
 	if err != nil {
 		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
 	}
@@ -78,13 +78,13 @@ func createStore(c *gin.Context) {
 }
 
 func updateStore(c *gin.Context) {
-	storeID, err := expenses.ParseID(c.Param("id"))
+	storeID, err := exp.ParseID(c.Param("id"))
 	if err != nil {
 		c.Redirect(404, "/404")
 	}
 	newName := c.PostForm("store-name")
 
-	err = expenses.UpdateStore(storeID, newName)
+	err = exp.Serv.UpdateStore(storeID, newName)
 	if err != nil {
 		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
 		return
@@ -94,12 +94,12 @@ func updateStore(c *gin.Context) {
 }
 
 func deleteStore(c *gin.Context) {
-	storeID, err := expenses.ParseID(c.Param("id"))
+	storeID, err := exp.ParseID(c.Param("id"))
 	if err != nil {
 		c.Redirect(404, "/404")
 	}
 
-	err = expenses.DeleteStore(storeID)
+	err = exp.Serv.DeleteStore(storeID)
 	if err == experr.ErrNotFound {
 		errMsg := fmt.Sprintf("category %d not found", storeID)
 		c.String(http.StatusNotFound, errMsg)

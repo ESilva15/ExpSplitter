@@ -2,7 +2,6 @@ package models
 
 import (
 	"context"
-	"expenses/config"
 	repo "expenses/expenses/db/repository"
 	experr "expenses/expenses/errors"
 
@@ -24,17 +23,10 @@ func NewStore() Store {
 	}
 }
 
-func GetAllStores() ([]Store, error) {
-	cfg := config.GetInstance()
+func GetAllStores(tx *sql.Tx) ([]Store, error) {
 	ctx := context.Background()
 
-	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
-	if err != nil {
-		return []Store{}, err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
+	queries := repo.New(tx)
 	storeList, err := queries.GetStores(ctx)
 	if err != nil {
 		return []Store{}, err
@@ -43,17 +35,10 @@ func GetAllStores() ([]Store, error) {
 	return mapRepoStores(storeList), nil
 }
 
-func GetStore(storeID int64) (Store, error) {
-	cfg := config.GetInstance()
+func GetStore(tx *sql.Tx, storeID int64) (Store, error) {
 	ctx := context.Background()
 
-	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
-	if err != nil {
-		return Store{}, err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
+	queries := repo.New(tx)
 	store, err := queries.GetStore(ctx, storeID)
 	if err != nil {
 		return Store{}, err
@@ -62,17 +47,10 @@ func GetStore(storeID int64) (Store, error) {
 	return mapRepoStore(store), nil
 }
 
-func (s *Store) Insert() error {
-	cfg := config.GetInstance()
+func (s *Store) Insert(tx *sql.Tx) error {
 	ctx := context.Background()
 
-	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
+	queries := repo.New(tx)
 	res, err := queries.InsertStore(ctx, s.StoreName)
 
 	rowsAffected, err := res.RowsAffected()
@@ -85,17 +63,10 @@ func (s *Store) Insert() error {
 	return nil
 }
 
-func (s *Store) Update() error {
-	cfg := config.GetInstance()
+func (s *Store) Update(tx *sql.Tx) error {
 	ctx := context.Background()
 
-	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
+	queries := repo.New(tx)
 	res, err := queries.UpdateStore(ctx, repo.UpdateStoreParams{
 		StoreID:   s.StoreID,
 		StoreName: s.StoreName,
@@ -111,17 +82,10 @@ func (s *Store) Update() error {
 	return nil
 }
 
-func (s *Store) Delete() error {
-	cfg := config.GetInstance()
+func (s *Store) Delete(tx *sql.Tx) error {
 	ctx := context.Background()
 
-	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
+	queries := repo.New(tx)
 	res, err := queries.DeleteStore(ctx, s.StoreID)
 
 	rowsAffected, err := res.RowsAffected()

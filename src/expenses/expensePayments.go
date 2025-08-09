@@ -45,10 +45,21 @@ func ParseFormPayments(userIDs []string, paymentsIDs []string,
 	return payments, nil
 }
 
-func DeletePayment(id int64) error {
+func (s *Service) DeletePayment(id int64) error {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
 	payment := mod.ExpensePayment{
 		ExpPaymID: id,
 	}
 
-	return payment.Delete()
+	err = payment.Delete(tx)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }

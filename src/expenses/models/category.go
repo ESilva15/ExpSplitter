@@ -57,17 +57,10 @@ func GetCategory(catID int64) (Category, error) {
 	return MapRepoCategory(category), err
 }
 
-func (cat *Category) Insert() error {
-	cfg := config.GetInstance()
+func (cat *Category) Insert(tx *sql.Tx) error {
 	ctx := context.Background()
 
-	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
+	queries := repo.New(tx)
 	res, err := queries.InsertCategory(ctx, cat.CategoryName)
 	if err != nil {
 		return err

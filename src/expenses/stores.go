@@ -4,33 +4,86 @@ import (
 	mod "expenses/expenses/models"
 )
 
-func GetAllStores() ([]mod.Store, error) {
-	return mod.GetAllStores()
+func (s *Service) GetAllStores() ([]mod.Store, error) {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return []mod.Store{}, err
+	}
+	defer tx.Rollback()
+
+	stores, err := mod.GetAllStores(tx)
+	if err != nil {
+		return []mod.Store{}, err
+	}
+
+	return stores, tx.Commit()
 }
 
-func GetStore(id int64) (mod.Store, error) {
-	return mod.GetStore(id)
+func (s *Service) GetStore(id int64) (mod.Store, error) {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return mod.Store{}, err
+	}
+	defer tx.Rollback()
+
+	store, err := mod.GetStore(tx, id)
+	if err != nil {
+		return mod.Store{}, err
+	}
+
+	return store, tx.Commit()
 }
 
-func NewStore(name string) error {
+func (s *Service) NewStore(name string) error {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
 	newStore := mod.Store{
 		StoreName: name,
 	}
-	return newStore.Insert()
+
+	err = newStore.Insert(tx)
+	return tx.Commit()
 }
 
-func UpdateStore(id int64, name string) error {
+func (s *Service) UpdateStore(id int64, name string) error {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
 	store := mod.Store{
 		StoreID:   id,
 		StoreName: name,
 	}
 
-	return store.Update()
+	err = store.Update(tx)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }
 
-func DeleteStore(id int64) error {
+func (s *Service) DeleteStore(id int64) error {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
 	store := mod.Store{
 		StoreID: id,
 	}
-	return store.Delete()
+
+	err = store.Delete(tx)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }

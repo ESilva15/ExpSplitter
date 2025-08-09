@@ -2,7 +2,6 @@ package models
 
 import (
 	"context"
-	"expenses/config"
 	repo "expenses/expenses/db/repository"
 	experr "expenses/expenses/errors"
 
@@ -24,17 +23,10 @@ func NewType() Type {
 	}
 }
 
-func GetAllTypes() ([]Type, error) {
-	cfg := config.GetInstance()
+func GetAllTypes(tx *sql.Tx) ([]Type, error) {
 	ctx := context.Background()
 
-	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
-	if err != nil {
-		return []Type{}, err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
+	queries := repo.New(tx)
 	typeList, err := queries.GetTypes(ctx)
 	if err != nil {
 		return []Type{}, err
@@ -43,17 +35,10 @@ func GetAllTypes() ([]Type, error) {
 	return mapRepoTypes(typeList), nil
 }
 
-func GetType(typID int64) (Type, error) {
-	cfg := config.GetInstance()
+func GetType(tx *sql.Tx, typID int64) (Type, error) {
 	ctx := context.Background()
 
-	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
-	if err != nil {
-		return Type{}, err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
+	queries := repo.New(tx)
 	typ, err := queries.GetType(ctx, typID)
 	if err != nil {
 		return Type{}, err
@@ -62,17 +47,10 @@ func GetType(typID int64) (Type, error) {
 	return mapRepoType(typ), nil
 }
 
-func (typ *Type) Insert() error {
-	cfg := config.GetInstance()
+func (typ *Type) Insert(tx *sql.Tx) error {
 	ctx := context.Background()
 
-	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
+	queries := repo.New(tx)
 	res, err := queries.InsertType(ctx, typ.TypeName)
 	if err != nil {
 		return err
@@ -91,17 +69,10 @@ func (typ *Type) Insert() error {
 	return nil
 }
 
-func (typ *Type) Delete() error {
-	cfg := config.GetInstance()
+func (typ *Type) Delete(tx *sql.Tx) error {
 	ctx := context.Background()
 
-	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
+	queries := repo.New(tx)
 	res, err := queries.DeleteType(ctx, typ.TypeID)
 	if err != nil {
 		return err
@@ -117,17 +88,10 @@ func (typ *Type) Delete() error {
 	return nil
 }
 
-func (typ *Type) Update() error {
-	cfg := config.GetInstance()
+func (typ *Type) Update(tx *sql.Tx) error {
 	ctx := context.Background()
 
-	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
+	queries := repo.New(tx)
 	res, err := queries.UpdateType(ctx, repo.UpdateTypeParams{
 		TypeID:   typ.TypeID,
 		TypeName: typ.TypeName,

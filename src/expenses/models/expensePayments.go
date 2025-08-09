@@ -37,17 +37,10 @@ func (e *Expense) GetPayments() error {
 	return nil
 }
 
-func (p *ExpensePayment) Insert(expID int64) error {
-	cfg := config.GetInstance()
+func (p *ExpensePayment) Insert(tx *sql.Tx, expID int64) error {
 	ctx := context.Background()
 
-	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
+	queries := repo.New(tx)
 	res, err := queries.InsertPayment(ctx, repo.InsertPaymentParams{
 		ExpID:  expID,
 		UserID: p.User.UserID,
@@ -97,17 +90,10 @@ func (p *ExpensePayment) Update() error {
 	return nil
 }
 
-func (p *ExpensePayment) Delete() error {
-	cfg := config.GetInstance()
+func (p *ExpensePayment) Delete(tx *sql.Tx) error {
 	ctx := context.Background()
 
-	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
+	queries := repo.New(tx)
 	res, err := queries.DeletePayment(ctx, p.ExpPaymID)
 	if err != nil {
 		return err

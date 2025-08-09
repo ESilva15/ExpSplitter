@@ -57,3 +57,12 @@ func mapRepoGetExpenseRowMulti(e repo.GetExpensesRow) Expense {
 		CreationDate: e.Expense.CreationDate,
 	}
 }
+
+func mapRepoGetExpensesRows(er []repo.GetExpensesRow) []Expense {
+	expenses := make([]Expense, len(er))
+	for k, exp := range er {
+		expenses[k] = mapRepoGetExpenseRowMulti(exp)
+	}
+	return expenses
+}
+

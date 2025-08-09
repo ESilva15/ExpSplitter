@@ -3,11 +3,10 @@ package pages
 import (
 	"database/sql"
 	"encoding/json"
-	"expenses/expenses"
+	exp "expenses/expenses"
 	experr "expenses/expenses/errors"
 	mod "expenses/expenses/models"
 	"fmt"
-	"strconv"
 
 	"net/http"
 
@@ -19,7 +18,7 @@ const (
 )
 
 func expensesPartial(c *gin.Context) {
-	expenses, err := expenses.GetAllExpenses()
+	expenses, err := exp.Serv.GetAllExpenses()
 	if err != nil {
 		c.Header("HX-Redirect", "/500")
 		return
@@ -31,7 +30,7 @@ func expensesPartial(c *gin.Context) {
 }
 
 func ExpensesGlobalPage(c *gin.Context) {
-	expenses, err := expenses.GetAllExpenses()
+	expenses, err := exp.Serv.GetAllExpenses()
 	if err != nil {
 		c.Header("HX-Redirect", "/500")
 		return
@@ -46,13 +45,13 @@ func ExpensesGlobalPage(c *gin.Context) {
 }
 
 func expensePage(c *gin.Context) {
-	expenseID, err := expenses.ParseID(c.Param("id"))
+	expenseID, err := exp.ParseID(c.Param("id"))
 	if err != nil {
 		ServerErrorView(c, "failed to parse requested expenses id")
 		return
 	}
 
-	expense, err := expenses.GetExpense(expenseID)
+	expense, err := exp.Serv.GetExpense(expenseID)
 	if err == sql.ErrNoRows {
 		NotFoundView(c, "didn't find requested expense")
 		return
@@ -70,25 +69,25 @@ func expensePage(c *gin.Context) {
 		return
 	}
 
-	categories, err := expenses.GetAllCategories()
+	categories, err := exp.GetAllCategories()
 	if err != nil {
 		ServerErrorView(c, "failed to fetch categories")
 		return
 	}
 
-	stores, err := expenses.GetAllStores()
+	stores, err := exp.Serv.GetAllStores()
 	if err != nil {
 		ServerErrorView(c, "failed to fetch stores")
 		return
 	}
 
-	types, err := expenses.GetAllTypes()
+	types, err := exp.Serv.GetAllTypes()
 	if err != nil {
 		ServerErrorView(c, "failed to fetch types")
 		return
 	}
 
-	users, err := expenses.GetAllUsers()
+	users, err := exp.Serv.GetAllUsers()
 	if err != nil {
 		ServerErrorView(c, "failed to fetch users")
 		return
@@ -115,25 +114,25 @@ func expensePage(c *gin.Context) {
 }
 
 func newExpensePage(c *gin.Context) {
-	categories, err := expenses.GetAllCategories()
+	categories, err := exp.GetAllCategories()
 	if err != nil {
 		ServerErrorView(c, "failed to fetch categories")
 		return
 	}
 
-	stores, err := expenses.GetAllStores()
+	stores, err := exp.Serv.GetAllStores()
 	if err != nil {
 		ServerErrorView(c, "failed to fetch stores")
 		return
 	}
 
-	types, err := expenses.GetAllTypes()
+	types, err := exp.Serv.GetAllTypes()
 	if err != nil {
 		ServerErrorView(c, "failed to fetch types")
 		return
 	}
 
-	users, err := expenses.GetAllUsers()
+	users, err := exp.Serv.GetAllUsers()
 	if err != nil {
 		ServerErrorView(c, "failed to fetch users")
 		return
@@ -160,7 +159,7 @@ func createExpense(c *gin.Context) {
 		c.Header("HX-Redirect", "/500")
 	}
 
-	err = newExp.Insert()
+	err = exp.Serv.NewExpense(*newExp)
 	if err != nil {
 		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
 		return
@@ -170,7 +169,7 @@ func createExpense(c *gin.Context) {
 }
 
 func updateExpense(c *gin.Context) {
-	expenseID, err := expenses.ParseID(c.Param("id"))
+	expenseID, err := exp.ParseID(c.Param("id"))
 	if err != nil {
 		c.Header("HX-Redirect", "/404")
 		return
@@ -185,7 +184,7 @@ func updateExpense(c *gin.Context) {
 	}
 	newExp.ExpID = expenseID
 
-	err = newExp.Update()
+	err = exp.Serv.UpdateExpense(*newExp)
 	if err != nil {
 		errMsg, _ := json.Marshal(err.Error())
 		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":%s}", errMsg))
@@ -196,13 +195,13 @@ func updateExpense(c *gin.Context) {
 }
 
 func deleteExpense(c *gin.Context) {
-	expenseID, err := strconv.ParseInt(c.Param("id"), 10, 16)
+	expenseID, err := exp.ParseID(c.Param("id"))
 	if err != nil {
 		c.Header("HX-Redirect", "/404")
 		return
 	}
 
-	err = expenses.DeleteExpense(expenseID)
+	err = exp.Serv.DeleteExpense(expenseID)
 	if err == experr.ErrNotFound {
 		errMsg := fmt.Sprintf("category %d not found", expenseID)
 		c.String(http.StatusNotFound, errMsg)

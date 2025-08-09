@@ -2,7 +2,7 @@ package pages
 
 import (
 	"database/sql"
-	"expenses/expenses"
+	exp "expenses/expenses"
 	experr "expenses/expenses/errors"
 
 	"encoding/json"
@@ -18,7 +18,7 @@ const (
 )
 
 func categoriesGlobalPage(c *gin.Context) {
-	categories, err := expenses.GetAllCategories()
+	categories, err := exp.GetAllCategories()
 	if err != nil {
 		ServerErrorView(c, "The server too makes mistakes")
 		return
@@ -39,7 +39,7 @@ func categoryPage(c *gin.Context) {
 		return
 	}
 
-	category, err := expenses.GetCategory(categoryID)
+	category, err := exp.GetCategory(categoryID)
 	if err == sql.ErrNoRows {
 		NotFoundView(c, fmt.Sprintf("Could not find category `%d`", categoryID))
 		return
@@ -69,7 +69,7 @@ func newCategoryPage(c *gin.Context) {
 
 func createCategory(c *gin.Context) {
 	newCatName := c.PostForm("category-name")
-	err := expenses.CreateCategory(newCatName)
+	err := exp.Serv.CreateCategory(newCatName)
 
 	if err != nil {
 		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
@@ -79,14 +79,14 @@ func createCategory(c *gin.Context) {
 }
 
 func updateCategory(c *gin.Context) {
-	categoryID, err := expenses.ParseID(c.Param("id"))
+	categoryID, err := exp.ParseID(c.Param("id"))
 	if err != nil {
 		NotFoundView(c, "No such category")
 		return
 	}
 	categoryName := c.PostForm("category-name")
 
-	err = expenses.UpdateCategory(categoryID, categoryName)
+	err = exp.Serv.UpdateCategory(categoryID, categoryName)
 	if err != nil {
 		errMsg, _ := json.Marshal(err.Error())
 		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":%s}", errMsg))
@@ -97,13 +97,13 @@ func updateCategory(c *gin.Context) {
 }
 
 func deleteCategory(c *gin.Context) {
-	categoryID, err := expenses.ParseID(c.Param("id"))
+	categoryID, err := exp.ParseID(c.Param("id"))
 	if err != nil {
 		NotFoundView(c, "No such category")
 		return
 	}
 
-	err = expenses.DeleteCategory(categoryID)
+	err = exp.Serv.DeleteCategory(categoryID)
 	if err == experr.ErrNotFound {
 		errMsg := fmt.Sprintf("category %d not found", categoryID)
 		c.String(http.StatusNotFound, errMsg)

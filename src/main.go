@@ -2,6 +2,7 @@ package main
 
 import (
 	"expenses/config"
+	"expenses/expenses"
 	"expenses/pages"
 
 	"fmt"
@@ -26,10 +27,7 @@ var tmplFuncMap = template.FuncMap{
 	},
 }
 
-func main() {
-	config.SetConfig("./config.yaml")
-	cfg := config.GetInstance()
-
+func configGin(cfg *config.Configuration) *gin.Engine {
 	gin.SetMode(ginMode)
 	templates := template.Must(
 		template.New("").
@@ -43,6 +41,10 @@ func main() {
 	router.StaticFS("/assets", http.Dir(cfg.AssetsDir))
 	router.StaticFile("/favicon.ico", fp.Join(cfg.AssetsDir, "img/favicon.webp"))
 
+	return router
+}
+
+func setRoutes(router *gin.Engine) {
 	pages.RouteHome(router)
 	pages.RouteExpenses(router)
 	pages.RouteCategories(router)
@@ -52,6 +54,16 @@ func main() {
 	pages.RouteOverview(router)
 	pages.RouteNotFound(router)
 	pages.RouteServerError(router)
+}
+
+func main() {
+	if err := expenses.StartApp(); err != nil {
+		log.Fatal("failed to start app:", err.Error())
+	}
+	cfg := config.GetInstance()
+
+	router := configGin(cfg)
+	setRoutes(router)
 
 	err := router.Run(":" + cfg.Port)
 	if err != nil {
