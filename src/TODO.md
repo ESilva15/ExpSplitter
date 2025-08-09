@@ -10,7 +10,17 @@ used
 - [ ] Migrate every column named "ExpenseSomething" to "ExpSomething"
 - [ ] Make the models just return errors and not do any handling themselves
 - [ ] Reduce the size of the font file
-- [ ] Add some migration tool
+- [X] Add some migration tool
 - [ ] Ownership on the image for the expenses webapp dir need to be changed
 - [ ] The button for deleting share rows isn't working at all unlike the payments
 - [ ] Use shopspring/decimal for money handling
+- [ ] Rename this file
+
+### Stack
+- Go
+- golang-migrate
+- sqlc
+- sqlite
+
+### Patterns
+- Service Pattern

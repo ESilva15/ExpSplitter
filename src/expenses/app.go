@@ -32,8 +32,6 @@ func StartApp() error {
 
 	Serv = NewExpenseService(db)
 
-	log.Println(cfg)
-
 	err = mod.RunMigrations(db)
 	if err != nil {
 		log.Fatalf("Failed to apply migrations: %v", err)

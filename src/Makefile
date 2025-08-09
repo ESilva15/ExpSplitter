@@ -6,7 +6,7 @@ tag = v0.0.51-alpha
 build_release_alpine:
 	rm -rf build && mkdir -p $(build)
 	CGO_ENABLED=1 GOOS=linux CC=musl-gcc \
-					 go build -ldflags "-X main.ginMode=release" -o $(build)
+					 go build -ldflags "-X expenses/cmd.ginMode=release" -o $(build)
 	cp -r ./assets $(build)
 	cp ./config.yaml $(build)
 	mkdir $(build)/data/

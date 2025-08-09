@@ -11,12 +11,31 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-func RunMigrations(db *sql.DB) error {
+func prepareMigrator(db *sql.DB) (*mig.Migrate, error) {
 	cfg := config.GetInstance()
 
 	driver, err := sqlite3.WithInstance(db, &sqlite3.Config{})
-
 	m, err := mig.NewWithDatabaseInstance(cfg.MigrationsPath, "sqlite3", driver)
+
+	return m, err
+}
+
+func Goto(db *sql.DB, id uint) error {
+	m, err := prepareMigrator(db)
+	if err != nil {
+		return err
+	}
+
+	err = m.Force(int(id))
+	if err != nil && err != mig.ErrNoChange {
+		return err
+	}
+
+	return nil
+}
+
+func RunMigrations(db *sql.DB) error {
+	m, err := prepareMigrator(db)
 	if err != nil {
 		return err
 	}
