@@ -2,3 +2,4 @@ assets: "./assets/"
 port: 8081
 dbpath: "./data/data.db"
 dbsys: "sqlite3"
+migrations_path: "file://expenses/db/migrations/"

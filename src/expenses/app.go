@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"expenses/config"
 	"log"
+	mod "expenses/expenses/models"
 )
 
 var (
@@ -30,5 +31,13 @@ func StartApp() error {
 	}
 
 	Serv = NewExpenseService(db)
+
+	log.Println(cfg)
+
+	err = mod.RunMigrations(db)
+	if err != nil {
+		log.Fatalf("Failed to apply migrations: %v", err)
+	}
+
 	return nil
 }

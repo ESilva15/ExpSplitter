@@ -8,10 +8,11 @@ import (
 )
 
 type Configuration struct {
-	AssetsDir string `yaml:"assets"`
-	Port      string `yaml:"port"`
-	DBSys     string `yaml:"dbsys"`
-	DBPath    string `yaml:"dbpath"`
+	AssetsDir      string `yaml:"assets"`
+	Port           string `yaml:"port"`
+	DBSys          string `yaml:"dbsys"`
+	DBPath         string `yaml:"dbpath"`
+	MigrationsPath string `yaml:"migrations_path"`
 }
 
 var (

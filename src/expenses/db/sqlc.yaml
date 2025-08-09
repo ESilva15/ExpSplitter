@@ -3,7 +3,7 @@ sql:
   - engine: "sqlite"
     queries: "queries/"
     # Convert this to use a migrations/ (migrate)
-    schema: "schema.sql"
+    schema: "migrations/"
     gen:
       go:
         package: "repository"
