@@ -19,7 +19,6 @@ func verifyArgs(cmd *cobra.Command, args []string) error {
 
 func migrate(cmd *cobra.Command, args []string) {
 	migID, err := strconv.ParseUint(args[0], 10, 0)
-
 	if err != nil {
 		log.Fatalf("%s is an invalid migration ID", args[1])
 	}

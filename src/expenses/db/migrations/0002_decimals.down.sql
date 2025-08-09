@@ -1,5 +1,25 @@
 -- 0002_change_floats_to_decimal.down.sql
 
+-- expenses
+CREATE TABLE expenses_old (
+  "ExpID" integer PRIMARY KEY AUTOINCREMENT,
+  "Description" text NOT NULL,
+  "Value" float NOT NULL DEFAULT 0,
+  "StoreID" int NOT NULL DEFAULT 0,
+  "CategoryID" int NOT NULL DEFAULT 0,
+  "OwnerUserID" int NOT NULL DEFAULT 0,
+  "TypeID" int NOT NULL DEFAULT 0,
+  "ExpDate" int NOT NULL DEFAULT -1,
+  "CreationDate" int NOT NULL DEFAULT -1,
+  FOREIGN KEY(StoreID) REFERENCES stores(StoreID) ON DELETE RESTRICT,
+  FOREIGN KEY(CategoryID) REFERENCES categories(CategoryID) ON DELETE RESTRICT,
+  FOREIGN KEY(OwnerUserID) REFERENCES users(UserID) ON DELETE RESTRICT,
+  FOREIGN KEY(TypeID) REFERENCES expensetypes(TypeID) ON DELETE RESTRICT
+);
+INSERT INTO expenses_old SELECT * FROM expenses;
+DROP TABLE expenses;
+ALTER TABLE expenses_old RENAME TO expenses;
+
 -- expensesShares
 CREATE TABLE expensesShares_old (
   "ExpShareID" integer PRIMARY KEY AUTOINCREMENT,
@@ -25,24 +45,3 @@ CREATE TABLE expensesPayments_old (
 INSERT INTO expensesPayments_old SELECT * FROM expensesPayments;
 DROP TABLE expensesPayments;
 ALTER TABLE expensesPayments_old RENAME TO expensesPayments;
-
--- expenses
-CREATE TABLE expenses_old (
-  "ExpID" integer PRIMARY KEY AUTOINCREMENT,
-  "Description" text NOT NULL,
-  "Value" float NOT NULL DEFAULT 0,
-  "StoreID" int NOT NULL DEFAULT 0,
-  "CategoryID" int NOT NULL DEFAULT 0,
-  "OwnerUserID" int NOT NULL DEFAULT 0,
-  "TypeID" int NOT NULL DEFAULT 0,
-  "ExpDate" int NOT NULL DEFAULT -1,
-  "CreationDate" int NOT NULL DEFAULT -1,
-  FOREIGN KEY(StoreID) REFERENCES stores(StoreID) ON DELETE RESTRICT,
-  FOREIGN KEY(CategoryID) REFERENCES categories(CategoryID) ON DELETE RESTRICT,
-  FOREIGN KEY(OwnerUserID) REFERENCES users(UserID) ON DELETE RESTRICT,
-  FOREIGN KEY(TypeID) REFERENCES expensetypes(TypeID) ON DELETE RESTRICT
-);
-INSERT INTO expenses_old SELECT * FROM expenses;
-DROP TABLE expenses;
-ALTER TABLE expenses_old RENAME TO expenses;
-

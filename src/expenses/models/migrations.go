@@ -3,7 +3,6 @@ package models
 import (
 	"database/sql"
 	"expenses/config"
-	"fmt"
 	"log"
 
 	mig "github.com/golang-migrate/migrate/v4"
@@ -26,7 +25,8 @@ func Goto(db *sql.DB, id uint) error {
 		return err
 	}
 
-	err = m.Force(int(id))
+	err = m.Migrate(id)
+	// err = m.Force(int(id))
 	if err != nil && err != mig.ErrNoChange {
 		return err
 	}
@@ -47,17 +47,15 @@ func RunMigrations(db *sql.DB) error {
 		}
 
 		if dirty, ok := err.(mig.ErrDirty); ok {
-			log.Printf("Database is dirty at version %d, cleaning", dirty.Version)
+			log.Printf("migration %d is dirty:", dirty.Version)
 
-			if ferr := m.Force(dirty.Version); ferr != nil {
-				return fmt.Errorf("failed to force clean state: %w", ferr)
+			forceErr := m.Force(int(dirty.Version - 1))
+			if forceErr != nil {
+				log.Fatalln("force reset failed: %w", forceErr)
 			}
 
-			if uerr := m.Up(); uerr != nil && uerr != mig.ErrNoChange {
-				return fmt.Errorf("retry migration failed: %w", uerr)
-			}
-
-			return nil
+			migErr := m.Migrate(uint(dirty.Version))
+			log.Fatalln(migErr)
 		}
 	}
 
