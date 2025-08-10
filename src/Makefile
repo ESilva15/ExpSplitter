@@ -6,10 +6,13 @@ tag = v0.0.51-alpha
 build_release_alpine:
 	rm -rf build && mkdir -p $(build)
 	CGO_ENABLED=1 GOOS=linux CC=musl-gcc \
-					 go build -ldflags "-X expenses/cmd.ginMode=release" -o $(build)
+		go build -ldflags "-X expenses/cmd.ginMode=release" \
+		-o $(build)/expensesweb
 	cp -r ./assets $(build)
 	cp ./config.yaml $(build)
-	mkdir $(build)/data/
+	mkdir -p $(build)/expenses/db/migrations/ && \
+		cp -r ./expenses/db/migrations/ $(build)/expenses/db/migrations/
+	mkdir -p $(build)/data/
 	find $(build) -name "*.ttf" ! -name DejaVuSansMono.ttf -delete
 
 build_image:
