@@ -2,7 +2,6 @@ package models
 
 import (
 	"context"
-	"expenses/config"
 	"expenses/expenses/db/repository"
 	repo "expenses/expenses/db/repository"
 
@@ -19,17 +18,10 @@ type ExpenseShare struct {
 	Share      decimal.Decimal
 }
 
-func (e *Expense) GetShares() error {
-	cfg := config.GetInstance()
+func (e *Expense) GetShares(tx *sql.Tx) error {
 	ctx := context.Background()
 
-	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	queries := repository.New(db)
+	queries := repository.New(tx)
 	shares, err := queries.GetShares(ctx, e.ExpID)
 	if err != nil {
 		return err
@@ -62,17 +54,10 @@ func (sh *ExpenseShare) Insert(tx *sql.Tx, expID int64) error {
 	return nil
 }
 
-func (sh *ExpenseShare) Update() error {
-	cfg := config.GetInstance()
+func (sh *ExpenseShare) Update(tx *sql.Tx) error {
 	ctx := context.Background()
 
-	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
+	queries := repo.New(tx)
 	res, err := queries.UpdateShare(ctx, repo.UpdateShareParams{
 		ExpShareID: sh.ExpShareID,
 		Share:      sh.Share.String(),

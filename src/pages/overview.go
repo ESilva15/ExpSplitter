@@ -45,12 +45,12 @@ func getResults(c *gin.Context) {
 
 	// Get the expenses and shares for each expense
 	for k := range queriedExpenses {
-		err = queriedExpenses[k].GetShares()
+		err = exp.Serv.LoadExpenseShares(&queriedExpenses[k])
 		if err != nil {
 			log.Printf("failed to get shares: %v", err)
 			return
 		}
-		err = queriedExpenses[k].GetPayments()
+		err = exp.Serv.LoadExpensePayments(&queriedExpenses[k])
 		if err != nil {
 			log.Printf("failed to get payments: %v", err)
 			return

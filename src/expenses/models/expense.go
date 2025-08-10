@@ -157,7 +157,7 @@ func (e *Expense) Update(tx *sql.Tx) error {
 				return err
 			}
 		} else {
-			share.Update()
+			share.Update(tx)
 		}
 	}
 
@@ -168,7 +168,7 @@ func (e *Expense) Update(tx *sql.Tx) error {
 				return err
 			}
 		} else {
-			paym.Update()
+			paym.Update(tx)
 		}
 	}
 

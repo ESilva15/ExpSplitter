@@ -59,6 +59,36 @@ func (s *Service) GetExpense(id int64) (mod.Expense, error) {
 	return expense, tx.Commit()
 }
 
+func (s *Service) LoadExpenseShares(e *mod.Expense) error {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	err = e.GetShares(tx)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func (s *Service) LoadExpensePayments(e *mod.Expense) error {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	err = e.GetPayments(tx)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
 func (s *Service) DeleteExpense(id int64) error {
 	tx, err := s.DB.Begin()
 	if err != nil {

@@ -57,13 +57,13 @@ func expensePage(c *gin.Context) {
 		return
 	}
 
-	err = expense.GetShares()
+	err = exp.Serv.LoadExpenseShares(&expense)
 	if err != nil {
 		ServerErrorView(c, "failed to fetch shares")
 		return
 	}
 
-	err = expense.GetPayments()
+	err = exp.Serv.LoadExpensePayments(&expense)
 	if err != nil {
 		ServerErrorView(c, "failed to fetch payments")
 		return

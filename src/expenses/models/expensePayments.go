@@ -2,7 +2,6 @@ package models
 
 import (
 	"context"
-	"expenses/config"
 	repo "expenses/expenses/db/repository"
 
 	"database/sql"
@@ -18,17 +17,10 @@ type ExpensePayment struct {
 	PayedAmount decimal.Decimal
 }
 
-func (e *Expense) GetPayments() error {
-	cfg := config.GetInstance()
+func (e *Expense) GetPayments(tx *sql.Tx) error {
 	ctx := context.Background()
 
-	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
+	queries := repo.New(tx)
 	payments, err := queries.GetPayments(ctx, e.ExpID)
 	if err != nil {
 		return err
@@ -61,17 +53,10 @@ func (p *ExpensePayment) Insert(tx *sql.Tx, expID int64) error {
 	return nil
 }
 
-func (p *ExpensePayment) Update() error {
-	cfg := config.GetInstance()
+func (p *ExpensePayment) Update(tx *sql.Tx) error {
 	ctx := context.Background()
 
-	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
+	queries := repo.New(tx)
 	res, err := queries.UpdatePayment(ctx, repo.UpdatePaymentParams{
 		ExpPaymID: p.ExpPaymID,
 		Payed:     p.PayedAmount.String(),
