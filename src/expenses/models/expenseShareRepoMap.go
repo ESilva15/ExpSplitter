@@ -1,11 +1,17 @@
 package models
 
-import repo "expenses/expenses/db/repository"
+import (
+	repo "expenses/expenses/db/repository"
+
+	"github.com/shopspring/decimal"
+)
 
 func mapRepoGetSharesRow(s repo.GetSharesRow) ExpenseShare {
+	share, _ := decimal.NewFromString(s.ExpensesShare.Share)
+
 	return ExpenseShare{
 		ExpShareID: s.ExpensesShare.ExpShareID,
-		Share:      s.ExpensesShare.Share,
+		Share:      share,
 		User: User{
 			UserID:   s.User.UserID,
 			UserName: s.User.UserName,

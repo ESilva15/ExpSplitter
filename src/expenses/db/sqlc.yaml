@@ -11,12 +11,3 @@ sql:
           expenseTypes: "ExpenseTypes"
           expenseShares: "ExpenseShares"
           expensePayments: "ExpensePayments"
-        overrides:
-          - db_type: "float"
-            go_type:
-              import: "github.com/shopspring/decimal"
-              type: "DECIMAL"
-          - db_type: "DECIMAL"
-            go_type:
-              import: "github.com/shopspring/decimal"
-              type: "DECIMAL"

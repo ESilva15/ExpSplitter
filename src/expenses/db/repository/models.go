@@ -12,7 +12,7 @@ type Category struct {
 type Expense struct {
 	ExpID        int64
 	Description  string
-	Value        float64
+	Value        string
 	StoreID      int64
 	CategoryID   int64
 	OwnerUserID  int64
@@ -30,14 +30,14 @@ type ExpensesPayment struct {
 	ExpPaymID int64
 	ExpID     int64
 	UserID    int64
-	Payed     float64
+	Payed     string
 }
 
 type ExpensesShare struct {
 	ExpShareID int64
 	ExpID      int64
 	UserID     int64
-	Share      float64
+	Share      string
 }
 
 type Store struct {

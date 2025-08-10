@@ -7,12 +7,14 @@ import (
 
 	"database/sql"
 	"fmt"
+
+	"github.com/shopspring/decimal"
 )
 
 type Expense struct {
 	ExpID        int64
 	Description  string
-	Value        float64
+	Value        decimal.Decimal
 	Store        Store
 	Type         Type
 	Category     Category
@@ -27,7 +29,7 @@ func NewExpense() Expense {
 	return Expense{
 		ExpID:        -1,
 		Description:  "",
-		Value:        0.0,
+		Value:        decimal.NewFromFloat(0.0),
 		Store:        NewStore(),
 		Category:     NewCategory(),
 		Owner:        NewUser(),
@@ -71,7 +73,7 @@ func (exp *Expense) Insert(tx *sql.Tx) error {
 	queries := repo.New(tx)
 	res, err := queries.InsertExpense(ctx, repo.InsertExpenseParams{
 		Description:  exp.Description,
-		Value:        exp.Value,
+		Value:        exp.Value.String(),
 		StoreID:      exp.Store.StoreID,
 		CategoryID:   exp.Category.CategoryID,
 		TypeID:       exp.Type.TypeID,
@@ -137,7 +139,7 @@ func (e *Expense) Update(tx *sql.Tx) error {
 	res, err := queries.UpdateExpense(ctx, repo.UpdateExpenseParams{
 		ExpID:       e.ExpID,
 		Description: e.Description,
-		Value:       e.Value,
+		Value:       e.Value.String(),
 		StoreID:     e.Store.StoreID,
 		CategoryID:  e.Category.CategoryID,
 		TypeID:      e.Type.TypeID,

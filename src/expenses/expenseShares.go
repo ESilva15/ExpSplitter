@@ -1,9 +1,9 @@
 package expenses
 
 import (
-	"strconv"
-
 	mod "expenses/expenses/models"
+
+	"github.com/shopspring/decimal"
 )
 
 // TODO
@@ -14,12 +14,12 @@ func ParseFormShares(userIDs []string, shares []string, sharesIDs []string,
 ) ([]mod.ExpenseShare, error) {
 	shareList := []mod.ExpenseShare{}
 	for i := range userIDs {
-		userID, err := strconv.ParseInt(userIDs[i], 10, 16)
+		userID, err := ParseID(userIDs[i])
 		if err != nil {
 			return nil, err
 		}
 
-		share, err := strconv.ParseFloat(shares[i], 32)
+		share, err := decimal.NewFromString(shares[i])
 		if err != nil {
 			return nil, err
 		}
@@ -33,7 +33,7 @@ func ParseFormShares(userIDs []string, shares []string, sharesIDs []string,
 		}
 
 		if sharesIDs[i] != "" {
-			id, err := strconv.ParseInt(sharesIDs[i], 10, 16)
+			id, err := ParseID(sharesIDs[i])
 			if err != nil {
 				return nil, err
 			}

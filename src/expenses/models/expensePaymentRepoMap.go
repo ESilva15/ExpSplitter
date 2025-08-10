@@ -1,11 +1,17 @@
 package models
 
-import repo "expenses/expenses/db/repository"
+import (
+	repo "expenses/expenses/db/repository"
+
+	"github.com/shopspring/decimal"
+)
 
 func mapRepoGetPaymentsRow(s repo.GetPaymentsRow) ExpensePayment {
+	payed, _ := decimal.NewFromString(s.ExpensesPayment.Payed)
+
 	return ExpensePayment{
 		ExpPaymID:   s.ExpensesPayment.ExpPaymID,
-		PayedAmount: s.ExpensesPayment.Payed,
+		PayedAmount: payed,
 		User: User{
 			UserID:   s.User.UserID,
 			UserName: s.User.UserName,

@@ -10,12 +10,13 @@ import (
 	"fmt"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/shopspring/decimal"
 )
 
 type ExpenseShare struct {
 	ExpShareID int64
 	User       User
-	Share      float64
+	Share      decimal.Decimal
 }
 
 func (e *Expense) GetShares() error {
@@ -44,7 +45,7 @@ func (sh *ExpenseShare) Insert(tx *sql.Tx, expID int64) error {
 	queries := repo.New(tx)
 	res, err := queries.InsertShare(ctx, repo.InsertShareParams{
 		ExpID:  expID,
-		Share:  sh.Share,
+		Share:  sh.Share.String(),
 		UserID: sh.User.UserID,
 	})
 	if err != nil {
@@ -74,7 +75,7 @@ func (sh *ExpenseShare) Update() error {
 	queries := repo.New(db)
 	res, err := queries.UpdateShare(ctx, repo.UpdateShareParams{
 		ExpShareID: sh.ExpShareID,
-		Share:      sh.Share,
+		Share:      sh.Share.String(),
 		UserID:     sh.User.UserID,
 	})
 	if err != nil {

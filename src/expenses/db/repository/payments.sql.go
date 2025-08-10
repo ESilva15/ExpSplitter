@@ -74,7 +74,7 @@ VALUES(?, ?, ?)
 type InsertPaymentParams struct {
 	ExpID  int64
 	UserID int64
-	Payed  float64
+	Payed  string
 }
 
 func (q *Queries) InsertPayment(ctx context.Context, arg InsertPaymentParams) (sql.Result, error) {
@@ -89,7 +89,7 @@ WHERE "ExpPaymID" = ?
 
 type UpdatePaymentParams struct {
 	UserID    int64
-	Payed     float64
+	Payed     string
 	ExpPaymID int64
 }
 

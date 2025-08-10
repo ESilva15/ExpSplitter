@@ -9,12 +9,13 @@ import (
 	"fmt"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/shopspring/decimal"
 )
 
 type ExpensePayment struct {
 	ExpPaymID   int64
 	User        User
-	PayedAmount float64
+	PayedAmount decimal.Decimal
 }
 
 func (e *Expense) GetPayments() error {
@@ -44,7 +45,7 @@ func (p *ExpensePayment) Insert(tx *sql.Tx, expID int64) error {
 	res, err := queries.InsertPayment(ctx, repo.InsertPaymentParams{
 		ExpID:  expID,
 		UserID: p.User.UserID,
-		Payed:  p.PayedAmount,
+		Payed:  p.PayedAmount.String(),
 	})
 	if err != nil {
 		return err
@@ -73,7 +74,7 @@ func (p *ExpensePayment) Update() error {
 	queries := repo.New(db)
 	res, err := queries.UpdatePayment(ctx, repo.UpdatePaymentParams{
 		ExpPaymID: p.ExpPaymID,
-		Payed:     p.PayedAmount,
+		Payed:     p.PayedAmount.String(),
 		UserID:    p.User.UserID,
 	})
 	if err != nil {

@@ -66,7 +66,7 @@ VALUES(?, ?, ?)
 type InsertShareParams struct {
 	ExpID  int64
 	UserID int64
-	Share  float64
+	Share  string
 }
 
 func (q *Queries) InsertShare(ctx context.Context, arg InsertShareParams) (sql.Result, error) {
@@ -81,7 +81,7 @@ WHERE "ExpShareID" = ?
 
 type UpdateShareParams struct {
 	UserID     int64
-	Share      float64
+	Share      string
 	ExpShareID int64
 }
 

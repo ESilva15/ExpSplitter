@@ -2,7 +2,8 @@ package expenses
 
 import (
 	mod "expenses/expenses/models"
-	"strconv"
+
+	"github.com/shopspring/decimal"
 )
 
 // TODO
@@ -13,12 +14,12 @@ func ParseFormPayments(userIDs []string, paymentsIDs []string,
 	values []string) ([]mod.ExpensePayment, error) {
 	payments := []mod.ExpensePayment{}
 	for k := range userIDs {
-		userID, err := strconv.ParseInt(userIDs[k], 10, 16)
+		userID, err := ParseID(userIDs[k])
 		if err != nil {
 			return nil, err
 		}
 
-		payed, err := strconv.ParseFloat(values[k], 32)
+		payed, err := decimal.NewFromString(values[k])
 		if err != nil {
 			return nil, err
 		}
@@ -32,7 +33,7 @@ func ParseFormPayments(userIDs []string, paymentsIDs []string,
 		}
 
 		if paymentsIDs[k] != "" {
-			id, err := strconv.ParseInt(paymentsIDs[k], 10, 16)
+			id, err := ParseID(paymentsIDs[k])
 			if err != nil {
 				return nil, err
 			}

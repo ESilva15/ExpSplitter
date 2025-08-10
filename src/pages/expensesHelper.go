@@ -3,10 +3,10 @@ package pages
 import (
 	"expenses/expenses"
 	mod "expenses/expenses/models"
-	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/shopspring/decimal"
 )
 
 func processFormShares(c *gin.Context) ([]mod.ExpenseShare, error) {
@@ -36,7 +36,7 @@ func expenseFromForm(c *gin.Context) (*mod.Expense, error) {
 	date := formattedDate.Unix()
 
 	newValue := c.PostForm("expense-value")
-	value, err := strconv.ParseFloat(newValue, 32)
+	value, err := decimal.NewFromString(newValue)
 	if err != nil {
 		return nil, err
 	}

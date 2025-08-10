@@ -3,6 +3,8 @@ package cmd
 import (
 	"expenses/config"
 	"expenses/pages"
+
+	"github.com/shopspring/decimal"
 	"github.com/spf13/cobra"
 
 	"fmt"
@@ -22,8 +24,8 @@ var (
 		"formatDate": func(ts int64) string {
 			return time.Unix(ts, 0).Format("02-Jan-2006")
 		},
-		"formatPrice": func(v float64) string {
-			return fmt.Sprintf("%.2f", v)
+		"formatPrice": func(v decimal.Decimal) string {
+			return fmt.Sprintf("%s", v.Round(2).StringFixed(2))
 		},
 	}
 )

@@ -2,20 +2,24 @@ package expenses
 
 import (
 	mod "expenses/expenses/models"
+
+	"github.com/shopspring/decimal"
 )
 
 type Debt struct {
 	Debtor mod.User
-	Sum    float64
+	Sum    decimal.Decimal
 }
 
 func sortBySum(a, b Debt) int {
-	if a.Sum < b.Sum {
+	if a.Sum.LessThan(b.Sum) {
 		return -1
 	}
-	if a.Sum > b.Sum {
+
+	if a.Sum.GreaterThan(b.Sum) {
 		return 1
 	}
+
 	return 0
 }
 

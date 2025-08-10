@@ -1,12 +1,18 @@
 package models
 
-import repo "expenses/expenses/db/repository"
+import (
+	repo "expenses/expenses/db/repository"
+
+	"github.com/shopspring/decimal"
+)
 
 func mapRepoGetExpenseRow(e repo.GetExpenseRow) Expense {
+	value, _ := decimal.NewFromString(e.Expense.Value)
+
 	return Expense{
 		ExpID:       e.Expense.ExpID,
 		Description: e.Expense.Description,
-		Value:       e.Expense.Value,
+		Value:       value,
 		Store: Store{
 			StoreID:   e.Store.StoreID,
 			StoreName: e.Store.StoreName,
@@ -31,10 +37,12 @@ func mapRepoGetExpenseRow(e repo.GetExpenseRow) Expense {
 }
 
 func mapRepoGetExpenseRowMulti(e repo.GetExpensesRow) Expense {
+	value, _ := decimal.NewFromString(e.Expense.Value)
+
 	return Expense{
 		ExpID:       e.Expense.ExpID,
 		Description: e.Expense.Description,
-		Value:       e.Expense.Value,
+		Value:       value,
 		Store: Store{
 			StoreID:   e.Store.StoreID,
 			StoreName: e.Store.StoreName,
@@ -65,4 +73,3 @@ func mapRepoGetExpensesRows(er []repo.GetExpensesRow) []Expense {
 	}
 	return expenses
 }
-

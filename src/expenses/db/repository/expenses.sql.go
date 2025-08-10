@@ -163,7 +163,7 @@ VALUES(?, ?, ? , ?, ?, ?, ?, ?)
 
 type InsertExpenseParams struct {
 	Description  string
-	Value        float64
+	Value        string
 	StoreID      int64
 	CategoryID   int64
 	TypeID       int64
@@ -200,7 +200,7 @@ WHERE "ExpID" = ?
 
 type UpdateExpenseParams struct {
 	Description string
-	Value       float64
+	Value       string
 	StoreID     int64
 	CategoryID  int64
 	TypeID      int64

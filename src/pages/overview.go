@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/shopspring/decimal"
 )
 
 type ExpenseDebtOverview struct {
@@ -56,7 +57,7 @@ func getResults(c *gin.Context) {
 		}
 	}
 
-	userDebtSummary := make(map[mod.User]float64)
+	userDebtSummary := make(map[mod.User]decimal.Decimal)
 	expensesWithDebts := []ExpenseDebtOverview{}
 	for _, e := range queriedExpenses {
 		if len(e.Shares) <= 1 {
@@ -77,7 +78,7 @@ func getResults(c *gin.Context) {
 		})
 
 		for _, debt := range expenseDebts {
-			userDebtSummary[debt.Debtor] += debt.Sum
+			userDebtSummary[debt.Debtor] = userDebtSummary[debt.Debtor].Add(debt.Sum)
 		}
 	}
 
