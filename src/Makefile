@@ -18,5 +18,11 @@ build_release_alpine:
 build_image:
 	docker buildx build -t $(registry)/$(repo)/expensesweb:$(tag) .
 
+launch_container:
+	docker run \
+		-p 8081:8081 \
+		-v ./data/data.db:/usr/share/webapps/expensesweb/data/data.db \
+		-it $(registry)/$(repo)/expensesweb:$(tag) zsh
+
 push_image:
 	docker push $(registry)/$(repo)/expensesweb:$(tag)

@@ -8,6 +8,7 @@ RUN apk --no-cache add bash zsh git go \
 
 RUN mkdir /usr/share/webapps/
 COPY ./build/expensesweb/ /usr/share/webapps/expensesweb
+RUN chown -R esilva:esilva /usr/share/webapps/expensesweb
 
 
 EXPOSE 8081
