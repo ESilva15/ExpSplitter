@@ -17,3 +17,6 @@ VALUES(?, ?, ?);
 UPDATE expensesShares
 SET "UserID" = ?, "Share" = ?
 WHERE "ExpShareID" = ?;
+
+-- name: DeleteShare :execresult
+DELETE FROM "expensesShares" where "ExpShareID" = ?;

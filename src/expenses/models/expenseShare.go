@@ -76,3 +76,22 @@ func (sh *ExpenseShare) Update(tx *sql.Tx) error {
 
 	return nil
 }
+
+func (sh *ExpenseShare) Delete(tx *sql.Tx) error {
+	ctx := context.Background()
+
+	queries := repo.New(tx)
+	res, err := queries.DeleteShare(ctx, sh.ExpShareID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	} else if rowsAffected == 0 {
+		return fmt.Errorf("no rows were created")
+	}
+
+	return nil
+}

@@ -58,7 +58,12 @@
           value="{{ $share.Share }}" class="tui-input">
       </td>
       <td class="row-delete-button">
-        <button type="button" onclick="deleteShareRow(this)">X</button>
+        <button
+          type="button"
+          class="delete-button"
+          hx-delete="/shares/{{ $share.ExpShareID }}"
+          hx-on="htmx:afterRequest: this.closest('tr').remove()"
+          hx-target="closest tr">X</button>
       </td>
     </tr>
   {{ end }}

@@ -11,7 +11,7 @@ used
 - [X] Reduce the size of the font file
 - [X] Add some migration tool
 - [X] Ownership on the image for the expenses webapp dir need to be changed
-- [ ] The button for deleting share rows isn't working at all unlike the payments
+- [X] The button for deleting share rows isn't working at all unlike the payments
 - [X] Use shopspring/decimal for money handling
 - [ ] Rename this file
 

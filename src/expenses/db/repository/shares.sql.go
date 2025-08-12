@@ -10,6 +10,14 @@ import (
 	"database/sql"
 )
 
+const deleteShare = `-- name: DeleteShare :execresult
+DELETE FROM "expensesShares" where "ExpShareID" = ?
+`
+
+func (q *Queries) DeleteShare(ctx context.Context, expshareid int64) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deleteShare, expshareid)
+}
+
 const getShares = `-- name: GetShares :many
 SELECT 
   shares.ExpShareID, shares.ExpID, shares.UserID, shares.Share, users.UserID, users.UserName, users.UserPass

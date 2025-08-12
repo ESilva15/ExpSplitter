@@ -63,6 +63,7 @@
           type="button"
           class="delete-button"
           hx-delete="/payments/{{ $payment.ExpPaymID }}"
+          hx-on="htmx:afterRequest: this.closest('tr').remove()"
           hx-target="closest tr">X</button>
       </td>
     </tr>

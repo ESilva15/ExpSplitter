@@ -45,3 +45,22 @@ func ParseFormShares(userIDs []string, shares []string, sharesIDs []string,
 
 	return shareList, nil
 }
+
+func (s *Service) DeleteShare(id int64) error {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	share := mod.ExpenseShare{
+		ExpShareID: id,
+	}
+
+	err = share.Delete(tx)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
