@@ -59,5 +59,8 @@ func RunMigrations(db *sql.DB) error {
 		}
 	}
 
+	ver, _, _ := m.Version()
+	log.Printf("Successfuly jumped to migration %d", ver)
+
 	return nil
 }
