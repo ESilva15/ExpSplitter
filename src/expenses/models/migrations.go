@@ -47,7 +47,7 @@ func RunMigrations(db *sql.DB) error {
 		}
 
 		if dirty, ok := err.(mig.ErrDirty); ok {
-			log.Printf("migration %d is dirty:", dirty.Version)
+			log.Printf("migration %d is dirty:", err)
 
 			forceErr := m.Force(int(dirty.Version - 1))
 			if forceErr != nil {
