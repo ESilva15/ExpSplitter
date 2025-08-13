@@ -32,6 +32,8 @@ func mapRepoGetExpenseRow(e repo.GetExpenseRow) Expense {
 		Date:         e.Expense.ExpDate,
 		Shares:       []ExpenseShare{},
 		Payments:     []ExpensePayment{},
+		PaidOff:      e.Expense.PaidOff,
+		SharesEven:   e.Expense.SharesEven,
 		CreationDate: e.Expense.CreationDate,
 	}
 }
@@ -62,6 +64,8 @@ func mapRepoGetExpenseRowMulti(e repo.GetExpensesRow) Expense {
 		Date:         e.Expense.ExpDate,
 		Shares:       []ExpenseShare{},
 		Payments:     []ExpensePayment{},
+		PaidOff:      e.Expense.PaidOff,
+		SharesEven:   e.Expense.SharesEven,
 		CreationDate: e.Expense.CreationDate,
 	}
 }

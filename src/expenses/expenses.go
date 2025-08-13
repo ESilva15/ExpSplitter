@@ -4,6 +4,8 @@ import (
 	mod "expenses/expenses/models"
 	"log"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 func (s *Service) GetAllExpenses() ([]mod.Expense, error) {
@@ -108,12 +110,27 @@ func (s *Service) DeleteExpense(id int64) error {
 	return tx.Commit()
 }
 
+func ExpenseTotalPayed(exp *mod.Expense) decimal.Decimal {
+	total := decimal.NewFromFloat(0.0)
+	for _, p := range exp.Payments {
+		log.Println(total)
+		total = total.Add(p.PayedAmount)
+	}
+
+	return total
+}
+
 func (s *Service) NewExpense(exp mod.Expense) error {
 	tx, err := s.DB.Begin()
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback()
+
+	// Figure out if its paid off or not by adding the existing payments
+	exp.PaidOff = exp.Value.Equal(ExpenseTotalPayed(&exp))
+
+	// Figure out if its evenly shared by the people associated to it
 
 	err = exp.Insert(tx)
 	if err != nil {

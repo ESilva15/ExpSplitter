@@ -20,7 +20,7 @@ func (q *Queries) DeleteExpense(ctx context.Context, expid int64) (sql.Result, e
 
 const getExpense = `-- name: GetExpense :one
 SELECT 
-  expenses.ExpID, expenses.Description, expenses.Value, expenses.StoreID, expenses.CategoryID, expenses.OwnerUserID, expenses.TypeID, expenses.ExpDate, expenses.CreationDate,
+  expenses.ExpID, expenses.Description, expenses.Value, expenses.StoreID, expenses.CategoryID, expenses.OwnerUserID, expenses.TypeID, expenses.ExpDate, expenses.CreationDate, expenses.PaidOff, expenses.SharesEven,
   stores.StoreID, stores.StoreName,
   categories.CategoryID, categories.CategoryName,
   users.UserID, users.UserName, users.UserPass,
@@ -59,6 +59,8 @@ func (q *Queries) GetExpense(ctx context.Context, expid int64) (GetExpenseRow, e
 		&i.Expense.TypeID,
 		&i.Expense.ExpDate,
 		&i.Expense.CreationDate,
+		&i.Expense.PaidOff,
+		&i.Expense.SharesEven,
 		&i.Store.StoreID,
 		&i.Store.StoreName,
 		&i.Category.CategoryID,
@@ -74,7 +76,7 @@ func (q *Queries) GetExpense(ctx context.Context, expid int64) (GetExpenseRow, e
 
 const getExpenses = `-- name: GetExpenses :many
 SELECT 
-  expenses.ExpID, expenses.Description, expenses.Value, expenses.StoreID, expenses.CategoryID, expenses.OwnerUserID, expenses.TypeID, expenses.ExpDate, expenses.CreationDate,
+  expenses.ExpID, expenses.Description, expenses.Value, expenses.StoreID, expenses.CategoryID, expenses.OwnerUserID, expenses.TypeID, expenses.ExpDate, expenses.CreationDate, expenses.PaidOff, expenses.SharesEven,
   stores.StoreID, stores.StoreName,
   categories.CategoryID, categories.CategoryName,
   users.UserID, users.UserName, users.UserPass,
@@ -126,6 +128,8 @@ func (q *Queries) GetExpenses(ctx context.Context, arg GetExpensesParams) ([]Get
 			&i.Expense.TypeID,
 			&i.Expense.ExpDate,
 			&i.Expense.CreationDate,
+			&i.Expense.PaidOff,
+			&i.Expense.SharesEven,
 			&i.Store.StoreID,
 			&i.Store.StoreName,
 			&i.Category.CategoryID,
@@ -151,14 +155,17 @@ func (q *Queries) GetExpenses(ctx context.Context, arg GetExpensesParams) ([]Get
 
 const insertExpense = `-- name: InsertExpense :execresult
 INSERT INTO expenses(
-  "Description","Value",
+  "Description",
+  "Value",
   "StoreID",
   "CategoryID",
   "TypeID",
   "OwnerUserID",
-  "ExpDate","CreationDate"
+  "ExpDate",
+  "PaidOff",
+  "CreationDate"
 )
-VALUES(?, ?, ? , ?, ?, ?, ?, ?)
+VALUES(?, ?, ? , ?, ?, ?, ?, ?, ?)
 `
 
 type InsertExpenseParams struct {
@@ -169,6 +176,7 @@ type InsertExpenseParams struct {
 	TypeID       int64
 	OwnerUserID  int64
 	ExpDate      int64
+	PaidOff      bool
 	CreationDate int64
 }
 
@@ -181,6 +189,7 @@ func (q *Queries) InsertExpense(ctx context.Context, arg InsertExpenseParams) (s
 		arg.TypeID,
 		arg.OwnerUserID,
 		arg.ExpDate,
+		arg.PaidOff,
 		arg.CreationDate,
 	)
 }

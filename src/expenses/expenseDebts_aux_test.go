@@ -5,9 +5,12 @@ import (
 	"reflect"
 	"slices"
 	"testing"
+
+	"github.com/shopspring/decimal"
 )
 
 var (
+	// Use this data across the other tests if necessary
 	user1 = mod.User{
 		UserID:   1,
 		UserName: "Fernando Silva",
@@ -27,39 +30,39 @@ var (
 
 	expense1 = mod.Expense{
 		ExpID: 0,
-		Value: 150,
+		Value: decimal.NewFromInt(150),
 		Shares: []mod.ExpenseShare{
-			{ExpShareID: 0, User: user1, Share: 0.4},
-			{ExpShareID: 1, User: user2, Share: 0.4},
-			{ExpShareID: 2, User: user3, Share: 0.2},
+			{ExpShareID: 0, User: user1, Share: decimal.NewFromFloat(0.4)},
+			{ExpShareID: 1, User: user2, Share: decimal.NewFromFloat(0.4)},
+			{ExpShareID: 2, User: user3, Share: decimal.NewFromFloat(0.2)},
 		},
 		Payments: []mod.ExpensePayment{
-			{ExpPaymID: 0, User: user1, PayedAmount: 50},
-			{ExpPaymID: 1, User: user1, PayedAmount: 50},
-			{ExpPaymID: 2, User: user2, PayedAmount: 0},
-			{ExpPaymID: 3, User: user3, PayedAmount: 40},
-			{ExpPaymID: 4, User: user3, PayedAmount: 20},
+			{ExpPaymID: 0, User: user1, PayedAmount: decimal.NewFromInt(50)},
+			{ExpPaymID: 1, User: user1, PayedAmount: decimal.NewFromInt(50)},
+			{ExpPaymID: 2, User: user2, PayedAmount: decimal.NewFromInt(0)},
+			{ExpPaymID: 3, User: user3, PayedAmount: decimal.NewFromInt(40)},
+			{ExpPaymID: 4, User: user3, PayedAmount: decimal.NewFromInt(20)},
 		},
 	}
 
 	expense2 = mod.Expense{
 		ExpID: 0,
-		Value: 160,
+		Value: decimal.NewFromInt(160),
 		Shares: []mod.ExpenseShare{
-			{ExpShareID: 0, User: user1, Share: 0.3},
-			{ExpShareID: 1, User: user2, Share: 0.3},
-			{ExpShareID: 2, User: user3, Share: 0.3},
-			{ExpShareID: 3, User: user4, Share: 0.1},
+			{ExpShareID: 0, User: user1, Share: decimal.NewFromFloat(0.3)},
+			{ExpShareID: 1, User: user2, Share: decimal.NewFromFloat(0.3)},
+			{ExpShareID: 2, User: user3, Share: decimal.NewFromFloat(0.3)},
+			{ExpShareID: 3, User: user4, Share: decimal.NewFromFloat(0.1)},
 		},
 		Payments: []mod.ExpensePayment{
-			{ExpPaymID: 0, User: user1, PayedAmount: 40},
-			{ExpPaymID: 1, User: user1, PayedAmount: 40},
-			{ExpPaymID: 2, User: user2, PayedAmount: 5},
-			{ExpPaymID: 3, User: user3, PayedAmount: 30},
-			{ExpPaymID: 3, User: user3, PayedAmount: 30},
-			{ExpPaymID: 3, User: user3, PayedAmount: 10},
-			{ExpPaymID: 4, User: user4, PayedAmount: 4},
-			{ExpPaymID: 5, User: user4, PayedAmount: 1},
+			{ExpPaymID: 0, User: user1, PayedAmount: decimal.NewFromInt(40)},
+			{ExpPaymID: 1, User: user1, PayedAmount: decimal.NewFromInt(40)},
+			{ExpPaymID: 2, User: user2, PayedAmount: decimal.NewFromInt(5)},
+			{ExpPaymID: 3, User: user3, PayedAmount: decimal.NewFromInt(30)},
+			{ExpPaymID: 3, User: user3, PayedAmount: decimal.NewFromInt(30)},
+			{ExpPaymID: 3, User: user3, PayedAmount: decimal.NewFromInt(10)},
+			{ExpPaymID: 4, User: user4, PayedAmount: decimal.NewFromInt(4)},
+			{ExpPaymID: 5, User: user4, PayedAmount: decimal.NewFromInt(1)},
 		},
 	}
 )
@@ -94,8 +97,8 @@ func TestSharesAndPaymentsMapping(t *testing.T) {
 
 func TestFilterExpenseParticipants(t *testing.T) {
 	expectedDebtors := []Debt{
-		{user2, 43},
-		{user4, 11},
+		{user2, decimal.NewFromInt(43)},
+		{user4, decimal.NewFromInt(11)},
 	}
 	slices.SortFunc(expectedDebtors, sortBySum)
 

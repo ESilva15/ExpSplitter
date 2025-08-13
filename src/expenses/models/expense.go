@@ -22,6 +22,8 @@ type Expense struct {
 	Date         int64
 	Payments     []ExpensePayment
 	Shares       []ExpenseShare
+	PaidOff      bool
+	SharesEven   bool
 	CreationDate int64
 }
 
@@ -36,6 +38,8 @@ func NewExpense() Expense {
 		Date:         0,
 		Payments:     []ExpensePayment{},
 		Shares:       []ExpenseShare{},
+		PaidOff:      false,
+		SharesEven:   false,
 		CreationDate: 0,
 	}
 }
@@ -79,6 +83,7 @@ func (exp *Expense) Insert(tx *sql.Tx) error {
 		TypeID:       exp.Type.TypeID,
 		OwnerUserID:  exp.Owner.UserID,
 		ExpDate:      exp.Date,
+		PaidOff:      exp.PaidOff,
 		CreationDate: exp.CreationDate,
 	})
 	if err != nil {

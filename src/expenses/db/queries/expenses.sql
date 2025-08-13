@@ -40,14 +40,17 @@ WHERE
 
 -- name: InsertExpense :execresult
 INSERT INTO expenses(
-  "Description","Value",
+  "Description",
+  "Value",
   "StoreID",
   "CategoryID",
   "TypeID",
   "OwnerUserID",
-  "ExpDate","CreationDate"
+  "ExpDate",
+  "PaidOff",
+  "CreationDate"
 )
-VALUES(?, ?, ? , ?, ?, ?, ?, ?);
+VALUES(?, ?, ? , ?, ?, ?, ?, ?, ?);
 
 -- name: DeleteExpense :execresult
 DELETE FROM expenses WHERE "ExpID" = ?;

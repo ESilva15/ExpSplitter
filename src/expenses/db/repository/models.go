@@ -19,6 +19,8 @@ type Expense struct {
 	TypeID       int64
 	ExpDate      int64
 	CreationDate int64
+	PaidOff      bool
+	SharesEven   bool
 }
 
 type ExpenseType struct {
