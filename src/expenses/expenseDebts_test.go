@@ -1,12 +1,9 @@
 package expenses
 
 import (
-	mod "expenses/expenses/models"
-	// "slices"
 	"testing"
 
 	dec "github.com/shopspring/decimal"
-	// "github.com/stretchr/testify/assert"
 )
 
 /*
@@ -66,42 +63,26 @@ Summary:
 
 func TestFilterExpenseParticipants(t *testing.T) {
 	// Use expense2 here for the test
-	expectedCreditors := map[mod.User]dec.Decimal{
-		user1: dec.NewFromFloat(32.0),
-		user3: dec.NewFromFloat(22.0),
+	expectedCreditors := UserTabs{
+		{User: user1, Sum: dec.NewFromFloat(32.0)},
+		{User: user3, Sum: dec.NewFromFloat(22.0)},
 	}
 
-	expectedDebtors := map[mod.User]dec.Decimal{
-		user2: dec.NewFromFloat(43.0),
-		user4: dec.NewFromFloat(11.0),
+	expectedDebtors := UserTabs{
+		{User: user2, Sum: dec.NewFromFloat(43.0)},
+		{User: user4, Sum: dec.NewFromFloat(11.0)},
 	}
 
 	debtors, creditors := filterExpenseParticipants(&expense2)
 
-	// Compare the creditors
-	for user, cred := range creditors {
-		val, ok := expectedCreditors[user]	
-		if !ok {
-			t.Errorf("Expected user `%+v` to be present in expectedCreditors `%+v`", 
-				user, expectedCreditors)
-		}
-
-		if !val.Equal(cred) {
-			t.Errorf("Expected value `%+v` to be  `%+v`", cred, val)
-		}
+	if !expectedDebtors.Equal(debtors) {
+		t.Errorf("Expected debtors:\n%+v\nGotten debtors:\n%+v\n", expectedDebtors,
+			debtors)
 	}
 
-	// Compare the debtors
-	for user, cred := range debtors {
-		val, ok := expectedDebtors[user]	
-		if !ok {
-			t.Errorf("Expected user `%+v` to be present in expectedCreditors `%+v`", 
-				user, expectedDebtors)
-		}
-
-		if !val.Equal(cred) {
-			t.Errorf("Expected value `%+v` to be  `%+v`", cred, val)
-		}
+	if !expectedCreditors.Equal(creditors) {
+		t.Errorf("Expected creditors:\n%+v\nGotten creditors:\n%+v\n", expectedCreditors,
+			creditors)
 	}
 }
 

@@ -2,46 +2,68 @@ package expenses
 
 import (
 	mod "expenses/expenses/models"
+	"sort"
 
 	dec "github.com/shopspring/decimal"
 )
 
-func sortBySum(a, b mod.Debt) int {
-	if a.Sum.LessThan(b.Sum) {
-		return -1
-	}
+type UserTab struct {
+	User mod.User
+	Sum  dec.Decimal
+}
+type UserTabs []UserTab
 
-	if a.Sum.GreaterThan(b.Sum) {
-		return 1
-	}
-
-	return 0
+func (ut UserTabs) SortBySum() {
+	sort.Slice(ut, func(i, j int) bool {
+		return ut[i].Sum.Cmp(ut[j].Sum) > 0
+	})
 }
 
-func filterExpenseParticipants(e *mod.Expense,
-) (map[mod.User]dec.Decimal, map[mod.User]dec.Decimal) {
+func (ut UserTabs) Equal(t UserTabs) bool {
+	if len(ut) != len(t) {
+		return false
+	}
+
+	for k := range ut {
+		if ut[k].User != t[k].User || !ut[k].Sum.Equal(t[k].Sum) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func filterExpenseParticipants(e *mod.Expense) (UserTabs, UserTabs) {
 	shares := mapShares(e)
 	payments := mapPayments(e)
 
-	debtors := make(map[mod.User]dec.Decimal)
-	creditors := make(map[mod.User]dec.Decimal)
+	debtors := UserTabs{}
+	creditors := UserTabs{}
 
 	for user, share := range shares {
 		debt := (share.Mul(e.Value)).Sub(payments[user])
 		if debt.LessThan(dec.NewFromFloat(0.0)) {
-			creditors[user] = debt.Abs()
+			creditors = append(creditors, UserTab{
+				User: user,
+				Sum:  debt.Abs(),
+			})
 		}
 
 		if debt.GreaterThan(dec.NewFromFloat(0.0)) {
-			debtors[user] = debt.Abs()
+			debtors = append(debtors, UserTab{
+				User: user,
+				Sum:  debt.Abs(),
+			})
 		}
 	}
+
+	debtors.SortBySum()
+	creditors.SortBySum()
 
 	return debtors, creditors
 }
 
-func resolveDebts(debtors map[mod.User]dec.Decimal,
-	creditors map[mod.User]dec.Decimal) []mod.Debt {
+func resolveDebts(debtors UserTabs, creditors UserTabs) []mod.Debt {
 	debts := []mod.Debt{}
 
 	// maybe create a map point to the debt of each user and count from there?
@@ -58,7 +80,7 @@ func CalculateDebts(e *mod.Expense) ([]mod.Debt, error) {
 	// debts := dc.getDebts()
 
 	debtors, creditors := filterExpenseParticipants(e)
-	debts := resolveDebts(debtors, creditors)
+	_ = resolveDebts(debtors, creditors)
 
 	return []mod.Debt{}, nil
 }
