@@ -163,9 +163,10 @@ INSERT INTO expenses(
   "OwnerUserID",
   "ExpDate",
   "PaidOff",
+  "SharesEven",
   "CreationDate"
 )
-VALUES(?, ?, ? , ?, ?, ?, ?, ?, ?)
+VALUES(?, ?, ? , ?, ?, ?, ?, ?, ?, ?)
 `
 
 type InsertExpenseParams struct {
@@ -177,6 +178,7 @@ type InsertExpenseParams struct {
 	OwnerUserID  int64
 	ExpDate      int64
 	PaidOff      bool
+	SharesEven   bool
 	CreationDate int64
 }
 
@@ -190,6 +192,7 @@ func (q *Queries) InsertExpense(ctx context.Context, arg InsertExpenseParams) (s
 		arg.OwnerUserID,
 		arg.ExpDate,
 		arg.PaidOff,
+		arg.SharesEven,
 		arg.CreationDate,
 	)
 }
@@ -203,6 +206,8 @@ SET
   "CategoryID" = ?,
   "TypeID" = ?,
   "OwnerUserID" = ?,
+  "PaidOff" = ?,
+  "SharesEven" = ?,
   "ExpDate" = ?
 WHERE "ExpID" = ?
 `
@@ -214,6 +219,8 @@ type UpdateExpenseParams struct {
 	CategoryID  int64
 	TypeID      int64
 	OwnerUserID int64
+	PaidOff     bool
+	SharesEven  bool
 	ExpDate     int64
 	ExpID       int64
 }
@@ -226,6 +233,8 @@ func (q *Queries) UpdateExpense(ctx context.Context, arg UpdateExpenseParams) (s
 		arg.CategoryID,
 		arg.TypeID,
 		arg.OwnerUserID,
+		arg.PaidOff,
+		arg.SharesEven,
 		arg.ExpDate,
 		arg.ExpID,
 	)

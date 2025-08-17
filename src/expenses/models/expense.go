@@ -84,6 +84,7 @@ func (exp *Expense) Insert(tx *sql.Tx) error {
 		OwnerUserID:  exp.Owner.UserID,
 		ExpDate:      exp.Date,
 		PaidOff:      exp.PaidOff,
+		SharesEven:   exp.SharesEven,
 		CreationDate: exp.CreationDate,
 	})
 	if err != nil {
@@ -149,6 +150,8 @@ func (e *Expense) Update(tx *sql.Tx) error {
 		CategoryID:  e.Category.CategoryID,
 		TypeID:      e.Type.TypeID,
 		OwnerUserID: e.Owner.UserID,
+		PaidOff:     e.PaidOff,
+		SharesEven:  e.SharesEven,
 		ExpDate:     e.Date,
 	})
 	if err != nil {

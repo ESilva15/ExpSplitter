@@ -110,14 +110,60 @@ func (s *Service) DeleteExpense(id int64) error {
 	return tx.Commit()
 }
 
+func mapShares(e *mod.Expense) map[mod.User]decimal.Decimal {
+	shares := make(map[mod.User]decimal.Decimal)
+	for _, share := range e.Shares {
+		shares[share.User] = share.Share
+	}
+
+	return shares
+}
+
+func mapPayments(e *mod.Expense) map[mod.User]decimal.Decimal {
+	payments := make(map[mod.User]decimal.Decimal)
+	for _, p := range e.Payments {
+		payments[p.User] = payments[p.User].Add(p.PayedAmount)
+	}
+
+	return payments
+}
+
 func ExpenseTotalPayed(exp *mod.Expense) decimal.Decimal {
 	total := decimal.NewFromFloat(0.0)
 	for _, p := range exp.Payments {
-		log.Println(total)
 		total = total.Add(p.PayedAmount)
 	}
 
 	return total
+}
+
+func ExpenseIsEvenlyShared(exp *mod.Expense) bool {
+	shares := mapShares(exp)
+	payments := mapPayments(exp)
+
+	for user, share := range shares {
+		userShare := share.Mul(exp.Value)
+		val, userHasPayment := payments[user]
+
+		// If a user doesn't even have a payment but has a share, its not even
+		if !userHasPayment {
+			return false
+		}
+
+		if !val.Equal(userShare) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func analyzeExpense(e *mod.Expense) {
+	// Figure out if its paid off or not by adding the existing payments
+	e.PaidOff = e.Value.Equal(ExpenseTotalPayed(e))
+
+	// Figure out if its evenly shared by the people associated to it
+	e.SharesEven = ExpenseIsEvenlyShared(e)
 }
 
 func (s *Service) NewExpense(exp mod.Expense) error {
@@ -127,10 +173,7 @@ func (s *Service) NewExpense(exp mod.Expense) error {
 	}
 	defer tx.Rollback()
 
-	// Figure out if its paid off or not by adding the existing payments
-	exp.PaidOff = exp.Value.Equal(ExpenseTotalPayed(&exp))
-
-	// Figure out if its evenly shared by the people associated to it
+	analyzeExpense(&exp)
 
 	err = exp.Insert(tx)
 	if err != nil {
@@ -146,6 +189,8 @@ func (s *Service) UpdateExpense(exp mod.Expense) error {
 		return err
 	}
 	defer tx.Rollback()
+
+	analyzeExpense(&exp)
 
 	err = exp.Update(tx)
 	if err != nil {

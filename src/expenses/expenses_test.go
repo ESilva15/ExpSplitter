@@ -15,3 +15,19 @@ func TestExpenseTotalPayed(t *testing.T) {
 		t.Errorf("Expected %v, got %v\n", result, expectedTotal)
 	}
 }
+
+func TestExpenseIsEvenlyShared(t *testing.T) {
+	// expense3 is evenly shared
+	expected := true
+	result := ExpenseIsEvenlyShared(&expense3)
+	if expected != result {
+		t.Errorf("Expected %v, got %v\n", expected, result)
+	}
+
+	// expense1 isn't evenly shared
+	expected = false
+	result = ExpenseIsEvenlyShared(&expense1)
+	if expected != result {
+		t.Errorf("Expected %v, got %v\n", expected, result)
+	}
+}

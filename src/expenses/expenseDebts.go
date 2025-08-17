@@ -3,15 +3,10 @@ package expenses
 import (
 	mod "expenses/expenses/models"
 
-	"github.com/shopspring/decimal"
+	dec "github.com/shopspring/decimal"
 )
 
-type Debt struct {
-	Debtor mod.User
-	Sum    decimal.Decimal
-}
-
-func sortBySum(a, b Debt) int {
+func sortBySum(a, b mod.Debt) int {
 	if a.Sum.LessThan(b.Sum) {
 		return -1
 	}
@@ -23,12 +18,47 @@ func sortBySum(a, b Debt) int {
 	return 0
 }
 
-func CalculateDebts(e *mod.Expense) ([]Debt, error) {
-	dc := NewDebtCalculator(e)
-	dc.mapShares()
-	dc.mapPayments()
+func filterExpenseParticipants(e *mod.Expense,
+) (map[mod.User]dec.Decimal, map[mod.User]dec.Decimal) {
+	shares := mapShares(e)
+	payments := mapPayments(e)
 
-	debts := dc.getDebts()
+	debtors := make(map[mod.User]dec.Decimal)
+	creditors := make(map[mod.User]dec.Decimal)
 
-	return debts, nil
+	for user, share := range shares {
+		debt := (share.Mul(e.Value)).Sub(payments[user])
+		if debt.LessThan(dec.NewFromFloat(0.0)) {
+			creditors[user] = debt.Abs()
+		}
+
+		if debt.GreaterThan(dec.NewFromFloat(0.0)) {
+			debtors[user] = debt.Abs()
+		}
+	}
+
+	return debtors, creditors
+}
+
+func resolveDebts(debtors map[mod.User]dec.Decimal,
+	creditors map[mod.User]dec.Decimal) []mod.Debt {
+	debts := []mod.Debt{}
+
+	// maybe create a map point to the debt of each user and count from there?
+	// I should sketch this one first
+
+	return debts
+}
+
+func CalculateDebts(e *mod.Expense) ([]mod.Debt, error) {
+	// dc := NewDebtCalculator(e)
+	// dc.mapShares()
+	// dc.mapPayments()
+	//
+	// debts := dc.getDebts()
+
+	debtors, creditors := filterExpenseParticipants(e)
+	debts := resolveDebts(debtors, creditors)
+
+	return []mod.Debt{}, nil
 }

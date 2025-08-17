@@ -48,9 +48,10 @@ INSERT INTO expenses(
   "OwnerUserID",
   "ExpDate",
   "PaidOff",
+  "SharesEven",
   "CreationDate"
 )
-VALUES(?, ?, ? , ?, ?, ?, ?, ?, ?);
+VALUES(?, ?, ? , ?, ?, ?, ?, ?, ?, ?);
 
 -- name: DeleteExpense :execresult
 DELETE FROM expenses WHERE "ExpID" = ?;
@@ -64,5 +65,7 @@ SET
   "CategoryID" = ?,
   "TypeID" = ?,
   "OwnerUserID" = ?,
+  "PaidOff" = ?,
+  "SharesEven" = ?,
   "ExpDate" = ?
 WHERE "ExpID" = ?;
