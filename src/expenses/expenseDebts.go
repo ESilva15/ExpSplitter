@@ -63,24 +63,73 @@ func filterExpenseParticipants(e *mod.Expense) (UserTabs, UserTabs) {
 	return debtors, creditors
 }
 
-func resolveDebts(debtors UserTabs, creditors UserTabs) []mod.Debt {
-	debts := []mod.Debt{}
+// TODO
+// Instead of doing this impererively (I think?) create a struct that can
+// handle doing the accounting while collecting the data instead
+type CompoundKey struct {
+	Debtor   mod.User
+	Creditor mod.User
+}
 
-	// maybe create a map point to the debt of each user and count from there?
-	// I should sketch this one first
+func resolveDebt(creditor UserTab, debtors UserTabs) mod.Debts {
+	debts := mod.Debts{}
+
+	credit := creditor.Sum
+	for k := range debtors {
+		if credit.IsZero() {
+			break
+		}
+
+		debt := mod.Debt{
+			Creditor: creditor.User,
+			Debtor:   debtors[k].User,
+			Sum:      dec.NewFromFloat(0.0),
+		}
+
+		if debtors[k].Sum.GreaterThanOrEqual(credit) {
+			debt.Sum = credit
+		} else {
+			debt.Sum = debtors[k].Sum
+		}
+		credit = credit.Sub(debt.Sum)
+		debtors[k].Sum = debtors[k].Sum.Sub(debt.Sum)
+
+		debts = append(debts, debt)
+	}
 
 	return debts
 }
 
-func CalculateDebts(e *mod.Expense) ([]mod.Debt, error) {
-	// dc := NewDebtCalculator(e)
-	// dc.mapShares()
-	// dc.mapPayments()
-	//
-	// debts := dc.getDebts()
+func resolveDebts(debtors UserTabs, creditors UserTabs) mod.Debts {
+	keyedDebts := make(map[CompoundKey]dec.Decimal)
 
+	for _, creditor := range creditors {
+		debt := resolveDebt(creditor, debtors)
+
+		for _, d := range debt {
+			key := CompoundKey{Debtor: d.Debtor, Creditor: d.Creditor}
+			if _, ok := keyedDebts[key]; ok {
+				keyedDebts[key] = keyedDebts[key].Add(d.Sum)
+			} else {
+				keyedDebts[key] = d.Sum
+			}
+		}
+	}
+
+	debts := mod.Debts{}
+	for key, debt := range keyedDebts {
+		debt := mod.Debt{Debtor: key.Debtor, Creditor: key.Creditor, Sum: debt}
+		debts = append(debts, debt)
+	}
+
+	return debts
+}
+
+// TODO
+// Are we sure there are no errors in here?
+func CalculateDebts(e *mod.Expense) (mod.Debts, error) {
 	debtors, creditors := filterExpenseParticipants(e)
-	_ = resolveDebts(debtors, creditors)
+	debts := resolveDebts(debtors, creditors)
 
-	return []mod.Debt{}, nil
+	return debts, nil
 }

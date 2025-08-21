@@ -67,6 +67,56 @@ var (
 			{ExpPaymID: 7, User: user4, PayedAmount: decimal.NewFromInt(1)},
 		},
 	}
+	/*
+		Shares:
+		User1 0.3
+		User2 0.3
+		User3 0.3
+		User4 0.1
+
+		Payments  | Debts
+		User1  80 | (0.3 * 160) - 80 = -32 (is owed 32)
+		User2   5 | (0.3 * 160) -  5 =  43 (owes 43)
+		User3  70 | (0.3 * 160) - 70 = -22 (is owed 22)
+		User4   5 | (0.1 * 160) -  5 =  11 (owes 11)
+
+		Debtors   {u4, 11}, {u2, 43}, 
+		Creditors {u3, 22}, {u1, 32}
+
+		{u3, 22} - {u4, 11} = {u3, 11}, {u4, 00}	
+		{u3, 11} - {u2, 43} = {u3, 00}, {u2, 32}
+		Debts:
+		{Debtor: u4, Creditor: u3, Sum: 11}
+		{Debtor: u2, Creditor: u3, Sum: 11}
+
+		Debtors   {u4, 00}, {u2, 32}
+		Creditors {u3, 00}, {u1, 32}
+
+		{u1, 32} - {u2, 32} = {u1, 00} {u2, 00}
+		Debts:
+		{Debtor: u2, Creditor: u1, Sum: 32}
+
+		Final debts:
+		{Debtor: u4, Creditor: u3, Sum: 11}
+		{Debtor: u2, Creditor: u3, Sum: 11}
+		{Debtor: u2, Creditor: u1, Sum: 32}
+
+
+
+															 1                   2
+		Debtors: [U2: 43, U4: 11] -> [U2: 21, U4: 11] -> [U4: 11]
+		                               1            2
+		Creditors: [U3: -22, U1: -32] -> [U1: -32] -> [U1: -11]
+		Kill the debts with:
+		1. User3.Credit + User2.Debt -> -22 + 43 =  21 - can pay the 22
+		2. User1.Credit + User2.Debt -> -32 + 21 = -11 - can only pay 21
+		3. User1.Credit + User4.Debt -> -11 + 11 =   0 - can pay the 11
+
+		Summary:
+		{creditor: U3, debtor: U2, debt: 22} - U2 owes U3 22
+		{creditor: U1, debtor: U2, debt: 21} - U2 owes U1 21
+		{creditor: U1, debtor: U4, debt: 11} - U4 owes U1 11
+	*/
 
 	// Expense is: evenly shared and paid off
 	expense3 = mod.Expense{
@@ -120,21 +170,21 @@ func TestSharesAndPaymentsMapping(t *testing.T) {
 }
 
 // func TestFilterExpenseParticipants(t *testing.T) {
-	// expectedDebtors := []Debt{
-	// 	{user2, decimal.NewFromInt(43)},
-	// 	{user4, decimal.NewFromInt(11)},
-	// }
-	// slices.SortFunc(expectedDebtors, sortBySum)
-	//
-	// dc := NewDebtCalculator(&expense2)
-	// dc.mapShares()
-	// dc.mapPayments()
-	//
-	// debts := dc.getDebts()
-	// slices.SortFunc(debts, sortBySum)
-	//
-	// if !reflect.DeepEqual(expectedDebtors, debts) {
-	// 	t.Errorf("expected creditors and resulting creditors don't match:\n%+v\n%+v\n",
-	// 		expectedDebtors, debts)
-	// }
+// expectedDebtors := []Debt{
+// 	{user2, decimal.NewFromInt(43)},
+// 	{user4, decimal.NewFromInt(11)},
+// }
+// slices.SortFunc(expectedDebtors, sortBySum)
+//
+// dc := NewDebtCalculator(&expense2)
+// dc.mapShares()
+// dc.mapPayments()
+//
+// debts := dc.getDebts()
+// slices.SortFunc(debts, sortBySum)
+//
+// if !reflect.DeepEqual(expectedDebtors, debts) {
+// 	t.Errorf("expected creditors and resulting creditors don't match:\n%+v\n%+v\n",
+// 		expectedDebtors, debts)
+// }
 // }
