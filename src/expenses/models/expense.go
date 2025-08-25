@@ -22,6 +22,7 @@ type Expense struct {
 	Date         int64
 	Payments     []ExpensePayment
 	Shares       []ExpenseShare
+	Debts        Debts
 	PaidOff      bool
 	SharesEven   bool
 	CreationDate int64

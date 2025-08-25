@@ -67,6 +67,14 @@
       {{ template "expensePayments" . }}
     </fieldset>
 
+    {{ if eq .method "put" }}
+    <fieldset>
+      <legend>DEBTS</legend>
+      {{ template "expenseDebts" . }}
+    </fieldset>
+    {{ end }}
+
+
     <br>
     <button 
       class="subbutton"

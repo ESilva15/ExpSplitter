@@ -13,7 +13,7 @@ import (
 
 type ExpenseDebtOverview struct {
 	Exp     *mod.Expense
-	Debtors []exp.Debt
+	Debtors mod.Debts
 }
 
 type UserDebtSummary struct {

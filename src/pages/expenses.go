@@ -69,6 +69,12 @@ func expensePage(c *gin.Context) {
 		return
 	}
 
+	err = exp.Serv.LoadExpenseDebts(&expense)
+	if err != nil {
+		ServerErrorView(c, "failed to fetch debts")
+		return
+	}
+
 	categories, err := exp.GetAllCategories()
 	if err != nil {
 		ServerErrorView(c, "failed to fetch categories")

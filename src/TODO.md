@@ -14,6 +14,8 @@ used
 - [X] The button for deleting share rows isn't working at all unlike the payments
 - [X] Use shopspring/decimal for money handling
 - [ ] Rename this file
+- [ ] Better UX when adding expenses on the payments and share values (default even split)
+- [ ] Verification popups for delete actions
 
 ### Stack
 - Go

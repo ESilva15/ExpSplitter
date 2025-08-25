@@ -1,0 +1,16 @@
+package luadec
+
+import (
+	"github.com/shopspring/decimal"
+	lua "github.com/yuin/gopher-lua"
+)
+
+func AddDecimal(L *lua.LState) int {
+	decA, _ := decimal.NewFromString(L.CheckString(1))
+	decB, _ := decimal.NewFromString(L.CheckString(2))
+
+	res := decA.Add(decB)
+
+	L.Push(lua.LString(res.StringFixed(2)))
+	return 1
+}

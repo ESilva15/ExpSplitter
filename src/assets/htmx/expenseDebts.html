@@ -1,0 +1,24 @@
+{{ define "expenseDebts" }}
+<table id="debts-table">
+  <tr>
+    <th>CREDITOR</th>
+    <th>DEBTOR</th>
+    <th>SUM</th>
+  </tr>
+
+  {{ range .expense.Debts }}
+    {{ $debt := . }}
+    <tr>
+      <td>
+        {{ $debt.Creditor.UserName }}
+      </td>
+      <td>
+        {{ $debt.Debtor.UserName }}
+      </td>
+      <td>
+        {{ $debt.Sum }}
+      </td>
+    </tr>
+  {{ end }}
+</table>
+{{ end }}
