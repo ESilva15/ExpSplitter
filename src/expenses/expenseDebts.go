@@ -118,8 +118,16 @@ func resolveDebts(debtors UserTabs, creditors UserTabs) mod.Debts {
 
 	debts := mod.Debts{}
 	for key, debt := range keyedDebts {
-		debt := mod.Debt{Debtor: key.Debtor, Creditor: key.Creditor, Sum: debt}
-		debts = append(debts, debt)
+		newDebt := mod.Debt{
+			Debtor:   key.Debtor,
+			Creditor: key.Creditor,
+			Sum:      debt.Truncate(2), // Removes fractional cents from the debt
+		}
+
+		// Only appends the debt if its not zero
+		if !newDebt.Sum.IsZero() {
+			debts = append(debts, newDebt)
+		}
 	}
 
 	return debts

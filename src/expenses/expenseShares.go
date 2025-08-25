@@ -46,6 +46,12 @@ func ParseFormShares(userIDs []string, shares []string, sharesIDs []string,
 	return shareList, nil
 }
 
+// normalizeShares will take the total of an expense and the proposed shares
+// and calculate how much each user actually has to pay - avoids fracd cents
+func normalizeShares(total decimal.Decimal, shares []mod.ExpenseShare) error {
+	return nil
+}
+
 func (s *Service) DeleteShare(id int64) error {
 	tx, err := s.DB.Begin()
 	if err != nil {

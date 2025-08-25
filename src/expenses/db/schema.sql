@@ -28,7 +28,8 @@ CREATE TABLE "expenses" (
   FOREIGN KEY(CategoryID) REFERENCES categories(CategoryID) ON DELETE RESTRICT,
   FOREIGN KEY(OwnerUserID) REFERENCES users(UserID) ON DELETE RESTRICT,
   FOREIGN KEY(TypeID) REFERENCES expensetypes(TypeID) ON DELETE RESTRICT
-)                                                                                                                          
+)
+
 CREATE TABLE "expensesPayments" (
   "ExpPaymID" integer PRIMARY KEY AUTOINCREMENT,
   "ExpID" int NOT NULL,
@@ -36,7 +37,8 @@ CREATE TABLE "expensesPayments" (
   "Payed" TEXT NOT NULL DEFAULT 0,
   FOREIGN KEY(ExpID) REFERENCES expenses(ExpID) ON DELETE RESTRICT,
   FOREIGN KEY(UserID) REFERENCES users(UserID) ON DELETE RESTRICT
-)                                                                                                                          
+)
+
 CREATE TABLE "expensesShares" (
   "ExpShareID" integer PRIMARY KEY AUTOINCREMENT,
   "ExpID" int NOT NULL,
@@ -44,7 +46,8 @@ CREATE TABLE "expensesShares" (
   "Share" TEXT NOT NULL DEFAULT 0.5,
   FOREIGN KEY(ExpID) REFERENCES expenses(ExpID) ON DELETE RESTRICT,
   FOREIGN KEY(UserID) REFERENCES users(UserID) ON DELETE RESTRICT
-)                                                                                                                          
+)
+
 CREATE TABLE stores(
   "StoreID" integer PRIMARY KEY AUTOINCREMENT,
   "StoreName" text NOT NULL

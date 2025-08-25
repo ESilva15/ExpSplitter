@@ -80,10 +80,10 @@ var (
 		User3  70 | (0.3 * 160) - 70 = -22 (is owed 22)
 		User4   5 | (0.1 * 160) -  5 =  11 (owes 11)
 
-		Debtors   {u4, 11}, {u2, 43}, 
+		Debtors   {u4, 11}, {u2, 43},
 		Creditors {u3, 22}, {u1, 32}
 
-		{u3, 22} - {u4, 11} = {u3, 11}, {u4, 00}	
+		{u3, 22} - {u4, 11} = {u3, 11}, {u4, 00}
 		{u3, 11} - {u2, 43} = {u3, 00}, {u2, 32}
 		Debts:
 		{Debtor: u4, Creditor: u3, Sum: 11}
@@ -137,6 +137,21 @@ var (
 			{ExpPaymID: 5, User: user3, PayedAmount: decimal.NewFromInt(18)},
 			{ExpPaymID: 6, User: user4, PayedAmount: decimal.NewFromInt(8)},
 			{ExpPaymID: 7, User: user4, PayedAmount: decimal.NewFromInt(8)},
+		},
+	}
+
+	expense4 = mod.Expense{
+		ExpID: 7,
+		Value: decimal.NewFromFloat(0.50),
+		Shares: []mod.ExpenseShare{
+			{ExpShareID: 0, User: user1, Share: decimal.NewFromFloat(0.34)},
+			{ExpShareID: 1, User: user2, Share: decimal.NewFromFloat(0.33)},
+			{ExpShareID: 2, User: user3, Share: decimal.NewFromFloat(0.33)},
+		},
+		Payments: []mod.ExpensePayment{
+			{ExpPaymID: 0, User: user1, PayedAmount: decimal.NewFromFloat(0.18)},
+			{ExpPaymID: 1, User: user1, PayedAmount: decimal.NewFromFloat(0.16)},
+			{ExpPaymID: 2, User: user2, PayedAmount: decimal.NewFromFloat(0.16)},
 		},
 	}
 )

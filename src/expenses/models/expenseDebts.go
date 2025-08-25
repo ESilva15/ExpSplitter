@@ -38,9 +38,3 @@ func (ds Debts) Equal(t Debts) bool {
 
 	return true
 }
-
-func (d *Debt) Insert() {
-}
-
-// func (d *Debt) Update() {
-// }

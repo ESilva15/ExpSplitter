@@ -9,13 +9,15 @@ import (
 	"fmt"
 
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/shopspring/decimal"
+	dec "github.com/shopspring/decimal"
 )
 
 type ExpenseShare struct {
 	ExpShareID int64
 	User       User
-	Share      decimal.Decimal
+	Share      dec.Decimal
+	Calculated dec.Decimal // If certain shares equal fractional cent counts
+												 // Its more useful to already have that computed
 }
 
 func (e *Expense) GetShares(tx *sql.Tx) error {

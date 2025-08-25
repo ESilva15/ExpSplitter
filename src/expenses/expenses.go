@@ -172,6 +172,8 @@ func ExpenseTotalPayed(exp *mod.Expense) decimal.Decimal {
 }
 
 func ExpenseIsEvenlyShared(exp *mod.Expense) bool {
+	log.Printf("is exp %d even?", exp.ExpID)
+
 	shares := mapShares(exp)
 	payments := mapPayments(exp)
 
@@ -184,10 +186,13 @@ func ExpenseIsEvenlyShared(exp *mod.Expense) bool {
 			return false
 		}
 
-		if !val.Equal(userShare) {
+		if !val.Truncate(2).Equal(userShare.Truncate(2)) {
+			log.Printf("No: %s != %s", val.Truncate(2), userShare.Truncate(2))
 			return false
 		}
 	}
+
+	log.Printf("Yes")
 
 	return true
 }
@@ -198,6 +203,13 @@ func analyzeExpense(e *mod.Expense) {
 
 	// Figure out if its evenly shared by the people associated to it
 	e.SharesEven = ExpenseIsEvenlyShared(e)
+
+	// Create the debts
+	debts, err := CalculateDebts(e)
+	if err != nil {
+		// do nothing apparently
+	}
+	e.Debts = debts
 }
 
 func (s *Service) NewExpense(exp mod.Expense) error {
