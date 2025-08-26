@@ -6,10 +6,10 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func mapRepoGetSharesRow(s repo.GetSharesRow) ExpenseShare {
+func mapRepoGetSharesRow(s repo.GetSharesRow) Share {
 	share, _ := decimal.NewFromString(s.ExpensesShare.Share)
 
-	return ExpenseShare{
+	return Share{
 		ExpShareID: s.ExpensesShare.ExpShareID,
 		Share:      share,
 		User: User{
@@ -19,8 +19,8 @@ func mapRepoGetSharesRow(s repo.GetSharesRow) ExpenseShare {
 	}
 }
 
-func mapRepoGetSharesRows(es []repo.GetSharesRow) []ExpenseShare {
-	shares := make([]ExpenseShare, len(es))
+func mapRepoGetSharesRows(es []repo.GetSharesRow) []Share {
+	shares := make([]Share, len(es))
 	for k, exp := range es {
 		shares[k] = mapRepoGetSharesRow(exp)
 	}

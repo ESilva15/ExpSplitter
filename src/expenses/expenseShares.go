@@ -2,8 +2,9 @@ package expenses
 
 import (
 	mod "expenses/expenses/models"
+	"log"
 
-	"github.com/shopspring/decimal"
+	dec "github.com/shopspring/decimal"
 )
 
 // TODO
@@ -11,20 +12,20 @@ import (
 // conversion that the user calls before calling this
 // Can even create a struct to then hold the data
 func ParseFormShares(userIDs []string, shares []string, sharesIDs []string,
-) ([]mod.ExpenseShare, error) {
-	shareList := []mod.ExpenseShare{}
+) ([]mod.Share, error) {
+	shareList := []mod.Share{}
 	for i := range userIDs {
 		userID, err := ParseID(userIDs[i])
 		if err != nil {
 			return nil, err
 		}
 
-		share, err := decimal.NewFromString(shares[i])
+		share, err := dec.NewFromString(shares[i])
 		if err != nil {
 			return nil, err
 		}
 
-		newShare := mod.ExpenseShare{
+		newShare := mod.Share{
 			ExpShareID: -1,
 			User: mod.User{
 				UserID: userID,
@@ -48,7 +49,22 @@ func ParseFormShares(userIDs []string, shares []string, sharesIDs []string,
 
 // normalizeShares will take the total of an expense and the proposed shares
 // and calculate how much each user actually has to pay - avoids fracd cents
-func normalizeShares(total decimal.Decimal, shares []mod.ExpenseShare) error {
+func normalizeShares(e *mod.Expense) error {
+	excess := dec.NewFromFloat(0.0)
+	ownerShIdx := -1
+	for k := range e.Shares {
+		if e.Shares[k].User.UserID == e.Owner.UserID {
+			ownerShIdx = k
+		}
+		owed := e.Value.Mul(e.Shares[k].Share)
+		excess = excess.Add(owed.Sub(owed.Truncate(2)))
+		log.Println(excess)
+
+		e.Shares[k].Calculated = owed.Truncate(2)
+	}
+
+	e.Shares[ownerShIdx].Calculated = e.Shares[ownerShIdx].Calculated.Add(excess)
+
 	return nil
 }
 
@@ -59,7 +75,7 @@ func (s *Service) DeleteShare(id int64) error {
 	}
 	defer tx.Rollback()
 
-	share := mod.ExpenseShare{
+	share := mod.Share{
 		ExpShareID: id,
 	}
 

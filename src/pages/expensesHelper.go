@@ -9,7 +9,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func processFormShares(c *gin.Context) ([]mod.ExpenseShare, error) {
+func processFormShares(c *gin.Context) ([]mod.Share, error) {
 	userIDS := c.PostFormArray("shares-user-ids[]")
 	shareIDs := c.PostFormArray("shares-ids[]")
 	shares := c.PostFormArray("shares-percent[]")

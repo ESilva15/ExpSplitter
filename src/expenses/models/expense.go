@@ -21,7 +21,7 @@ type Expense struct {
 	Owner        User
 	Date         int64
 	Payments     []ExpensePayment
-	Shares       []ExpenseShare
+	Shares       []Share
 	Debts        Debts
 	PaidOff      bool
 	SharesEven   bool
@@ -38,7 +38,7 @@ func NewExpense() Expense {
 		Owner:        NewUser(),
 		Date:         0,
 		Payments:     []ExpensePayment{},
-		Shares:       []ExpenseShare{},
+		Shares:       []Share{},
 		PaidOff:      false,
 		SharesEven:   false,
 		CreationDate: 0,

@@ -9,13 +9,13 @@ WHERE "ExpID" = ?;
 
 -- name: InsertShare :execresult
 INSERT INTO "expensesShares"(
-  "ExpID", "UserID", "Share"
+  "ExpID", "UserID", "Share", "Calculated"
 )
-VALUES(?, ?, ?);
+VALUES(?, ?, ?, ?);
 
 -- name: UpdateShare :execresult
 UPDATE expensesShares
-SET "UserID" = ?, "Share" = ?
+SET "UserID" = ?, "Share" = ?, "Calculated" = ?
 WHERE "ExpShareID" = ?;
 
 -- name: DeleteShare :execresult

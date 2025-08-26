@@ -1,3 +1,9 @@
+# DOING
+Adding the field `Calculated` to `Share` to avoid computing what each user owes
+everytime due to the fractional cents problem
+Make a script for the current migration to compute the Calculated value with
+our rules
+
 # TODO
 - [ ] On the categories page, add a column of how many times a given category is
 used

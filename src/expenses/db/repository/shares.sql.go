@@ -20,7 +20,7 @@ func (q *Queries) DeleteShare(ctx context.Context, expshareid int64) (sql.Result
 
 const getShares = `-- name: GetShares :many
 SELECT 
-  shares.ExpShareID, shares.ExpID, shares.UserID, shares.Share, users.UserID, users.UserName, users.UserPass
+  shares.ExpShareID, shares.ExpID, shares.UserID, shares.Share, shares.Calculated, users.UserID, users.UserName, users.UserPass
 FROM 
   "expensesShares" as shares
 JOIN 
@@ -47,6 +47,7 @@ func (q *Queries) GetShares(ctx context.Context, expid int64) ([]GetSharesRow, e
 			&i.ExpensesShare.ExpID,
 			&i.ExpensesShare.UserID,
 			&i.ExpensesShare.Share,
+			&i.ExpensesShare.Calculated,
 			&i.User.UserID,
 			&i.User.UserName,
 			&i.User.UserPass,
@@ -66,33 +67,45 @@ func (q *Queries) GetShares(ctx context.Context, expid int64) ([]GetSharesRow, e
 
 const insertShare = `-- name: InsertShare :execresult
 INSERT INTO "expensesShares"(
-  "ExpID", "UserID", "Share"
+  "ExpID", "UserID", "Share", "Calculated"
 )
-VALUES(?, ?, ?)
+VALUES(?, ?, ?, ?)
 `
 
 type InsertShareParams struct {
-	ExpID  int64
-	UserID int64
-	Share  string
+	ExpID      int64
+	UserID     int64
+	Share      string
+	Calculated string
 }
 
 func (q *Queries) InsertShare(ctx context.Context, arg InsertShareParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, insertShare, arg.ExpID, arg.UserID, arg.Share)
+	return q.db.ExecContext(ctx, insertShare,
+		arg.ExpID,
+		arg.UserID,
+		arg.Share,
+		arg.Calculated,
+	)
 }
 
 const updateShare = `-- name: UpdateShare :execresult
 UPDATE expensesShares
-SET "UserID" = ?, "Share" = ?
+SET "UserID" = ?, "Share" = ?, "Calculated" = ?
 WHERE "ExpShareID" = ?
 `
 
 type UpdateShareParams struct {
 	UserID     int64
 	Share      string
+	Calculated string
 	ExpShareID int64
 }
 
 func (q *Queries) UpdateShare(ctx context.Context, arg UpdateShareParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, updateShare, arg.UserID, arg.Share, arg.ExpShareID)
+	return q.db.ExecContext(ctx, updateShare,
+		arg.UserID,
+		arg.Share,
+		arg.Calculated,
+		arg.ExpShareID,
+	)
 }

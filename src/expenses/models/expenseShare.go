@@ -12,12 +12,28 @@ import (
 	dec "github.com/shopspring/decimal"
 )
 
-type ExpenseShare struct {
+type Share struct {
 	ExpShareID int64
 	User       User
 	Share      dec.Decimal
-	Calculated dec.Decimal // If certain shares equal fractional cent counts
-												 // Its more useful to already have that computed
+	Calculated dec.Decimal // Normalized user share because of fracd cents
+}
+type Shares []Share
+
+func (sh Shares) Equal(other Shares) bool {
+	if len(sh) != len(other) {
+		return false
+	}
+
+	for k := range sh {
+		if sh[k].User != other[k].User ||
+			!sh[k].Calculated.Equal(other[k].Calculated) ||
+			!sh[k].Share.Equal(other[k].Share) {
+			return false
+		}
+	}
+
+	return true
 }
 
 func (e *Expense) GetShares(tx *sql.Tx) error {
@@ -33,14 +49,15 @@ func (e *Expense) GetShares(tx *sql.Tx) error {
 	return nil
 }
 
-func (sh *ExpenseShare) Insert(tx *sql.Tx, expID int64) error {
+func (sh *Share) Insert(tx *sql.Tx, expID int64) error {
 	ctx := context.Background()
 
 	queries := repo.New(tx)
 	res, err := queries.InsertShare(ctx, repo.InsertShareParams{
-		ExpID:  expID,
-		Share:  sh.Share.String(),
-		UserID: sh.User.UserID,
+		ExpID:      expID,
+		Share:      sh.Share.String(),
+		UserID:     sh.User.UserID,
+		Calculated: sh.Calculated.String(),
 	})
 	if err != nil {
 		return err
@@ -56,7 +73,7 @@ func (sh *ExpenseShare) Insert(tx *sql.Tx, expID int64) error {
 	return nil
 }
 
-func (sh *ExpenseShare) Update(tx *sql.Tx) error {
+func (sh *Share) Update(tx *sql.Tx) error {
 	ctx := context.Background()
 
 	queries := repo.New(tx)
@@ -64,6 +81,7 @@ func (sh *ExpenseShare) Update(tx *sql.Tx) error {
 		ExpShareID: sh.ExpShareID,
 		Share:      sh.Share.String(),
 		UserID:     sh.User.UserID,
+		Calculated: sh.Calculated.String(),
 	})
 	if err != nil {
 		return err
@@ -79,7 +97,7 @@ func (sh *ExpenseShare) Update(tx *sql.Tx) error {
 	return nil
 }
 
-func (sh *ExpenseShare) Delete(tx *sql.Tx) error {
+func (sh *Share) Delete(tx *sql.Tx) error {
 	ctx := context.Background()
 
 	queries := repo.New(tx)

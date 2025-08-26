@@ -4,7 +4,7 @@ import (
 	mod "expenses/expenses/models"
 	"testing"
 
-	"github.com/shopspring/decimal"
+	dec "github.com/shopspring/decimal"
 )
 
 var (
@@ -30,18 +30,18 @@ var (
 	// this expense is paid off
 	expense1 = mod.Expense{
 		ExpID: 0,
-		Value: decimal.NewFromInt(150),
-		Shares: []mod.ExpenseShare{
-			{ExpShareID: 0, User: user1, Share: decimal.NewFromFloat(0.4)},
-			{ExpShareID: 1, User: user2, Share: decimal.NewFromFloat(0.4)},
-			{ExpShareID: 2, User: user3, Share: decimal.NewFromFloat(0.2)},
+		Value: dec.NewFromInt(150),
+		Shares: []mod.Share{
+			{ExpShareID: 0, User: user1, Share: dec.NewFromFloat(0.4)},
+			{ExpShareID: 1, User: user2, Share: dec.NewFromFloat(0.4)},
+			{ExpShareID: 2, User: user3, Share: dec.NewFromFloat(0.2)},
 		},
 		Payments: []mod.ExpensePayment{
-			{ExpPaymID: 0, User: user1, PayedAmount: decimal.NewFromInt(50)},
-			{ExpPaymID: 1, User: user1, PayedAmount: decimal.NewFromInt(50)},
-			{ExpPaymID: 2, User: user2, PayedAmount: decimal.NewFromInt(0)},
-			{ExpPaymID: 3, User: user3, PayedAmount: decimal.NewFromInt(30)},
-			{ExpPaymID: 4, User: user3, PayedAmount: decimal.NewFromInt(20)},
+			{ExpPaymID: 0, User: user1, PayedAmount: dec.NewFromInt(50)},
+			{ExpPaymID: 1, User: user1, PayedAmount: dec.NewFromInt(50)},
+			{ExpPaymID: 2, User: user2, PayedAmount: dec.NewFromInt(0)},
+			{ExpPaymID: 3, User: user3, PayedAmount: dec.NewFromInt(30)},
+			{ExpPaymID: 4, User: user3, PayedAmount: dec.NewFromInt(20)},
 		},
 	}
 
@@ -49,22 +49,22 @@ var (
 	// Expense is paid off
 	expense2 = mod.Expense{
 		ExpID: 0,
-		Value: decimal.NewFromInt(160),
-		Shares: []mod.ExpenseShare{
-			{ExpShareID: 0, User: user1, Share: decimal.NewFromFloat(0.3)},
-			{ExpShareID: 1, User: user2, Share: decimal.NewFromFloat(0.3)},
-			{ExpShareID: 2, User: user3, Share: decimal.NewFromFloat(0.3)},
-			{ExpShareID: 3, User: user4, Share: decimal.NewFromFloat(0.1)},
+		Value: dec.NewFromInt(160),
+		Shares: []mod.Share{
+			{ExpShareID: 0, User: user1, Share: dec.NewFromFloat(0.3)},
+			{ExpShareID: 1, User: user2, Share: dec.NewFromFloat(0.3)},
+			{ExpShareID: 2, User: user3, Share: dec.NewFromFloat(0.3)},
+			{ExpShareID: 3, User: user4, Share: dec.NewFromFloat(0.1)},
 		},
 		Payments: []mod.ExpensePayment{
-			{ExpPaymID: 0, User: user1, PayedAmount: decimal.NewFromInt(40)},
-			{ExpPaymID: 1, User: user1, PayedAmount: decimal.NewFromInt(40)},
-			{ExpPaymID: 2, User: user2, PayedAmount: decimal.NewFromInt(5)},
-			{ExpPaymID: 3, User: user3, PayedAmount: decimal.NewFromInt(30)},
-			{ExpPaymID: 4, User: user3, PayedAmount: decimal.NewFromInt(30)},
-			{ExpPaymID: 5, User: user3, PayedAmount: decimal.NewFromInt(10)},
-			{ExpPaymID: 6, User: user4, PayedAmount: decimal.NewFromInt(4)},
-			{ExpPaymID: 7, User: user4, PayedAmount: decimal.NewFromInt(1)},
+			{ExpPaymID: 0, User: user1, PayedAmount: dec.NewFromInt(40)},
+			{ExpPaymID: 1, User: user1, PayedAmount: dec.NewFromInt(40)},
+			{ExpPaymID: 2, User: user2, PayedAmount: dec.NewFromInt(5)},
+			{ExpPaymID: 3, User: user3, PayedAmount: dec.NewFromInt(30)},
+			{ExpPaymID: 4, User: user3, PayedAmount: dec.NewFromInt(30)},
+			{ExpPaymID: 5, User: user3, PayedAmount: dec.NewFromInt(10)},
+			{ExpPaymID: 6, User: user4, PayedAmount: dec.NewFromInt(4)},
+			{ExpPaymID: 7, User: user4, PayedAmount: dec.NewFromInt(1)},
 		},
 	}
 	/*
@@ -121,37 +121,61 @@ var (
 	// Expense is: evenly shared and paid off
 	expense3 = mod.Expense{
 		ExpID: 0,
-		Value: decimal.NewFromInt(160),
-		Shares: []mod.ExpenseShare{
-			{ExpShareID: 0, User: user1, Share: decimal.NewFromFloat(0.3)},
-			{ExpShareID: 1, User: user2, Share: decimal.NewFromFloat(0.3)},
-			{ExpShareID: 2, User: user3, Share: decimal.NewFromFloat(0.3)},
-			{ExpShareID: 3, User: user4, Share: decimal.NewFromFloat(0.1)},
+		Owner: mod.User{
+			UserID: user1.UserID,
+		},
+		Value: dec.NewFromInt(160),
+		Shares: []mod.Share{
+			{ExpShareID: 0, User: user1, Share: dec.NewFromFloat(0.3)},
+			{ExpShareID: 1, User: user2, Share: dec.NewFromFloat(0.3)},
+			{ExpShareID: 2, User: user3, Share: dec.NewFromFloat(0.3)},
+			{ExpShareID: 3, User: user4, Share: dec.NewFromFloat(0.1)},
 		},
 		Payments: []mod.ExpensePayment{
-			{ExpPaymID: 0, User: user1, PayedAmount: decimal.NewFromInt(40)},
-			{ExpPaymID: 1, User: user1, PayedAmount: decimal.NewFromInt(8)},
-			{ExpPaymID: 2, User: user2, PayedAmount: decimal.NewFromInt(48)},
-			{ExpPaymID: 3, User: user3, PayedAmount: decimal.NewFromInt(15)},
-			{ExpPaymID: 4, User: user3, PayedAmount: decimal.NewFromInt(15)},
-			{ExpPaymID: 5, User: user3, PayedAmount: decimal.NewFromInt(18)},
-			{ExpPaymID: 6, User: user4, PayedAmount: decimal.NewFromInt(8)},
-			{ExpPaymID: 7, User: user4, PayedAmount: decimal.NewFromInt(8)},
+			{ExpPaymID: 0, User: user1, PayedAmount: dec.NewFromInt(40)},
+			{ExpPaymID: 1, User: user1, PayedAmount: dec.NewFromInt(8)},
+			{ExpPaymID: 2, User: user2, PayedAmount: dec.NewFromInt(48)},
+			{ExpPaymID: 3, User: user3, PayedAmount: dec.NewFromInt(15)},
+			{ExpPaymID: 4, User: user3, PayedAmount: dec.NewFromInt(15)},
+			{ExpPaymID: 5, User: user3, PayedAmount: dec.NewFromInt(18)},
+			{ExpPaymID: 6, User: user4, PayedAmount: dec.NewFromInt(8)},
+			{ExpPaymID: 7, User: user4, PayedAmount: dec.NewFromInt(8)},
 		},
 	}
 
 	expense4 = mod.Expense{
 		ExpID: 7,
-		Value: decimal.NewFromFloat(0.50),
-		Shares: []mod.ExpenseShare{
-			{ExpShareID: 0, User: user1, Share: decimal.NewFromFloat(0.34)},
-			{ExpShareID: 1, User: user2, Share: decimal.NewFromFloat(0.33)},
-			{ExpShareID: 2, User: user3, Share: decimal.NewFromFloat(0.33)},
+		Value: dec.NewFromFloat(0.50),
+		Shares: []mod.Share{
+			{ExpShareID: 0, User: user1, Share: dec.NewFromFloat(0.34)},
+			{ExpShareID: 1, User: user2, Share: dec.NewFromFloat(0.33)},
+			{ExpShareID: 2, User: user3, Share: dec.NewFromFloat(0.33)},
 		},
 		Payments: []mod.ExpensePayment{
-			{ExpPaymID: 0, User: user1, PayedAmount: decimal.NewFromFloat(0.18)},
-			{ExpPaymID: 1, User: user1, PayedAmount: decimal.NewFromFloat(0.16)},
-			{ExpPaymID: 2, User: user2, PayedAmount: decimal.NewFromFloat(0.16)},
+			{ExpPaymID: 0, User: user1, PayedAmount: dec.NewFromFloat(0.18)},
+			{ExpPaymID: 1, User: user1, PayedAmount: dec.NewFromFloat(0.16)},
+			{ExpPaymID: 2, User: user2, PayedAmount: dec.NewFromFloat(0.16)},
+		},
+	}
+
+	expense5 = mod.Expense{
+		ExpID: 9,
+		Owner: mod.User{
+			UserID: user1.UserID,
+		},
+		Value: dec.NewFromFloat(111.11),
+		Shares: []mod.Share{
+			{ExpShareID: 0, User: user1,
+				Share: dec.NewFromFloat(0.34), Calculated: dec.NewFromFloat(37.79)},
+			{ExpShareID: 1, User: user2,
+				Share: dec.NewFromFloat(0.33), Calculated: dec.NewFromFloat(36.66)},
+			{ExpShareID: 2, User: user3,
+				Share: dec.NewFromFloat(0.33), Calculated: dec.NewFromFloat(36.66)},
+		},
+		Payments: []mod.ExpensePayment{
+			{ExpPaymID: 0, User: user1, PayedAmount: dec.NewFromFloat(37.79)},
+			{ExpPaymID: 1, User: user1, PayedAmount: dec.NewFromFloat(36.66)},
+			{ExpPaymID: 2, User: user2, PayedAmount: dec.NewFromFloat(36.66)},
 		},
 	}
 )

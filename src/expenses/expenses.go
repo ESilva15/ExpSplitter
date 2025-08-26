@@ -204,12 +204,8 @@ func analyzeExpense(e *mod.Expense) {
 	// Figure out if its evenly shared by the people associated to it
 	e.SharesEven = ExpenseIsEvenlyShared(e)
 
-	// Create the debts
-	debts, err := CalculateDebts(e)
-	if err != nil {
-		// do nothing apparently
-	}
-	e.Debts = debts
+	// Update the calculated fields on the shares
+	normalizeShares(e)
 }
 
 func (s *Service) NewExpense(exp mod.Expense) error {

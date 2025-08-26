@@ -40,6 +40,7 @@ type ExpensesShare struct {
 	ExpID      int64
 	UserID     int64
 	Share      string
+	Calculated string
 }
 
 type Store struct {
