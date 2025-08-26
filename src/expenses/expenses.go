@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/shopspring/decimal"
-	lua "github.com/yuin/gopher-lua"
 )
 
 func (s *Service) GetAllExpenses() ([]mod.Expense, error) {
@@ -19,32 +18,6 @@ func (s *Service) GetAllExpenses() ([]mod.Expense, error) {
 	expenses, err := mod.GetAllExpenses(tx)
 
 	return expenses, tx.Commit()
-}
-
-func (s *Service) LuaGetAllExpenses(L *lua.LState) int {
-	tx, err := s.DB.Begin()
-	if err != nil {
-		L.Push(lua.LNil)
-		L.Push(lua.LString(err.Error()))
-		return 2
-	}
-	defer tx.Rollback()
-
-	expenses, err := mod.GetAllExpenses(tx)
-
-	tbl := L.NewTable()
-	for _, e := range expenses {
-		et := L.NewTable()
-
-		et.RawSetString("id", lua.LNumber(e.ExpID))
-		et.RawSetString("description", lua.LString(e.Description))
-		et.RawSetString("amount", lua.LString(e.Value.StringFixed(2)))
-
-		tbl.Append(et)
-	}
-
-	L.Push(tbl)
-	return 1
 }
 
 func (s *Service) GetExpensesRanged(startDate string, endDate string) ([]mod.Expense, error) {

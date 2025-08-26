@@ -12,8 +12,8 @@ import (
 )
 
 type Store struct {
-	StoreID   int64
-	StoreName string
+	StoreID   int64  `json:"StoreID"`
+	StoreName string `json:"StoreName"`
 }
 
 func NewStore() Store {

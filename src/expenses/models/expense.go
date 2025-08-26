@@ -12,20 +12,20 @@ import (
 )
 
 type Expense struct {
-	ExpID        int64
-	Description  string
-	Value        decimal.Decimal
-	Store        Store
-	Type         Type
-	Category     Category
-	Owner        User
-	Date         int64
-	Payments     []ExpensePayment
-	Shares       []Share
-	Debts        Debts
-	PaidOff      bool
-	SharesEven   bool
-	CreationDate int64
+	ExpID        int64            `json:"ExpID"`
+	Description  string           `json:"Description"`
+	Value        decimal.Decimal  `json:"Value"`
+	Store        Store            `json:"Store"`
+	Type         Type             `json:"Type"`
+	Category     Category         `json:"Category"`
+	Owner        User             `json:"User"`
+	Date         int64            `json:"Date"`
+	Payments     []ExpensePayment `json:"Payments"`
+	Shares       []Share          `json:"Shares"`
+	Debts        Debts            `json:"Debts"`
+	PaidOff      bool             `json:"PaidOff"`
+	SharesEven   bool             `json:"SharesEven"`
+	CreationDate int64            `json:"CreationDate"`
 }
 
 func NewExpense() Expense {

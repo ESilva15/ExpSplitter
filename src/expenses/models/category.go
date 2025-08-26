@@ -11,8 +11,8 @@ import (
 )
 
 type Category struct {
-	CategoryID   int64
-	CategoryName string
+	CategoryID   int64  `json:"CategoryID"`
+	CategoryName string `json:"CategoryName"`
 }
 
 func NewCategory() Category {

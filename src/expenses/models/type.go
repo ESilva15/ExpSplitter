@@ -12,8 +12,8 @@ import (
 )
 
 type Type struct {
-	TypeID   int64
-	TypeName string
+	TypeID   int64  `json:"TypeID"`
+	TypeName string `json:"TypeName"`
 }
 
 func NewType() Type {

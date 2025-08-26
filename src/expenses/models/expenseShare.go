@@ -13,10 +13,10 @@ import (
 )
 
 type Share struct {
-	ExpShareID int64
-	User       User
-	Share      dec.Decimal
-	Calculated dec.Decimal // Normalized user share because of fracd cents
+	ExpShareID int64       `json:"ExpShareID"`
+	User       User        `json:"User"`
+	Share      dec.Decimal `json:"Share"`
+	Calculated dec.Decimal `json:"Calculated"`
 }
 type Shares []Share
 

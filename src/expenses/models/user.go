@@ -9,8 +9,8 @@ import (
 )
 
 type User struct {
-	UserID   int64
-	UserName string
+	UserID   int64  `json:"UserID"`
+	UserName string `json:"UserName"`
 }
 
 func NewUser() User {

@@ -3,3 +3,4 @@ port: 8081
 dbpath: "./data/data.db"
 dbsys: "sqlite3"
 migrations_path: "file://expenses/db/migrations/"
+mig_custom_scripts: "./expenses/db/migrations/custom/"
