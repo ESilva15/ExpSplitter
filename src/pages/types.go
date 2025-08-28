@@ -17,7 +17,7 @@ const (
 )
 
 func typesGlobalPage(c *gin.Context) {
-	types, err := exp.Serv.GetAllTypes()
+	types, err := exp.App.GetAllTypes()
 	if err != nil {
 		ServerErrorView(c, "the server failed to get the types")
 		return
@@ -38,7 +38,7 @@ func typePage(c *gin.Context) {
 		return
 	}
 
-	typ, err := exp.Serv.GetType(typeID)
+	typ, err := exp.App.GetType(typeID)
 	if err == sql.ErrNoRows {
 		NotFoundView(c, fmt.Sprintf("Couldn't find type `%d`", typeID))
 		return
@@ -69,7 +69,7 @@ func newTypePage(c *gin.Context) {
 func createType(c *gin.Context) {
 	newTypName := c.PostForm("type-name")
 
-	err := exp.Serv.NewType(newTypName)
+	err := exp.App.NewType(newTypName)
 	if err != nil {
 		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
 	}
@@ -83,7 +83,7 @@ func deleteType(c *gin.Context) {
 		c.Redirect(404, "/404")
 	}
 
-	err = exp.Serv.DeleteType(typeID)
+	err = exp.App.DeleteType(typeID)
 	if err == experr.ErrNotFound {
 		errMsg := fmt.Sprintf("category %d not found", typeID)
 		c.String(http.StatusNotFound, errMsg)
@@ -106,7 +106,7 @@ func updateType(c *gin.Context) {
 	}
 	newName := c.PostForm("type-name")
 
-	err = exp.Serv.UpdateType(typeID, newName)
+	err = exp.App.UpdateType(typeID, newName)
 	if err != nil {
 		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
 		return

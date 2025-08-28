@@ -47,9 +47,9 @@ func ParseFormShares(userIDs []string, shares []string, sharesIDs []string,
 	return shareList, nil
 }
 
-// normalizeShares will take the total of an expense and the proposed shares
+// NormalizeShares will take the total of an expense and the proposed shares
 // and calculate how much each user actually has to pay - avoids fracd cents
-func normalizeShares(e *mod.Expense) error {
+func (a *ExpensesApp) NormalizeShares(e *mod.Expense) error {
 	excess := dec.NewFromFloat(0.0)
 	ownerShIdx := -1
 	for k := range e.Shares {
@@ -63,13 +63,15 @@ func normalizeShares(e *mod.Expense) error {
 		e.Shares[k].Calculated = owed.Truncate(2)
 	}
 
+	// It fails here for some reason
+	log.Println(e)
 	e.Shares[ownerShIdx].Calculated = e.Shares[ownerShIdx].Calculated.Add(excess)
 
 	return nil
 }
 
-func (s *Service) DeleteShare(id int64) error {
-	tx, err := s.DB.Begin()
+func (a *ExpensesApp) DeleteShare(id int64) error {
+	tx, err := a.DB.Begin()
 	if err != nil {
 		return err
 	}

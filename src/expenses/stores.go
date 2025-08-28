@@ -4,8 +4,8 @@ import (
 	mod "expenses/expenses/models"
 )
 
-func (s *Service) GetAllStores() ([]mod.Store, error) {
-	tx, err := s.DB.Begin()
+func (a *ExpensesApp) GetAllStores() ([]mod.Store, error) {
+	tx, err := a.DB.Begin()
 	if err != nil {
 		return []mod.Store{}, err
 	}
@@ -19,8 +19,8 @@ func (s *Service) GetAllStores() ([]mod.Store, error) {
 	return stores, tx.Commit()
 }
 
-func (s *Service) GetStore(id int64) (mod.Store, error) {
-	tx, err := s.DB.Begin()
+func (a *ExpensesApp) GetStore(id int64) (mod.Store, error) {
+	tx, err := a.DB.Begin()
 	if err != nil {
 		return mod.Store{}, err
 	}
@@ -34,8 +34,8 @@ func (s *Service) GetStore(id int64) (mod.Store, error) {
 	return store, tx.Commit()
 }
 
-func (s *Service) NewStore(name string) error {
-	tx, err := s.DB.Begin()
+func (a *ExpensesApp) NewStore(name string) error {
+	tx, err := a.DB.Begin()
 	if err != nil {
 		return err
 	}
@@ -49,8 +49,8 @@ func (s *Service) NewStore(name string) error {
 	return tx.Commit()
 }
 
-func (s *Service) UpdateStore(id int64, name string) error {
-	tx, err := s.DB.Begin()
+func (a *ExpensesApp) UpdateStore(id int64, name string) error {
+	tx, err := a.DB.Begin()
 	if err != nil {
 		return err
 	}
@@ -69,8 +69,8 @@ func (s *Service) UpdateStore(id int64, name string) error {
 	return tx.Commit()
 }
 
-func (s *Service) DeleteStore(id int64) error {
-	tx, err := s.DB.Begin()
+func (a *ExpensesApp) DeleteStore(id int64) error {
+	tx, err := a.DB.Begin()
 	if err != nil {
 		return err
 	}

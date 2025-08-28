@@ -4,8 +4,8 @@ import (
 	mod "expenses/expenses/models"
 )
 
-func (s *Service) GetAllUsers() ([]mod.User, error) {
-	tx, err := s.DB.Begin()
+func (a *ExpensesApp) GetAllUsers() ([]mod.User, error) {
+	tx, err := a.DB.Begin()
 	if err != nil {
 		return []mod.User{}, err
 	}

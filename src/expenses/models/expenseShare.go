@@ -4,10 +4,9 @@ import (
 	"context"
 	"expenses/expenses/db/repository"
 	repo "expenses/expenses/db/repository"
-
 	"database/sql"
 	"fmt"
-
+	"encoding/json"
 	_ "github.com/mattn/go-sqlite3"
 	dec "github.com/shopspring/decimal"
 )
@@ -19,6 +18,15 @@ type Share struct {
 	Calculated dec.Decimal `json:"Calculated"`
 }
 type Shares []Share
+
+// ShareFromJSON takes []byte and returns an *Share
+func ShareFromJSON(data []byte) (*Share, error) {
+	var share Share
+
+	err := json.Unmarshal(data, &share)
+
+	return &share, err
+}
 
 func (sh Shares) Equal(other Shares) bool {
 	if len(sh) != len(other) {

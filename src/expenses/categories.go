@@ -12,8 +12,8 @@ func GetCategory(id int64) (mod.Category, error) {
 	return mod.GetCategory(id)
 }
 
-func (s *Service) CreateCategory(name string) error {
-	tx, err := s.DB.Begin()
+func (a *ExpensesApp) CreateCategory(name string) error {
+	tx, err := a.DB.Begin()
 	if err != nil {
 		return err
 	}
@@ -31,8 +31,8 @@ func (s *Service) CreateCategory(name string) error {
 	return tx.Commit()
 }
 
-func (s *Service) UpdateCategory(id int64, name string) error {
-	tx, err := s.DB.Begin()
+func (a *ExpensesApp) UpdateCategory(id int64, name string) error {
+	tx, err := a.DB.Begin()
 	if err != nil {
 		return err
 	}
@@ -50,8 +50,8 @@ func (s *Service) UpdateCategory(id int64, name string) error {
 	return tx.Commit()
 }
 
-func (s *Service) DeleteCategory(id int64) error {
-	tx, err := s.DB.Begin()
+func (a *ExpensesApp) DeleteCategory(id int64) error {
+	tx, err := a.DB.Begin()
 	if err != nil {
 		return err
 	}

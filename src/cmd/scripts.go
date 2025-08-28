@@ -8,7 +8,7 @@ import (
 )
 
 func scripts(cmd *cobra.Command, args []string) {
-	lua := exp.Serv.Lua
+	lua := exp.App.Lua
 
 	if err := lua.DoFile("./lua-scripts/test.lua"); err != nil {
 		log.Printf("Failed to run lua script: %+v", err)

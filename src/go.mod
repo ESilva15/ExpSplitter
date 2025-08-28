@@ -3,9 +3,9 @@ module expenses
 go 1.24.4
 
 require (
-	github.com/Shopify/go-lua v0.0.0-20250718183320-1e37f32ad7d0
 	github.com/gin-gonic/gin v1.10.1
 	github.com/golang-migrate/migrate/v4 v4.18.3
+	github.com/layeh/gopher-json v0.0.0-20201124131017-552bb3c4c3bf
 	github.com/mattn/go-sqlite3 v1.14.28
 	github.com/shopspring/decimal v1.2.0
 	github.com/spf13/cobra v1.9.1

@@ -46,8 +46,8 @@ func ParseFormPayments(userIDs []string, paymentsIDs []string,
 	return payments, nil
 }
 
-func (s *Service) DeletePayment(id int64) error {
-	tx, err := s.DB.Begin()
+func (a *ExpensesApp) DeletePayment(id int64) error {
+	tx, err := a.DB.Begin()
 	if err != nil {
 		return err
 	}

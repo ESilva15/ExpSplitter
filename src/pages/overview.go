@@ -37,7 +37,7 @@ func getResults(c *gin.Context) {
 	startDate := c.PostForm("range-start") + " 00:00:00"
 	endDate := c.PostForm("range-end") + " 23:59:59"
 
-	queriedExpenses, err := exp.Serv.GetExpensesRanged(startDate, endDate)
+	queriedExpenses, err := exp.App.GetExpensesRanged(startDate, endDate)
 	if err != nil {
 		log.Printf("getting expenses: %v", err)
 		return
@@ -45,12 +45,12 @@ func getResults(c *gin.Context) {
 
 	// Get the expenses and shares for each expense
 	for k := range queriedExpenses {
-		err = exp.Serv.LoadExpenseShares(&queriedExpenses[k])
+		err = exp.App.LoadExpenseShares(&queriedExpenses[k])
 		if err != nil {
 			log.Printf("failed to get shares: %v", err)
 			return
 		}
-		err = exp.Serv.LoadExpensePayments(&queriedExpenses[k])
+		err = exp.App.LoadExpensePayments(&queriedExpenses[k])
 		if err != nil {
 			log.Printf("failed to get payments: %v", err)
 			return

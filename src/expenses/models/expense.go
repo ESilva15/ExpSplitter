@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"encoding/json"
 	"expenses/config"
 	repo "expenses/expenses/db/repository"
 
@@ -43,6 +44,15 @@ func NewExpense() Expense {
 		SharesEven:   false,
 		CreationDate: 0,
 	}
+}
+
+// ExpenseFromJSON takes []byte and returns an *Expense
+func ExpenseFromJSON(data []byte) (*Expense, error) {
+	var expense Expense
+
+	err := json.Unmarshal(data, &expense)
+
+	return &expense, err
 }
 
 func GetAllExpenses(tx *sql.Tx) ([]Expense, error) {

@@ -4,8 +4,8 @@ import (
 	mod "expenses/expenses/models"
 )
 
-func (s *Service) GetAllTypes() ([]mod.Type, error) {
-	tx, err := s.DB.Begin()
+func (a *ExpensesApp) GetAllTypes() ([]mod.Type, error) {
+	tx, err := a.DB.Begin()
 	if err != nil {
 		return []mod.Type{}, err
 	}
@@ -19,8 +19,8 @@ func (s *Service) GetAllTypes() ([]mod.Type, error) {
 	return types, tx.Commit()
 }
 
-func (s *Service) GetType(id int64) (mod.Type, error) {
-	tx, err := s.DB.Begin()
+func (a *ExpensesApp) GetType(id int64) (mod.Type, error) {
+	tx, err := a.DB.Begin()
 	if err != nil {
 		return mod.Type{}, err
 	}
@@ -34,8 +34,8 @@ func (s *Service) GetType(id int64) (mod.Type, error) {
 	return typ, tx.Commit()
 }
 
-func (s *Service) NewType(name string) error {
-	tx, err := s.DB.Begin()
+func (a *ExpensesApp) NewType(name string) error {
+	tx, err := a.DB.Begin()
 	if err != nil {
 		return err
 	}
@@ -53,8 +53,8 @@ func (s *Service) NewType(name string) error {
 	return tx.Commit()
 }
 
-func (s *Service) DeleteType(id int64) error {
-	tx, err := s.DB.Begin()
+func (a *ExpensesApp) DeleteType(id int64) error {
+	tx, err := a.DB.Begin()
 	if err != nil {
 		return err
 	}
@@ -72,8 +72,8 @@ func (s *Service) DeleteType(id int64) error {
 	return tx.Commit()
 }
 
-func (s *Service) UpdateType(id int64, name string) error {
-	tx, err := s.DB.Begin()
+func (a *ExpensesApp) UpdateType(id int64, name string) error {
+	tx, err := a.DB.Begin()
 	if err != nil {
 		return err
 	}

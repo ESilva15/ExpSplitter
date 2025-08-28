@@ -69,7 +69,7 @@ func newCategoryPage(c *gin.Context) {
 
 func createCategory(c *gin.Context) {
 	newCatName := c.PostForm("category-name")
-	err := exp.Serv.CreateCategory(newCatName)
+	err := exp.App.CreateCategory(newCatName)
 
 	if err != nil {
 		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
@@ -86,7 +86,7 @@ func updateCategory(c *gin.Context) {
 	}
 	categoryName := c.PostForm("category-name")
 
-	err = exp.Serv.UpdateCategory(categoryID, categoryName)
+	err = exp.App.UpdateCategory(categoryID, categoryName)
 	if err != nil {
 		errMsg, _ := json.Marshal(err.Error())
 		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":%s}", errMsg))
@@ -103,7 +103,7 @@ func deleteCategory(c *gin.Context) {
 		return
 	}
 
-	err = exp.Serv.DeleteCategory(categoryID)
+	err = exp.App.DeleteCategory(categoryID)
 	if err == experr.ErrNotFound {
 		errMsg := fmt.Sprintf("category %d not found", categoryID)
 		c.String(http.StatusNotFound, errMsg)

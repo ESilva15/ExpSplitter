@@ -40,9 +40,12 @@ func TestNormalizeShares(t *testing.T) {
 		},
 	}
 
+	// dummy service to call it
+	app := ExpensesApp{}
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			err := normalizeShares(tc.exp)
+			err := app.NormalizeShares(tc.exp)
 			if err != nil {
 				t.Errorf("Failed to normalize shares: %+v", err)
 			}

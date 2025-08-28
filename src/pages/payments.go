@@ -16,7 +16,7 @@ func deletePayment(c *gin.Context) {
 		return
 	}
 
-	err = exp.Serv.DeletePayment(paymentID)
+	err = exp.App.DeletePayment(paymentID)
 	if err == experr.ErrNotFound {
 		errMsg := fmt.Sprintf("category %d not found", paymentID)
 		c.String(http.StatusNotFound, errMsg)

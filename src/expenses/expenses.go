@@ -8,8 +8,8 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func (s *Service) GetAllExpenses() ([]mod.Expense, error) {
-	tx, err := s.DB.Begin()
+func (a *ExpensesApp) GetAllExpenses() ([]mod.Expense, error) {
+	tx, err := a.DB.Begin()
 	if err != nil {
 		return []mod.Expense{}, err
 	}
@@ -20,7 +20,7 @@ func (s *Service) GetAllExpenses() ([]mod.Expense, error) {
 	return expenses, tx.Commit()
 }
 
-func (s *Service) GetExpensesRanged(startDate string, endDate string) ([]mod.Expense, error) {
+func (a *ExpensesApp) GetExpensesRanged(startDate string, endDate string) ([]mod.Expense, error) {
 	startDateTime, err := time.ParseInLocation("02-Jan-2006 15:04:05", startDate, time.UTC)
 	if err != nil {
 		log.Printf("error startDate: %v", err)
@@ -35,7 +35,7 @@ func (s *Service) GetExpensesRanged(startDate string, endDate string) ([]mod.Exp
 	}
 	end := endDateTime.Unix()
 
-	tx, err := s.DB.Begin()
+	tx, err := a.DB.Begin()
 	if err != nil {
 		return []mod.Expense{}, err
 	}
@@ -46,8 +46,8 @@ func (s *Service) GetExpensesRanged(startDate string, endDate string) ([]mod.Exp
 	return expenses, tx.Commit()
 }
 
-func (s *Service) GetExpense(id int64) (mod.Expense, error) {
-	tx, err := s.DB.Begin()
+func (a *ExpensesApp) GetExpense(id int64) (mod.Expense, error) {
+	tx, err := a.DB.Begin()
 	if err != nil {
 		return mod.Expense{}, err
 	}
@@ -61,8 +61,8 @@ func (s *Service) GetExpense(id int64) (mod.Expense, error) {
 	return expense, tx.Commit()
 }
 
-func (s *Service) LoadExpenseShares(e *mod.Expense) error {
-	tx, err := s.DB.Begin()
+func (a *ExpensesApp) LoadExpenseShares(e *mod.Expense) error {
+	tx, err := a.DB.Begin()
 	if err != nil {
 		return err
 	}
@@ -76,8 +76,8 @@ func (s *Service) LoadExpenseShares(e *mod.Expense) error {
 	return tx.Commit()
 }
 
-func (s *Service) LoadExpensePayments(e *mod.Expense) error {
-	tx, err := s.DB.Begin()
+func (a *ExpensesApp) LoadExpensePayments(e *mod.Expense) error {
+	tx, err := a.DB.Begin()
 	if err != nil {
 		return err
 	}
@@ -91,15 +91,15 @@ func (s *Service) LoadExpensePayments(e *mod.Expense) error {
 	return tx.Commit()
 }
 
-func (s *Service) LoadExpenseDebts(e *mod.Expense) error {
+func (a *ExpensesApp) LoadExpenseDebts(e *mod.Expense) error {
 	debts, _ := CalculateDebts(e)
 	e.Debts = debts
 
 	return nil
 }
 
-func (s *Service) DeleteExpense(id int64) error {
-	tx, err := s.DB.Begin()
+func (a *ExpensesApp) DeleteExpense(id int64) error {
+	tx, err := a.DB.Begin()
 	if err != nil {
 		return err
 	}
@@ -170,7 +170,7 @@ func ExpenseIsEvenlyShared(exp *mod.Expense) bool {
 	return true
 }
 
-func analyzeExpense(e *mod.Expense) {
+func (a *ExpensesApp) analyzeExpense(e *mod.Expense) {
 	// Figure out if its paid off or not by adding the existing payments
 	e.PaidOff = e.Value.Equal(ExpenseTotalPayed(e))
 
@@ -178,17 +178,17 @@ func analyzeExpense(e *mod.Expense) {
 	e.SharesEven = ExpenseIsEvenlyShared(e)
 
 	// Update the calculated fields on the shares
-	normalizeShares(e)
+	a.NormalizeShares(e)
 }
 
-func (s *Service) NewExpense(exp mod.Expense) error {
-	tx, err := s.DB.Begin()
+func (a *ExpensesApp) NewExpense(exp mod.Expense) error {
+	tx, err := a.DB.Begin()
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback()
 
-	analyzeExpense(&exp)
+	a.analyzeExpense(&exp)
 
 	err = exp.Insert(tx)
 	if err != nil {
@@ -198,14 +198,14 @@ func (s *Service) NewExpense(exp mod.Expense) error {
 	return tx.Commit()
 }
 
-func (s *Service) UpdateExpense(exp mod.Expense) error {
-	tx, err := s.DB.Begin()
+func (a *ExpensesApp) UpdateExpense(exp mod.Expense) error {
+	tx, err := a.DB.Begin()
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback()
 
-	analyzeExpense(&exp)
+	a.analyzeExpense(&exp)
 
 	err = exp.Update(tx)
 	if err != nil {

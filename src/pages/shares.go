@@ -16,7 +16,7 @@ func deleteShare(c *gin.Context) {
 		return
 	}
 
-	err = exp.Serv.DeleteShare(shareID)
+	err = exp.App.DeleteShare(shareID)
 	if err == experr.ErrNotFound {
 		errMsg := fmt.Sprintf("share %d not found", shareID)
 		c.String(http.StatusNotFound, errMsg)
