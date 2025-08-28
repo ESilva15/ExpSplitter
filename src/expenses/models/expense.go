@@ -19,7 +19,7 @@ type Expense struct {
 	Store        Store            `json:"Store"`
 	Type         Type             `json:"Type"`
 	Category     Category         `json:"Category"`
-	Owner        User             `json:"User"`
+	Owner        User             `json:"Owner"`
 	Date         int64            `json:"Date"`
 	Payments     []ExpensePayment `json:"Payments"`
 	Shares       []Share          `json:"Shares"`

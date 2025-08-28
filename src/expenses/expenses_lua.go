@@ -3,19 +3,23 @@ package expenses
 import (
 	"encoding/json"
 	mod "expenses/expenses/models"
+	"log"
 
 	lua "github.com/yuin/gopher-lua"
 )
 
 func (a *ExpensesApp) luaGetAllExpenses(L *lua.LState) int {
+	log.Println("HERE")
 	tx, err := a.DB.Begin()
 	if err != nil {
 		return returnWithError(L, err.Error())
 	}
 	defer tx.Rollback()
 
+	log.Println("HERE 2")
 	expenses, err := mod.GetAllExpenses(tx)
 
+	log.Println("HERE 2")
 	tbl := L.NewTable()
 	for _, e := range expenses {
 		err := a.LoadExpensePayments(&e)
@@ -28,7 +32,8 @@ func (a *ExpensesApp) luaGetAllExpenses(L *lua.LState) int {
 			return returnWithError(L, err.Error())
 		}
 
-		jsonData, err := json.Marshal(e)
+		jsonData, err := json.Marshal(&e)
+		log.Println(string(jsonData))
 
 		et := L.NewTable()
 		et.RawSetString("expense", lua.LString(jsonData))

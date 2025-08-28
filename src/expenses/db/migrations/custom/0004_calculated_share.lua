@@ -10,7 +10,7 @@ local function printTable(t)
     if type(value) == "table" then
       printTable(value)
     else
-      print(key, value)
+      print(key, ":", value)
     end
   end
 end
@@ -42,19 +42,24 @@ if not expenses then
 end
 
 for i = 1, #expenses do
+  -- print "------------------------------------"
   local eJson = expenses[i].expense
   local e = json.decode(eJson)
 
   if not isOwnerInShares(e) then
     -- Insert a share in the owner user into shares as 0.0
+    goto continue
   end
 
   if not isOwnerInPayments(e) then
     -- Insert a share in the owner user into shares as 0.0
+    goto continue
   end
 
   normalizedExpense = NormalizeShare(eJson)
   if eJson == normalizedExpense then
     print "This one needs to be updated"
   end
+
+  ::continue::
 end
