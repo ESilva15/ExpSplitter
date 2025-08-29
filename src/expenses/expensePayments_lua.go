@@ -2,19 +2,20 @@ package expenses
 
 import (
 	mod "expenses/expenses/models"
+
 	lua "github.com/yuin/gopher-lua"
 )
 
-func (a *ExpensesApp) luaInsertShare(L *lua.LState) int {
-	shareJson := L.CheckString(1)
+func (a *ExpensesApp) luaInsertPayment(L *lua.LState) int {
+	paymentJSON := L.CheckString(1)
 	expenseID := L.CheckInt(2)
 
-	share, err := mod.ShareFromJSON([]byte(shareJson))
+	payment, err := mod.PaymentFromJSON([]byte(paymentJSON))
 	if err != nil {
 		return returnWithError(L, err.Error())
 	}
 
-	err = a.insertShare(share, int64(expenseID))
+	err = a.insertPayment(*payment, int64(expenseID))
 	if err != nil {
 		return returnWithError(L, err.Error())
 	}

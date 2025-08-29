@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"encoding/json"
 	repo "expenses/expenses/db/repository"
 
 	"database/sql"
@@ -15,6 +16,13 @@ type ExpensePayment struct {
 	ExpPaymID   int64
 	User        User
 	PayedAmount decimal.Decimal
+}
+
+// PaymentFromJSON takes []byte and returns an *ExpensePayment
+func PaymentFromJSON(data []byte) (*ExpensePayment, error) {
+	var payment ExpensePayment
+	err := json.Unmarshal(data, &payment)
+	return &payment, err
 }
 
 func (e *Expense) GetPayments(tx *sql.Tx) error {

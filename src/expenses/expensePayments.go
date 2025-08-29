@@ -46,6 +46,23 @@ func ParseFormPayments(userIDs []string, paymentsIDs []string,
 	return payments, nil
 }
 
+// insertPayment allows us to insert a share manually
+// for now its private, need to figure out if it needs to be public
+func (a *ExpensesApp) insertPayment(payment mod.ExpensePayment, eIdx int64) error {
+	tx, err := a.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	err = payment.Insert(tx, eIdx)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
 func (a *ExpensesApp) DeletePayment(id int64) error {
 	tx, err := a.DB.Begin()
 	if err != nil {

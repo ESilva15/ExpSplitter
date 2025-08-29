@@ -145,8 +145,6 @@ func ExpenseTotalPayed(exp *mod.Expense) decimal.Decimal {
 }
 
 func ExpenseIsEvenlyShared(exp *mod.Expense) bool {
-	log.Printf("is exp %d even?", exp.ExpID)
-
 	shares := mapShares(exp)
 	payments := mapPayments(exp)
 
@@ -160,12 +158,9 @@ func ExpenseIsEvenlyShared(exp *mod.Expense) bool {
 		}
 
 		if !val.Truncate(2).Equal(userShare.Truncate(2)) {
-			log.Printf("No: %s != %s", val.Truncate(2), userShare.Truncate(2))
 			return false
 		}
 	}
-
-	log.Printf("Yes")
 
 	return true
 }

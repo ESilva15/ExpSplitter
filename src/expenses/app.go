@@ -59,7 +59,6 @@ func StartApp() error {
 	if err != nil {
 		return err
 	}
-	// api := luapi.New(App)
 	App.Lua = luaVM
 
 	err = RunMigrations(migDB, luaVM)

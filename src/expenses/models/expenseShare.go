@@ -2,11 +2,12 @@ package models
 
 import (
 	"context"
+	"database/sql"
+	"encoding/json"
 	"expenses/expenses/db/repository"
 	repo "expenses/expenses/db/repository"
-	"database/sql"
 	"fmt"
-	"encoding/json"
+
 	_ "github.com/mattn/go-sqlite3"
 	dec "github.com/shopspring/decimal"
 )

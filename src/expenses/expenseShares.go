@@ -2,8 +2,6 @@ package expenses
 
 import (
 	mod "expenses/expenses/models"
-	"log"
-
 	dec "github.com/shopspring/decimal"
 )
 
@@ -58,16 +56,31 @@ func (a *ExpensesApp) NormalizeShares(e *mod.Expense) error {
 		}
 		owed := e.Value.Mul(e.Shares[k].Share)
 		excess = excess.Add(owed.Sub(owed.Truncate(2)))
-		log.Println(excess)
 
 		e.Shares[k].Calculated = owed.Truncate(2)
 	}
 
 	// It fails here for some reason
-	log.Println(e)
 	e.Shares[ownerShIdx].Calculated = e.Shares[ownerShIdx].Calculated.Add(excess)
 
 	return nil
+}
+
+// insertShare allows us to insert a share manually
+// for now its private, need to figure out if it needs to be public
+func (a *ExpensesApp) insertShare(share *mod.Share, eIdx int64) error {
+	tx, err := a.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	err = share.Insert(tx, eIdx)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }
 
 func (a *ExpensesApp) DeleteShare(id int64) error {

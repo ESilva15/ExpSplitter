@@ -3,45 +3,99 @@ package expenses
 import (
 	"encoding/json"
 	mod "expenses/expenses/models"
-	"log"
-
 	lua "github.com/yuin/gopher-lua"
 )
 
+func (a *ExpensesApp) prepareExpense(exp *mod.Expense) error {
+	err := a.LoadExpensePayments(exp)
+	if err != nil {
+		return err
+	}
+
+	err = a.LoadExpenseShares(exp)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (a *ExpensesApp) luaGetAllExpenses(L *lua.LState) int {
-	log.Println("HERE")
 	tx, err := a.DB.Begin()
 	if err != nil {
 		return returnWithError(L, err.Error())
 	}
 	defer tx.Rollback()
 
-	log.Println("HERE 2")
 	expenses, err := mod.GetAllExpenses(tx)
 
-	log.Println("HERE 2")
 	tbl := L.NewTable()
 	for _, e := range expenses {
-		err := a.LoadExpensePayments(&e)
-		if err != nil {
-			return returnWithError(L, err.Error())
-		}
-
-		err = a.LoadExpenseShares(&e)
+		err = a.prepareExpense(&e)
 		if err != nil {
 			return returnWithError(L, err.Error())
 		}
 
 		jsonData, err := json.Marshal(&e)
-		log.Println(string(jsonData))
+		if err != nil {
+			return returnWithError(L, err.Error())
+		}
 
 		et := L.NewTable()
 		et.RawSetString("expense", lua.LString(jsonData))
 		tbl.Append(et)
 	}
 
+	L.Push(lua.LBool(true))
 	L.Push(tbl)
-	return 1
+	return 2
+}
+
+func (a *ExpensesApp) luaGetExpense(L *lua.LState) int {
+	expId := L.CheckInt(1)
+
+	tx, err := a.DB.Begin()
+	if err != nil {
+		return returnWithError(L, err.Error())
+	}
+	defer tx.Rollback()
+
+	expense, err := mod.GetExpense(tx, int64(expId))
+	if err != nil {
+		return returnWithError(L, err.Error())
+	}
+
+	err = a.prepareExpense(&expense)
+	if err != nil {
+		return returnWithError(L, err.Error())
+	}
+
+	jsonData, err := json.Marshal(&expense)
+	if err != nil {
+		return returnWithError(L, err.Error())
+	}
+
+	L.Push(lua.LBool(true))
+	L.Push(lua.LString(jsonData))
+	return 2
+}
+
+func (a *ExpensesApp) luaUpdateExpense(L *lua.LState) int {
+	expJson := L.CheckString(1)
+
+	exp, err := mod.ExpenseFromJSON([]byte(expJson))
+	if err != nil {
+		return returnWithError(L, err.Error())
+	}
+
+	err = a.UpdateExpense(*exp)
+	if err != nil {
+		return returnWithError(L, err.Error())
+	}
+
+	L.Push(lua.LBool(true))
+	L.Push(lua.LString(""))
+	return 2
 }
 
 func (a *ExpensesApp) luaNormalizeShares(L *lua.LState) int {
@@ -59,9 +113,7 @@ func (a *ExpensesApp) luaNormalizeShares(L *lua.LState) int {
 		return returnWithError(L, err.Error())
 	}
 
-	resultExpense := L.NewTable()
-	resultExpense.RawSetString("expense", lua.LString(jsonData))
-
-	L.Push(resultExpense)
-	return 1
+	L.Push(lua.LBool(true))
+	L.Push(lua.LString(jsonData))
+	return 2
 }
