@@ -4,9 +4,9 @@ import (
 	exp "expenses/expenses"
 	experr "expenses/expenses/errors"
 	"fmt"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	dec "github.com/shopspring/decimal"
+	"net/http"
 )
 
 func deletePayment(c *gin.Context) {
@@ -32,6 +32,26 @@ func deletePayment(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+func addPayment(c *gin.Context) {
+	expID, err := exp.ParseID(c.PostForm("ExpID"))
+	if err != nil {
+	}
+
+	userID, err := exp.ParseID(c.PostForm("UserID"))
+	if err != nil {
+	}
+
+	sum, err := dec.NewFromString(c.PostForm("Sum"))
+	if err != nil {
+	}
+
+	err = exp.App.AddPayment(expID, userID, sum)
+	if err != nil {
+	}
+}
+
 func RoutePayments(router *gin.Engine) {
 	router.DELETE("/payments/:id", deletePayment)
+
+	router.POST("/payments/add", addPayment)
 }

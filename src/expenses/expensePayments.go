@@ -2,8 +2,7 @@ package expenses
 
 import (
 	mod "expenses/expenses/models"
-
-	"github.com/shopspring/decimal"
+	dec "github.com/shopspring/decimal"
 )
 
 // TODO
@@ -19,7 +18,7 @@ func ParseFormPayments(userIDs []string, paymentsIDs []string,
 			return nil, err
 		}
 
-		payed, err := decimal.NewFromString(values[k])
+		payed, err := dec.NewFromString(values[k])
 		if err != nil {
 			return nil, err
 		}
@@ -46,7 +45,7 @@ func ParseFormPayments(userIDs []string, paymentsIDs []string,
 	return payments, nil
 }
 
-// insertPayment allows us to insert a share manually
+// insertPayment allows us to insert a payment manually
 // for now its private, need to figure out if it needs to be public
 func (a *ExpensesApp) insertPayment(payment mod.ExpensePayment, eIdx int64) error {
 	tx, err := a.DB.Begin()
@@ -80,4 +79,20 @@ func (a *ExpensesApp) DeletePayment(id int64) error {
 	}
 
 	return tx.Commit()
+}
+
+func (a *ExpensesApp) AddPayment(expID int64, userID int64, sum dec.Decimal) error {
+	payment := mod.ExpensePayment{
+		User: mod.User{
+			UserID: userID,
+		},
+		PayedAmount: sum,
+	}
+
+	err := a.insertPayment(payment, expID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
