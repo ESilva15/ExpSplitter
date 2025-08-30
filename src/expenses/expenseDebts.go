@@ -141,3 +141,47 @@ func CalculateDebts(e *mod.Expense) (mod.Debts, error) {
 
 	return debts, nil
 }
+
+func (a *ExpensesApp) settleDebt(payment mod.ExpensePayment,
+	credit mod.ExpensePayment, eId int64) error {
+	tx, err := a.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	credit.PayedAmount = credit.PayedAmount.Sub(payment.PayedAmount)
+
+	err = payment.Insert(tx, eId)
+	if err != nil {
+		return err
+	}
+	err = credit.Update(tx)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func (a *ExpensesApp) ProcessDebt(expID int64, debt mod.Debt) error {
+	// We have to balance the debtor and creditor payments
+	payment := mod.ExpensePayment{
+		User: mod.User{
+			UserID: debt.Debtor.UserID,
+		},
+		PayedAmount: debt.Sum,
+	}
+
+	creditorPayment, err := a.GetExpensePaymentByUserID(expID, debt.Creditor.UserID)
+	if err != nil {
+		return err
+	}
+
+	err = a.settleDebt(payment, creditorPayment, expID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

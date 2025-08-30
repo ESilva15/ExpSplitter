@@ -45,6 +45,19 @@ func ParseFormPayments(userIDs []string, paymentsIDs []string,
 	return payments, nil
 }
 
+func (a *ExpensesApp) GetExpensePaymentByUserID(eId int64, uId int64,
+) (mod.ExpensePayment, error) {
+	tx, err := a.DB.Begin()
+	if err != nil {
+		return mod.ExpensePayment{}, err
+	}
+	defer tx.Rollback()
+
+	payment, err := mod.GetExpensePaymentByUserID(tx, eId, uId)
+
+	return payment, tx.Commit()
+}
+
 // insertPayment allows us to insert a payment manually
 // for now its private, need to figure out if it needs to be public
 func (a *ExpensesApp) insertPayment(payment mod.ExpensePayment, eIdx int64) error {
@@ -74,6 +87,21 @@ func (a *ExpensesApp) DeletePayment(id int64) error {
 	}
 
 	err = payment.Delete(tx)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func (a *ExpensesApp) UpdatePayment(payment mod.ExpensePayment) error {
+	tx, err := a.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	err = payment.Update(tx)
 	if err != nil {
 		return err
 	}

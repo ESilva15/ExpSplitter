@@ -38,6 +38,22 @@ func (e *Expense) GetPayments(tx *sql.Tx) error {
 	return nil
 }
 
+func GetExpensePaymentByUserID(tx *sql.Tx, eId int64, uId int64,
+) (ExpensePayment, error) {
+	ctx := context.Background()
+
+	queries := repo.New(tx)
+	payment, err := queries.GetExpensePaymentByUser(ctx, repo.GetExpensePaymentByUserParams{
+		ExpID:  eId,
+		UserID: uId,
+	})
+	if err != nil {
+		return ExpensePayment{}, err
+	}
+
+	return mapRepoGetPaymentRow(payment), nil
+}
+
 func (p *ExpensePayment) Insert(tx *sql.Tx, expID int64) error {
 	ctx := context.Background()
 

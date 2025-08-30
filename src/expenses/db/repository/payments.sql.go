@@ -18,6 +18,42 @@ func (q *Queries) DeletePayment(ctx context.Context, exppaymid int64) (sql.Resul
 	return q.db.ExecContext(ctx, deletePayment, exppaymid)
 }
 
+const getExpensePaymentByUser = `-- name: GetExpensePaymentByUser :one
+SELECT
+  payments.ExpPaymID, payments.ExpID, payments.UserID, payments.Payed, users.UserID, users.UserName, users.UserPass
+FROM
+  "expensesPayments" as payments
+JOIN
+  users as users ON users.UserID = payments.UserID
+WHERE
+  "ExpID" = ? AND users."UserID" = ?
+`
+
+type GetExpensePaymentByUserParams struct {
+	ExpID  int64
+	UserID int64
+}
+
+type GetExpensePaymentByUserRow struct {
+	ExpensesPayment ExpensesPayment
+	User            User
+}
+
+func (q *Queries) GetExpensePaymentByUser(ctx context.Context, arg GetExpensePaymentByUserParams) (GetExpensePaymentByUserRow, error) {
+	row := q.db.QueryRowContext(ctx, getExpensePaymentByUser, arg.ExpID, arg.UserID)
+	var i GetExpensePaymentByUserRow
+	err := row.Scan(
+		&i.ExpensesPayment.ExpPaymID,
+		&i.ExpensesPayment.ExpID,
+		&i.ExpensesPayment.UserID,
+		&i.ExpensesPayment.Payed,
+		&i.User.UserID,
+		&i.User.UserName,
+		&i.User.UserPass,
+	)
+	return i, err
+}
+
 const getPayments = `-- name: GetPayments :many
 SELECT 
   payments.ExpPaymID, payments.ExpID, payments.UserID, payments.Payed, users.UserID, users.UserName, users.UserPass

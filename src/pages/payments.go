@@ -3,6 +3,7 @@ package pages
 import (
 	exp "expenses/expenses"
 	experr "expenses/expenses/errors"
+	mod "expenses/expenses/models"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	dec "github.com/shopspring/decimal"
@@ -37,7 +38,11 @@ func addPayment(c *gin.Context) {
 	if err != nil {
 	}
 
-	userID, err := exp.ParseID(c.PostForm("UserID"))
+	debtorID, err := exp.ParseID(c.PostForm("DebtorID"))
+	if err != nil {
+	}
+
+	creditorID, err := exp.ParseID(c.PostForm("CreditorID"))
 	if err != nil {
 	}
 
@@ -45,7 +50,17 @@ func addPayment(c *gin.Context) {
 	if err != nil {
 	}
 
-	err = exp.App.AddPayment(expID, userID, sum)
+	debt := mod.Debt{
+		Debtor: mod.User{
+			UserID: debtorID,
+		},
+		Creditor: mod.User{
+			UserID: creditorID,
+		},
+		Sum: sum,
+	}
+
+	err = exp.App.ProcessDebt(expID, debt)
 	if err != nil {
 	}
 }

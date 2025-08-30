@@ -26,3 +26,16 @@ func mapRepoGetPaymentsRows(ep []repo.GetPaymentsRow) []ExpensePayment {
 	}
 	return payments
 }
+
+func mapRepoGetPaymentRow(s repo.GetExpensePaymentByUserRow) ExpensePayment {
+	payed, _ := decimal.NewFromString(s.ExpensesPayment.Payed)
+
+	return ExpensePayment{
+		ExpPaymID:   s.ExpensesPayment.ExpPaymID,
+		PayedAmount: payed,
+		User: User{
+			UserID:   s.User.UserID,
+			UserName: s.User.UserName,
+		},
+	}
+}

@@ -30,7 +30,8 @@
           <a hx-post="/payments/add" 
              hx-swap="none"
              hx-vals='{"ExpID":"{{ $exp.ExpID }}", 
-                    "UserID":"{{ $debt.Debtor.UserID }}",
+                    "DebtorID":"{{ $debt.Debtor.UserID }}",
+                    "CreditorID":"{{ $debt.Creditor.UserID }}",
                     "Sum": "{{ $debt.Sum }}"}'>PAY</a>
         </td>
       </tr>
