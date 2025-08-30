@@ -50,34 +50,29 @@ func getResults(c *gin.Context) {
 			log.Printf("failed to get shares: %v", err)
 			return
 		}
+
 		err = exp.App.LoadExpensePayments(&queriedExpenses[k])
 		if err != nil {
 			log.Printf("failed to get payments: %v", err)
 			return
 		}
+
+		err = exp.App.LoadExpenseDebts(&queriedExpenses[k])
+		if err != nil {
+			log.Printf("failed to get debts: %v", err)
+			return
+		}
 	}
 
 	userDebtSummary := make(map[mod.User]decimal.Decimal)
-	expensesWithDebts := []ExpenseDebtOverview{}
+	expensesWithDebts := []*mod.Expense{}
 	for _, e := range queriedExpenses {
-		if len(e.Shares) <= 1 {
+		if len(e.Shares) <= 1 || len(e.Debts) <= 0 {
 			continue
 		}
 
-		expenseDebts, err := exp.CalculateDebts(&e)
-		if err != nil {
-			// whatevs yo
-			continue
-		}
-		if len(expenseDebts) <= 0 {
-			continue
-		}
-
-		expensesWithDebts = append(expensesWithDebts, ExpenseDebtOverview{
-			Exp: &e, Debtors: expenseDebts,
-		})
-
-		for _, debt := range expenseDebts {
+		expensesWithDebts = append(expensesWithDebts, &e)
+		for _, debt := range e.Debts {
 			userDebtSummary[debt.Debtor] = userDebtSummary[debt.Debtor].Add(debt.Sum)
 		}
 	}
