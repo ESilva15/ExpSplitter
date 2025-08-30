@@ -1,7 +1,7 @@
 build = ./build/expensesweb
 registry = dir.esilva.org
 repo = esilva
-tag = v0.0.71-alpha
+tag = v0.0.80-alpha
 
 build_release_alpine:
 	rm -rf build && mkdir -p $(build)
@@ -15,7 +15,7 @@ build_release_alpine:
 	mkdir -p $(build)/data/
 	find $(build) -name "*.ttf" ! -name DejaVuSansMono.ttf -delete
 
-build_image:
+build_image: build_release_alpine
 	docker buildx build -t $(registry)/$(repo)/expensesweb:$(tag) .
 
 launch_container:
