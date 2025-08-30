@@ -26,3 +26,9 @@ launch_container:
 
 push_image:
 	docker push $(registry)/$(repo)/expensesweb:$(tag)
+
+test:
+	# go test  ./... -cover -bench=
+	go test -coverprofile=coverage.out ./...
+	go tool cover -html=coverage.out -o coverage.html
+	rm ./coverage.out

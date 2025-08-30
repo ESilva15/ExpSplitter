@@ -8,6 +8,7 @@ import (
 
 func mapRepoGetSharesRow(s repo.GetSharesRow) Share {
 	share, _ := decimal.NewFromString(s.ExpensesShare.Share)
+	calculated, _ := decimal.NewFromString(s.ExpensesShare.Calculated)
 
 	return Share{
 		ExpShareID: s.ExpensesShare.ExpShareID,
@@ -16,6 +17,7 @@ func mapRepoGetSharesRow(s repo.GetSharesRow) Share {
 			UserID:   s.User.UserID,
 			UserName: s.User.UserName,
 		},
+		Calculated: calculated,
 	}
 }
 

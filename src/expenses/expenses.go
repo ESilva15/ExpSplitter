@@ -120,7 +120,7 @@ func (a *ExpensesApp) DeleteExpense(id int64) error {
 func mapShares(e *mod.Expense) map[mod.User]decimal.Decimal {
 	shares := make(map[mod.User]decimal.Decimal)
 	for _, share := range e.Shares {
-		shares[share.User] = share.Share
+		shares[share.User] = share.Calculated
 	}
 
 	return shares
@@ -149,7 +149,6 @@ func ExpenseIsEvenlyShared(exp *mod.Expense) bool {
 	payments := mapPayments(exp)
 
 	for user, share := range shares {
-		userShare := share.Mul(exp.Value)
 		val, userHasPayment := payments[user]
 
 		// If a user doesn't even have a payment but has a share, its not even
@@ -157,7 +156,7 @@ func ExpenseIsEvenlyShared(exp *mod.Expense) bool {
 			return false
 		}
 
-		if !val.Truncate(2).Equal(userShare.Truncate(2)) {
+		if !val.Truncate(2).Equal(share.Truncate(2)) {
 			return false
 		}
 	}

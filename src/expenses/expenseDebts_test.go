@@ -2,32 +2,57 @@ package expenses
 
 import (
 	mod "expenses/expenses/models"
-	dec "github.com/shopspring/decimal"
+	"fmt"
 	"testing"
+
+	dec "github.com/shopspring/decimal"
 )
 
 func TestFilterExpenseParticipants(t *testing.T) {
-	// Use expense2 here for the test
-	expectedCreditors := UserTabs{
-		{User: user1, Sum: dec.NewFromFloat(32.0)},
-		{User: user3, Sum: dec.NewFromFloat(22.0)},
+	testCases := []struct {
+		name              string
+		exp               *mod.Expense
+		expectedDebtors   UserTabs
+		expectedCreditors UserTabs
+	}{
+		{
+			name: "Expense something something",
+			exp:  &expense2,
+			expectedCreditors: UserTabs{
+				{User: user1, Sum: dec.NewFromFloat(32.0)},
+				{User: user3, Sum: dec.NewFromFloat(22.0)},
+			},
+			expectedDebtors: UserTabs{
+				{User: user2, Sum: dec.NewFromFloat(43.0)},
+				{User: user4, Sum: dec.NewFromFloat(11.0)},
+			},
+		},
+		{
+			name: "Expense cents",
+			exp:  &expense6,
+			expectedCreditors: UserTabs{
+				{User: user1, Sum: dec.NewFromFloat(0.32)},
+			},
+			expectedDebtors: UserTabs{
+				{User: user2, Sum: dec.NewFromFloat(0.16)},
+				{User: user3, Sum: dec.NewFromFloat(0.16)},
+			},
+		},
 	}
 
-	expectedDebtors := UserTabs{
-		{User: user2, Sum: dec.NewFromFloat(43.0)},
-		{User: user4, Sum: dec.NewFromFloat(11.0)},
-	}
+	for _, tt := range testCases {
+		fmt.Printf("Running test: %s\n", tt.name)
+		debtors, creditors := filterExpenseParticipants(tt.exp)
 
-	debtors, creditors := filterExpenseParticipants(&expense2)
+		if !tt.expectedDebtors.Equal(debtors) {
+			t.Errorf("Expected debtors:\n%+v\nGotten debtors:\n%+v\n",
+				tt.expectedDebtors, debtors)
+		}
 
-	if !expectedDebtors.Equal(debtors) {
-		t.Errorf("Expected debtors:\n%+v\nGotten debtors:\n%+v\n", expectedDebtors,
-			debtors)
-	}
-
-	if !expectedCreditors.Equal(creditors) {
-		t.Errorf("Expected creditors:\n%+v\nGotten creditors:\n%+v\n", expectedCreditors,
-			creditors)
+		if !tt.expectedCreditors.Equal(creditors) {
+			t.Errorf("Expected creditors:\n%+v\nGotten creditors:\n%+v\n",
+				tt.expectedCreditors, creditors)
+		}
 	}
 }
 

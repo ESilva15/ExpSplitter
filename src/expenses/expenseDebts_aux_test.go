@@ -51,10 +51,10 @@ var (
 		ExpID: 0,
 		Value: dec.NewFromInt(160),
 		Shares: []mod.Share{
-			{ExpShareID: 0, User: user1, Share: dec.NewFromFloat(0.3)},
-			{ExpShareID: 1, User: user2, Share: dec.NewFromFloat(0.3)},
-			{ExpShareID: 2, User: user3, Share: dec.NewFromFloat(0.3)},
-			{ExpShareID: 3, User: user4, Share: dec.NewFromFloat(0.1)},
+			{ExpShareID: 0, User: user1, Share: dec.NewFromFloat(0.3), Calculated: dec.NewFromFloat(48.0)},
+			{ExpShareID: 1, User: user2, Share: dec.NewFromFloat(0.3), Calculated: dec.NewFromFloat(48.0)},
+			{ExpShareID: 2, User: user3, Share: dec.NewFromFloat(0.3), Calculated: dec.NewFromFloat(48.0)},
+			{ExpShareID: 3, User: user4, Share: dec.NewFromFloat(0.1), Calculated: dec.NewFromFloat(16)},
 		},
 		Payments: []mod.ExpensePayment{
 			{ExpPaymID: 0, User: user1, PayedAmount: dec.NewFromInt(40)},
@@ -176,6 +176,24 @@ var (
 			{ExpPaymID: 0, User: user1, PayedAmount: dec.NewFromFloat(37.79)},
 			{ExpPaymID: 1, User: user1, PayedAmount: dec.NewFromFloat(36.66)},
 			{ExpPaymID: 2, User: user2, PayedAmount: dec.NewFromFloat(36.66)},
+		},
+	}
+
+	expense6 = mod.Expense{
+		ExpID: 252,
+		Value: dec.NewFromFloat(0.50),
+		Shares: []mod.Share{
+			{ExpShareID: 0, User: user1,
+				Share: dec.NewFromFloat(0.34), Calculated: dec.NewFromFloat(0.18)},
+			{ExpShareID: 1, User: user2,
+				Share: dec.NewFromFloat(0.33), Calculated: dec.NewFromFloat(0.16)},
+			{ExpShareID: 2, User: user3,
+				Share: dec.NewFromFloat(0.33), Calculated: dec.NewFromFloat(0.16)},
+		},
+		Payments: []mod.ExpensePayment{
+			{ExpPaymID: 0, User: user1, PayedAmount: dec.NewFromFloat(0.50)},
+			{ExpPaymID: 1, User: user2, PayedAmount: dec.NewFromFloat(0.0)},
+			{ExpPaymID: 2, User: user3, PayedAmount: dec.NewFromFloat(0.0)},
 		},
 	}
 )

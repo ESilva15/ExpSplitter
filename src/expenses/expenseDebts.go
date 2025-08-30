@@ -41,7 +41,7 @@ func filterExpenseParticipants(e *mod.Expense) (UserTabs, UserTabs) {
 	creditors := UserTabs{}
 
 	for user, share := range shares {
-		debt := (share.Mul(e.Value)).Sub(payments[user])
+		debt := share.Sub(payments[user])
 		if debt.LessThan(dec.NewFromFloat(0.0)) {
 			creditors = append(creditors, UserTab{
 				User: user,
