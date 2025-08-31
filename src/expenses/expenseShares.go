@@ -1,9 +1,7 @@
 package expenses
 
 import (
-	"expenses/config"
 	mod "expenses/expenses/models"
-
 	dec "github.com/shopspring/decimal"
 )
 
@@ -50,9 +48,6 @@ func ParseFormShares(userIDs []string, shares []string, sharesIDs []string,
 // NormalizeShares will take the total of an expense and the proposed shares
 // and calculate how much each user actually has to pay - avoids fracd cents
 func (a *ExpensesApp) NormalizeShares(e *mod.Expense) error {
-	cfg := config.GetInstance()
-	affi := cfg.CurrencyAffinity
-
 	excess := dec.NewFromFloat(0.0)
 	ownerShIdx := -1
 	for k := range e.Shares {
@@ -60,9 +55,9 @@ func (a *ExpensesApp) NormalizeShares(e *mod.Expense) error {
 			ownerShIdx = k
 		}
 		owed := e.Value.Mul(e.Shares[k].Share)
-		excess = excess.Add(owed.Sub(owed.Truncate(affi)))
+		excess = excess.Add(owed.Sub(owed.Truncate(2)))
 
-		e.Shares[k].Calculated = owed.Truncate(affi)
+		e.Shares[k].Calculated = owed.Truncate(2)
 	}
 
 	// It fails here for some reason

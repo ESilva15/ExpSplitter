@@ -1,7 +1,6 @@
 package expenses
 
 import (
-	"expenses/config"
 	mod "expenses/expenses/models"
 	"sort"
 
@@ -102,8 +101,6 @@ func resolveDebt(creditor UserTab, debtors UserTabs) mod.Debts {
 }
 
 func resolveDebts(debtors UserTabs, creditors UserTabs) mod.Debts {
-	cfg := config.GetInstance()
-
 	keyedDebts := make(map[CompoundKey]dec.Decimal)
 
 	for _, creditor := range creditors {
@@ -124,7 +121,7 @@ func resolveDebts(debtors UserTabs, creditors UserTabs) mod.Debts {
 		newDebt := mod.Debt{
 			Debtor:   key.Debtor,
 			Creditor: key.Creditor,
-			Sum:      debt.Truncate(cfg.CurrencyAffinity), // Removes fractional cents from the debt
+			Sum:      debt.Truncate(2), // Removes fractional cents from the debt
 		}
 
 		// Only appends the debt if its not zero
