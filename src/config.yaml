@@ -4,3 +4,5 @@ dbpath: "./data/data.db"
 dbsys: "sqlite3"
 migrations_path: "file://expenses/db/migrations/"
 mig_custom_scripts: "./expenses/db/migrations/custom/"
+# How many decimal places the money we are working on has
+currency_affinity: 2
