@@ -8,13 +8,12 @@ import (
 )
 
 type Configuration struct {
-	AssetsDir        string `yaml:"assets"`
-	Port             string `yaml:"port"`
-	DBSys            string `yaml:"dbsys"`
-	DBPath           string `yaml:"dbpath"`
-	MigrationsPath   string `yaml:"migrations_path"`
-	MigCustomScript  string `yaml:"mig_custom_scripts"`
-	CurrencyAffinity int32  `yaml:"currency_affinity"`
+	AssetsDir       string `yaml:"assets"`
+	Port            string `yaml:"port"`
+	DBSys           string `yaml:"dbsys"`
+	DBPath          string `yaml:"dbpath"`
+	MigrationsPath  string `yaml:"migrations_path"`
+	MigCustomScript string `yaml:"mig_custom_scripts"`
 }
 
 var (
@@ -25,9 +24,6 @@ var (
 
 func GetInstance() *Configuration {
 	once.Do(func() {
-		if instance != nil {
-			return
-		}
 		instance = &Configuration{}
 		instance.loadConfiguration()
 	})
@@ -35,12 +31,8 @@ func GetInstance() *Configuration {
 	return instance
 }
 
-func SetConfPath(path string) {
+func SetConfig(path string) {
 	confPath = path
-}
-
-func SetConfiguration(config *Configuration) {
-	instance = config
 }
 
 func (c *Configuration) loadConfiguration() {

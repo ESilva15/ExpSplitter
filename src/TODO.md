@@ -1,6 +1,8 @@
 # DOING
-- Make the dec.Decimal fields in the database actually be numbers, only if we
-can keep the 2 decimal places
+Adding the field `Calculated` to `Share` to avoid computing what each user owes
+everytime due to the fractional cents problem
+Make a script for the current migration to compute the Calculated value with
+our rules
 
 # TODO
 - [ ] On the categories page, add a column of how many times a given category is
@@ -8,7 +10,7 @@ used
 - [ ] Multiple categories per expense
 - [X] Make all the other items update/create page be like expenses
 - [ ] Ability to attach a document to an expense
-~~- [ ] Debts table~~
+- [ ] Debts table
 - [ ] Ability to export data in multiple formats and with a selection of columns
 - [ ] Migrate every column named "ExpenseSomething" to "ExpSomething"
 - [ ] Make the models just return errors and not do any handling themselves
@@ -20,7 +22,6 @@ used
 - [ ] Rename this file
 - [ ] Better UX when adding expenses on the payments and share values (default even split)
 - [ ] Verification popups for delete actions
-- [ ] Users (auth)
 
 ### Stack
 - Go

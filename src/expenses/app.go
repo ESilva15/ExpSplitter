@@ -45,7 +45,7 @@ func StartLuaVM() (*lua.LState, error) {
 }
 
 func StartApp() error {
-	config.SetConfPath("./config.yaml")
+	config.SetConfig("./config.yaml")
 	cfg := config.GetInstance()
 
 	migDB, err := openDB(cfg.DBSys, cfg.DBPath, "")
