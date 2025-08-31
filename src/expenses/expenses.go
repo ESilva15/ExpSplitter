@@ -1,6 +1,7 @@
 package expenses
 
 import (
+	"expenses/config"
 	mod "expenses/expenses/models"
 	"log"
 	"time"
@@ -145,6 +146,9 @@ func ExpenseTotalPayed(exp *mod.Expense) decimal.Decimal {
 }
 
 func ExpenseIsEvenlyShared(exp *mod.Expense) bool {
+	cfg := config.GetInstance()
+	affi := cfg.CurrencyAffinity
+
 	shares := mapShares(exp)
 	payments := mapPayments(exp)
 
@@ -156,7 +160,7 @@ func ExpenseIsEvenlyShared(exp *mod.Expense) bool {
 			return false
 		}
 
-		if !val.Truncate(2).Equal(share.Truncate(2)) {
+		if !val.Truncate(affi).Equal(share.Truncate(affi)) {
 			return false
 		}
 	}

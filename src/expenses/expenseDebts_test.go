@@ -1,6 +1,7 @@
 package expenses
 
 import (
+	"expenses/config"
 	mod "expenses/expenses/models"
 	"fmt"
 	"testing"
@@ -40,6 +41,10 @@ func TestFilterExpenseParticipants(t *testing.T) {
 		},
 	}
 
+	// Need to set the config before running the tests
+	config.SetConfiguration(&config.Configuration{
+		CurrencyAffinity: 2,
+	})
 	for _, tt := range testCases {
 		fmt.Printf("Running test: %s\n", tt.name)
 		debtors, creditors := filterExpenseParticipants(tt.exp)
