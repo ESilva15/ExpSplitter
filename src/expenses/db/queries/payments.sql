@@ -5,7 +5,7 @@ FROM
   "expensesPayments" as payments
 JOIN 
   users as users ON users.UserID = payments.UserID
-WHERE "ExpID" = ?;
+WHERE "ExpID" = $1;
 
 -- name: GetExpensePaymentByUser :one
 SELECT
@@ -15,19 +15,19 @@ FROM
 JOIN
   users as users ON users.UserID = payments.UserID
 WHERE
-  "ExpID" = ? AND users."UserID" = ?;
+  "ExpID" = $1 AND users."UserID" = $2;
   
 
 -- name: InsertPayment :execresult
 INSERT INTO "expensesPayments"(
   "ExpID", "UserID", "Payed"
 )
-VALUES(?, ?, ?);
+VALUES($1, $2, $3);
 
 -- name: UpdatePayment :execresult
-UPDATE expensesPayments
-SET "UserID" = ?, "Payed" = ?
-WHERE "ExpPaymID" = ?;
+UPDATE "expensesPayments"
+SET "UserID" = $1, "Payed" = $2
+WHERE "ExpPaymID" = $3;
 
 -- name: DeletePayment :execresult
-DELETE FROM "expensesPayments" WHERE "ExpPaymID" = ?;
+DELETE FROM "expensesPayments" WHERE "ExpPaymID" = $1;

@@ -5,10 +5,7 @@ import (
 	exp "expenses/expenses"
 	experr "expenses/expenses/errors"
 	"fmt"
-
 	"net/http"
-	"strconv"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -32,7 +29,7 @@ func storesGlobalPage(c *gin.Context) {
 }
 
 func storePage(c *gin.Context) {
-	storeID, err := strconv.ParseInt(c.Param("id"), 10, 16)
+	storeID, err := exp.ParseID(c.Param("id"))
 	if err != nil {
 		NotFoundView(c, "didn't find request store")
 		return

@@ -1,6 +1,7 @@
 package expenses
 
 import (
+	"context"
 	"encoding/json"
 	mod "expenses/expenses/models"
 	lua "github.com/yuin/gopher-lua"
@@ -21,13 +22,16 @@ func (a *ExpensesApp) prepareExpense(exp *mod.Expense) error {
 }
 
 func (a *ExpensesApp) luaGetAllExpenses(L *lua.LState) int {
-	tx, err := a.DB.Begin()
+	// TODO
+	// It makes no sense this repeats this db thing
+	ctx := context.Background()
+	tx, err := a.DB.Begin(ctx)
 	if err != nil {
 		return returnWithError(L, err.Error())
 	}
-	defer tx.Rollback()
+	defer tx.Rollback(ctx)
 
-	expenses, err := mod.GetAllExpenses(tx)
+	expenses, err := mod.GetAllExpenses(a.DB, tx)
 
 	tbl := L.NewTable()
 	for _, e := range expenses {
@@ -54,13 +58,16 @@ func (a *ExpensesApp) luaGetAllExpenses(L *lua.LState) int {
 func (a *ExpensesApp) luaGetExpense(L *lua.LState) int {
 	expId := L.CheckInt(1)
 
-	tx, err := a.DB.Begin()
+	// TODO
+	// This also doesnt make sense
+	ctx := context.Background()
+	tx, err := a.DB.Begin(ctx)
 	if err != nil {
 		return returnWithError(L, err.Error())
 	}
-	defer tx.Rollback()
+	defer tx.Rollback(ctx)
 
-	expense, err := mod.GetExpense(tx, int64(expId))
+	expense, err := mod.GetExpense(a.DB, tx, int32(expId))
 	if err != nil {
 		return returnWithError(L, err.Error())
 	}

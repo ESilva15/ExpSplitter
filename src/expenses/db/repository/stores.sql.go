@@ -7,34 +7,35 @@ package repository
 
 import (
 	"context"
-	"database/sql"
+
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 const deleteStore = `-- name: DeleteStore :execresult
-DELETE FROM stores WHERE "StoreID" = ?
+DELETE FROM stores WHERE "StoreID" = $1
 `
 
-func (q *Queries) DeleteStore(ctx context.Context, storeid int64) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteStore, storeid)
+func (q *Queries) DeleteStore(ctx context.Context, storeid int32) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, deleteStore, storeid)
 }
 
 const getStore = `-- name: GetStore :one
-SELECT StoreID, StoreName FROM stores WHERE "StoreID" = ?
+SELECT "StoreID", "StoreName" FROM stores WHERE "StoreID" = $1
 `
 
-func (q *Queries) GetStore(ctx context.Context, storeid int64) (Store, error) {
-	row := q.db.QueryRowContext(ctx, getStore, storeid)
+func (q *Queries) GetStore(ctx context.Context, storeid int32) (Store, error) {
+	row := q.db.QueryRow(ctx, getStore, storeid)
 	var i Store
 	err := row.Scan(&i.StoreID, &i.StoreName)
 	return i, err
 }
 
 const getStores = `-- name: GetStores :many
-SELECT StoreID, StoreName FROM stores
+SELECT "StoreID", "StoreName" FROM stores
 `
 
 func (q *Queries) GetStores(ctx context.Context) ([]Store, error) {
-	rows, err := q.db.QueryContext(ctx, getStores)
+	rows, err := q.db.Query(ctx, getStores)
 	if err != nil {
 		return nil, err
 	}
@@ -47,9 +48,6 @@ func (q *Queries) GetStores(ctx context.Context) ([]Store, error) {
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -57,22 +55,22 @@ func (q *Queries) GetStores(ctx context.Context) ([]Store, error) {
 }
 
 const insertStore = `-- name: InsertStore :execresult
-INSERT INTO stores("StoreName") VALUES(?)
+INSERT INTO stores("StoreName") VALUES($1)
 `
 
-func (q *Queries) InsertStore(ctx context.Context, storename string) (sql.Result, error) {
-	return q.db.ExecContext(ctx, insertStore, storename)
+func (q *Queries) InsertStore(ctx context.Context, storename string) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, insertStore, storename)
 }
 
 const updateStore = `-- name: UpdateStore :execresult
-UPDATE stores SET "StoreName" = ? WHERE "StoreID" = ?
+UPDATE stores SET "StoreName" = $1 WHERE "StoreID" = $2
 `
 
 type UpdateStoreParams struct {
 	StoreName string
-	StoreID   int64
+	StoreID   int32
 }
 
-func (q *Queries) UpdateStore(ctx context.Context, arg UpdateStoreParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, updateStore, arg.StoreName, arg.StoreID)
+func (q *Queries) UpdateStore(ctx context.Context, arg UpdateStoreParams) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, updateStore, arg.StoreName, arg.StoreID)
 }

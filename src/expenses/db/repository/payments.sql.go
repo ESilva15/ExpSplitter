@@ -7,31 +7,33 @@ package repository
 
 import (
 	"context"
-	"database/sql"
+
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const deletePayment = `-- name: DeletePayment :execresult
-DELETE FROM "expensesPayments" WHERE "ExpPaymID" = ?
+DELETE FROM "expensesPayments" WHERE "ExpPaymID" = $1
 `
 
-func (q *Queries) DeletePayment(ctx context.Context, exppaymid int64) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deletePayment, exppaymid)
+func (q *Queries) DeletePayment(ctx context.Context, exppaymid int32) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, deletePayment, exppaymid)
 }
 
 const getExpensePaymentByUser = `-- name: GetExpensePaymentByUser :one
 SELECT
-  payments.ExpPaymID, payments.ExpID, payments.UserID, payments.Payed, users.UserID, users.UserName, users.UserPass
+  payments."ExpPaymID", payments."ExpID", payments."UserID", payments."Payed", users."UserID", users."UserName", users."UserPass"
 FROM
   "expensesPayments" as payments
 JOIN
   users as users ON users.UserID = payments.UserID
 WHERE
-  "ExpID" = ? AND users."UserID" = ?
+  "ExpID" = $1 AND users."UserID" = $2
 `
 
 type GetExpensePaymentByUserParams struct {
-	ExpID  int64
-	UserID int64
+	ExpID  int32
+	UserID int32
 }
 
 type GetExpensePaymentByUserRow struct {
@@ -40,7 +42,7 @@ type GetExpensePaymentByUserRow struct {
 }
 
 func (q *Queries) GetExpensePaymentByUser(ctx context.Context, arg GetExpensePaymentByUserParams) (GetExpensePaymentByUserRow, error) {
-	row := q.db.QueryRowContext(ctx, getExpensePaymentByUser, arg.ExpID, arg.UserID)
+	row := q.db.QueryRow(ctx, getExpensePaymentByUser, arg.ExpID, arg.UserID)
 	var i GetExpensePaymentByUserRow
 	err := row.Scan(
 		&i.ExpensesPayment.ExpPaymID,
@@ -56,12 +58,12 @@ func (q *Queries) GetExpensePaymentByUser(ctx context.Context, arg GetExpensePay
 
 const getPayments = `-- name: GetPayments :many
 SELECT 
-  payments.ExpPaymID, payments.ExpID, payments.UserID, payments.Payed, users.UserID, users.UserName, users.UserPass
+  payments."ExpPaymID", payments."ExpID", payments."UserID", payments."Payed", users."UserID", users."UserName", users."UserPass"
 FROM 
   "expensesPayments" as payments
 JOIN 
   users as users ON users.UserID = payments.UserID
-WHERE "ExpID" = ?
+WHERE "ExpID" = $1
 `
 
 type GetPaymentsRow struct {
@@ -69,8 +71,8 @@ type GetPaymentsRow struct {
 	User            User
 }
 
-func (q *Queries) GetPayments(ctx context.Context, expid int64) ([]GetPaymentsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getPayments, expid)
+func (q *Queries) GetPayments(ctx context.Context, expid int32) ([]GetPaymentsRow, error) {
+	rows, err := q.db.Query(ctx, getPayments, expid)
 	if err != nil {
 		return nil, err
 	}
@@ -91,9 +93,6 @@ func (q *Queries) GetPayments(ctx context.Context, expid int64) ([]GetPaymentsRo
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -104,31 +103,31 @@ const insertPayment = `-- name: InsertPayment :execresult
 INSERT INTO "expensesPayments"(
   "ExpID", "UserID", "Payed"
 )
-VALUES(?, ?, ?)
+VALUES($1, $2, $3)
 `
 
 type InsertPaymentParams struct {
-	ExpID  int64
-	UserID int64
-	Payed  string
+	ExpID  int32
+	UserID int32
+	Payed  pgtype.Numeric
 }
 
-func (q *Queries) InsertPayment(ctx context.Context, arg InsertPaymentParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, insertPayment, arg.ExpID, arg.UserID, arg.Payed)
+func (q *Queries) InsertPayment(ctx context.Context, arg InsertPaymentParams) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, insertPayment, arg.ExpID, arg.UserID, arg.Payed)
 }
 
 const updatePayment = `-- name: UpdatePayment :execresult
-UPDATE expensesPayments
-SET "UserID" = ?, "Payed" = ?
-WHERE "ExpPaymID" = ?
+UPDATE "expensesPayments"
+SET "UserID" = $1, "Payed" = $2
+WHERE "ExpPaymID" = $3
 `
 
 type UpdatePaymentParams struct {
-	UserID    int64
-	Payed     string
-	ExpPaymID int64
+	UserID    int32
+	Payed     pgtype.Numeric
+	ExpPaymID int32
 }
 
-func (q *Queries) UpdatePayment(ctx context.Context, arg UpdatePaymentParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, updatePayment, arg.UserID, arg.Payed, arg.ExpPaymID)
+func (q *Queries) UpdatePayment(ctx context.Context, arg UpdatePaymentParams) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, updatePayment, arg.UserID, arg.Payed, arg.ExpPaymID)
 }

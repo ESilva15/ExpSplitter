@@ -7,17 +7,17 @@ SELECT
   sqlc.embed(types)
 FROM expenses
 JOIN 
-  Stores ON stores.StoreID = expenses.StoreID
+  Stores ON stores."StoreID" = expenses."StoreID"
 JOIN 
-  Categories ON categories.CategoryID = expenses.CategoryID
+  Categories ON categories."CategoryID" = expenses."CategoryID"
 JOIN 
-  Users ON UserID = OwnerUserId
+  Users ON users."UserID" = expenses."OwnerUserID"
 JOIN
-  "expenseTypes" as types ON types.TypeID = expenses.TypeID
+  "expenseTypes" as types ON types."TypeID" = expenses."TypeID"
 WHERE
-  (sqlc.narg(startDate) IS NULL OR expenses."ExpDate" >= sqlc.narg(startDate))
+  (sqlc.narg(StartDate)::timestamp IS NULL OR expenses."ExpDate" >= sqlc.narg(StartDate)::timestamp)
   AND
-  (sqlc.narg(endDate) IS NULL OR expenses."ExpDate" <= sqlc.narg(endDate));
+  (sqlc.narg(EndDate)::timestamp IS NULL OR expenses."ExpDate" <= sqlc.narg(EndDate)::timestamp);
 
 -- name: GetExpense :one
 SELECT 
@@ -28,17 +28,17 @@ SELECT
   sqlc.embed(types)
 FROM expenses
 JOIN 
-  Stores ON stores.StoreID = expenses.StoreID
+  Stores ON stores."StoreID" = expenses."StoreID"
 JOIN 
-  Categories ON categories.CategoryID = expenses.CategoryID
+  Categories ON categories."CategoryID" = expenses."CategoryID"
 JOIN 
-  Users ON "UserID" = "OwnerUserId"
+  Users ON "UserID" = "OwnerUserID"
 JOIN
-  "expenseTypes" as types ON types.TypeID = expenses.TypeID
+  "expenseTypes" as types ON types."TypeID" = expenses."TypeID"
 WHERE 
-  "ExpID" = ?;
+  expenses."ExpID" = $1;
 
--- name: InsertExpense :execresult
+-- name: InsertExpense :one
 INSERT INTO expenses(
   "Description",
   "Value",
@@ -51,21 +51,22 @@ INSERT INTO expenses(
   "SharesEven",
   "CreationDate"
 )
-VALUES(?, ?, ? , ?, ?, ?, ?, ?, ?, ?);
+VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+RETURNING "ExpID";
 
 -- name: DeleteExpense :execresult
-DELETE FROM expenses WHERE "ExpID" = ?;
+DELETE FROM expenses WHERE "ExpID" = $1;
 
 -- name: UpdateExpense :execresult
 UPDATE expenses
 SET
-  "Description" = ?,
-  "Value" = ?,
-  "StoreID" = ?,
-  "CategoryID" = ?,
-  "TypeID" = ?,
-  "OwnerUserID" = ?,
-  "PaidOff" = ?,
-  "SharesEven" = ?,
-  "ExpDate" = ?
-WHERE "ExpID" = ?;
+  "Description" = $1,
+  "Value" = $2,
+  "StoreID" = $3,
+  "CategoryID" = $4,
+  "TypeID" = $5,
+  "OwnerUserID" = $6,
+  "PaidOff" = $7,
+  "SharesEven" = $8,
+  "ExpDate" = $9
+WHERE "ExpID" = $10;

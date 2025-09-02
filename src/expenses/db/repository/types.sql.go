@@ -7,34 +7,35 @@ package repository
 
 import (
 	"context"
-	"database/sql"
+
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 const deleteType = `-- name: DeleteType :execresult
-DELETE FROM "expenseTypes" WHERE "TypeID" = ?
+DELETE FROM "expenseTypes" WHERE "TypeID" = $1
 `
 
-func (q *Queries) DeleteType(ctx context.Context, typeid int64) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteType, typeid)
+func (q *Queries) DeleteType(ctx context.Context, typeid int32) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, deleteType, typeid)
 }
 
 const getType = `-- name: GetType :one
-SELECT TypeID, TypeName FROM "expenseTypes" WHERE "TypeID" = ?
+SELECT "TypeID", "TypeName" FROM "expenseTypes" WHERE "TypeID" = $1
 `
 
-func (q *Queries) GetType(ctx context.Context, typeid int64) (ExpenseType, error) {
-	row := q.db.QueryRowContext(ctx, getType, typeid)
+func (q *Queries) GetType(ctx context.Context, typeid int32) (ExpenseType, error) {
+	row := q.db.QueryRow(ctx, getType, typeid)
 	var i ExpenseType
 	err := row.Scan(&i.TypeID, &i.TypeName)
 	return i, err
 }
 
 const getTypes = `-- name: GetTypes :many
-SELECT TypeID, TypeName FROM "expenseTypes"
+SELECT "TypeID", "TypeName" FROM "expenseTypes"
 `
 
 func (q *Queries) GetTypes(ctx context.Context) ([]ExpenseType, error) {
-	rows, err := q.db.QueryContext(ctx, getTypes)
+	rows, err := q.db.Query(ctx, getTypes)
 	if err != nil {
 		return nil, err
 	}
@@ -47,9 +48,6 @@ func (q *Queries) GetTypes(ctx context.Context) ([]ExpenseType, error) {
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -57,22 +55,22 @@ func (q *Queries) GetTypes(ctx context.Context) ([]ExpenseType, error) {
 }
 
 const insertType = `-- name: InsertType :execresult
-INSERT INTO "expenseTypes"("TypeName") VALUES(?)
+INSERT INTO "expenseTypes"("TypeName") VALUES($1)
 `
 
-func (q *Queries) InsertType(ctx context.Context, typename string) (sql.Result, error) {
-	return q.db.ExecContext(ctx, insertType, typename)
+func (q *Queries) InsertType(ctx context.Context, typename string) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, insertType, typename)
 }
 
 const updateType = `-- name: UpdateType :execresult
-UPDATE expenseTypes SET "TypeName" = ? WHERE "TypeID" = ?
+UPDATE "expenseTypes" SET "TypeName" = $1 WHERE "TypeID" = $2
 `
 
 type UpdateTypeParams struct {
 	TypeName string
-	TypeID   int64
+	TypeID   int32
 }
 
-func (q *Queries) UpdateType(ctx context.Context, arg UpdateTypeParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, updateType, arg.TypeName, arg.TypeID)
+func (q *Queries) UpdateType(ctx context.Context, arg UpdateTypeParams) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, updateType, arg.TypeName, arg.TypeID)
 }

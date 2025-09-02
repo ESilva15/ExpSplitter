@@ -1,27 +1,31 @@
 package expenses
 
 import (
-	"database/sql"
 	"expenses/config"
+	mig "github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/jackc/pgx/v5"
+	lua "github.com/yuin/gopher-lua"
 	"log"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
-
-	mig "github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/sqlite3"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
-	lua "github.com/yuin/gopher-lua"
 )
 
 const LAST_GO_MIGRATION = 3
 
-func prepareMigrator(db *sql.DB) (*mig.Migrate, error) {
+func prepareMigrator(db *pgx.Conn) (*mig.Migrate, error) {
 	cfg := config.GetInstance()
 
-	driver, err := sqlite3.WithInstance(db, &sqlite3.Config{})
-	m, err := mig.NewWithDatabaseInstance(cfg.MigrationsPath, "sqlite3", driver)
+	m, err := mig.New(cfg.MigrationsPath,
+		"postgres://"+cfg.PgCfg.User+":"+cfg.PgCfg.Pass+"@"+cfg.PgCfg.Host+":"+
+			cfg.PgCfg.Port+"/"+cfg.PgCfg.DB+"?sslmode=disable",
+	)
+	if err != nil {
+		return nil, err
+	}
 
 	return m, err
 }
@@ -92,7 +96,7 @@ func runCustomMigrationLogic(ver uint) {
 	}
 }
 
-func RunMigrations(db *sql.DB, lua *lua.LState) error {
+func RunMigrations(db *pgx.Conn, lua *lua.LState) error {
 	m, err := prepareMigrator(db)
 	if err != nil {
 		return err

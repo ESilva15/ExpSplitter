@@ -2,13 +2,11 @@ package models
 
 import (
 	repo "expenses/expenses/db/repository"
-
-	"github.com/shopspring/decimal"
 )
 
 func mapRepoGetSharesRow(s repo.GetSharesRow) Share {
-	share, _ := decimal.NewFromString(s.ExpensesShare.Share)
-	calculated, _ := decimal.NewFromString(s.ExpensesShare.Calculated)
+	share := pgNumericToDecimal(s.ExpensesShare.Share)
+	calculated := pgNumericToDecimal(s.ExpensesShare.Calculated)
 
 	return Share{
 		ExpShareID: s.ExpensesShare.ExpShareID,

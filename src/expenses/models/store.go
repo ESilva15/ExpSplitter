@@ -4,15 +4,13 @@ import (
 	"context"
 	repo "expenses/expenses/db/repository"
 	experr "expenses/expenses/errors"
-
-	"database/sql"
 	"fmt"
-
+	"github.com/jackc/pgx/v5"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 type Store struct {
-	StoreID   int64  `json:"StoreID"`
+	StoreID   int32  `json:"StoreID"`
 	StoreName string `json:"StoreName"`
 }
 
@@ -23,10 +21,10 @@ func NewStore() Store {
 	}
 }
 
-func GetAllStores(tx *sql.Tx) ([]Store, error) {
+func GetAllStores(db repo.DBTX, tx pgx.Tx) ([]Store, error) {
 	ctx := context.Background()
 
-	queries := repo.New(tx)
+	queries := repo.New(db).WithTx(tx)
 	storeList, err := queries.GetStores(ctx)
 	if err != nil {
 		return []Store{}, err
@@ -35,10 +33,10 @@ func GetAllStores(tx *sql.Tx) ([]Store, error) {
 	return mapRepoStores(storeList), nil
 }
 
-func GetStore(tx *sql.Tx, storeID int64) (Store, error) {
+func GetStore(db repo.DBTX, tx pgx.Tx, storeID int32) (Store, error) {
 	ctx := context.Background()
 
-	queries := repo.New(tx)
+	queries := repo.New(db).WithTx(tx)
 	store, err := queries.GetStore(ctx, storeID)
 	if err != nil {
 		return Store{}, err
@@ -47,51 +45,49 @@ func GetStore(tx *sql.Tx, storeID int64) (Store, error) {
 	return mapRepoStore(store), nil
 }
 
-func (s *Store) Insert(tx *sql.Tx) error {
+func (s *Store) Insert(db repo.DBTX, tx pgx.Tx) error {
 	ctx := context.Background()
 
-	queries := repo.New(tx)
+	queries := repo.New(db).WithTx(tx)
 	res, err := queries.InsertStore(ctx, s.StoreName)
-
-	rowsAffected, err := res.RowsAffected()
 	if err != nil {
 		return err
-	} else if rowsAffected == 0 {
+	}
+
+	rowsAffected := res.RowsAffected()
+	if rowsAffected == 0 {
 		return fmt.Errorf("no rows were created")
 	}
 
 	return nil
 }
 
-func (s *Store) Update(tx *sql.Tx) error {
+func (s *Store) Update(db repo.DBTX, tx pgx.Tx) error {
 	ctx := context.Background()
 
-	queries := repo.New(tx)
-	res, err := queries.UpdateStore(ctx, repo.UpdateStoreParams{
+	queries := repo.New(db).WithTx(tx)
+	_, err := queries.UpdateStore(ctx, repo.UpdateStoreParams{
 		StoreID:   s.StoreID,
 		StoreName: s.StoreName,
 	})
-
-	rowsAffected, err := res.RowsAffected()
 	if err != nil {
 		return err
-	} else if rowsAffected == 0 {
-		return experr.ErrNotFound
 	}
 
 	return nil
 }
 
-func (s *Store) Delete(tx *sql.Tx) error {
+func (s *Store) Delete(db repo.DBTX, tx pgx.Tx) error {
 	ctx := context.Background()
 
-	queries := repo.New(tx)
+	queries := repo.New(db).WithTx(tx)
 	res, err := queries.DeleteStore(ctx, s.StoreID)
-
-	rowsAffected, err := res.RowsAffected()
 	if err != nil {
 		return err
-	} else if rowsAffected == 0 {
+	}
+
+	rowsAffected := res.RowsAffected()
+	if rowsAffected == 0 {
 		return experr.ErrNotFound
 	}
 

@@ -7,35 +7,37 @@ package repository
 
 import (
 	"context"
-	"database/sql"
+
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const deleteExpense = `-- name: DeleteExpense :execresult
-DELETE FROM expenses WHERE "ExpID" = ?
+DELETE FROM expenses WHERE "ExpID" = $1
 `
 
-func (q *Queries) DeleteExpense(ctx context.Context, expid int64) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteExpense, expid)
+func (q *Queries) DeleteExpense(ctx context.Context, expid int32) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, deleteExpense, expid)
 }
 
 const getExpense = `-- name: GetExpense :one
 SELECT 
-  expenses.ExpID, expenses.Description, expenses.Value, expenses.StoreID, expenses.CategoryID, expenses.OwnerUserID, expenses.TypeID, expenses.ExpDate, expenses.CreationDate, expenses.PaidOff, expenses.SharesEven,
-  stores.StoreID, stores.StoreName,
-  categories.CategoryID, categories.CategoryName,
-  users.UserID, users.UserName, users.UserPass,
-  types.TypeID, types.TypeName
+  expenses."ExpID", expenses."Description", expenses."Value", expenses."StoreID", expenses."CategoryID", expenses."OwnerUserID", expenses."TypeID", expenses."ExpDate", expenses."CreationDate", expenses."PaidOff", expenses."SharesEven",
+  stores."StoreID", stores."StoreName",
+  categories."CategoryID", categories."CategoryName",
+  users."UserID", users."UserName", users."UserPass",
+  types."TypeID", types."TypeName"
 FROM expenses
 JOIN 
-  Stores ON stores.StoreID = expenses.StoreID
+  Stores ON stores."StoreID" = expenses."StoreID"
 JOIN 
-  Categories ON categories.CategoryID = expenses.CategoryID
+  Categories ON categories."CategoryID" = expenses."CategoryID"
 JOIN 
-  Users ON "UserID" = "OwnerUserId"
+  Users ON "UserID" = "OwnerUserID"
 JOIN
-  "expenseTypes" as types ON types.TypeID = expenses.TypeID
+  "expenseTypes" as types ON types."TypeID" = expenses."TypeID"
 WHERE 
-  "ExpID" = ?
+  expenses."ExpID" = $1
 `
 
 type GetExpenseRow struct {
@@ -46,8 +48,8 @@ type GetExpenseRow struct {
 	ExpenseType ExpenseType
 }
 
-func (q *Queries) GetExpense(ctx context.Context, expid int64) (GetExpenseRow, error) {
-	row := q.db.QueryRowContext(ctx, getExpense, expid)
+func (q *Queries) GetExpense(ctx context.Context, expid int32) (GetExpenseRow, error) {
+	row := q.db.QueryRow(ctx, getExpense, expid)
 	var i GetExpenseRow
 	err := row.Scan(
 		&i.Expense.ExpID,
@@ -76,29 +78,29 @@ func (q *Queries) GetExpense(ctx context.Context, expid int64) (GetExpenseRow, e
 
 const getExpenses = `-- name: GetExpenses :many
 SELECT 
-  expenses.ExpID, expenses.Description, expenses.Value, expenses.StoreID, expenses.CategoryID, expenses.OwnerUserID, expenses.TypeID, expenses.ExpDate, expenses.CreationDate, expenses.PaidOff, expenses.SharesEven,
-  stores.StoreID, stores.StoreName,
-  categories.CategoryID, categories.CategoryName,
-  users.UserID, users.UserName, users.UserPass,
-  types.TypeID, types.TypeName
+  expenses."ExpID", expenses."Description", expenses."Value", expenses."StoreID", expenses."CategoryID", expenses."OwnerUserID", expenses."TypeID", expenses."ExpDate", expenses."CreationDate", expenses."PaidOff", expenses."SharesEven",
+  stores."StoreID", stores."StoreName",
+  categories."CategoryID", categories."CategoryName",
+  users."UserID", users."UserName", users."UserPass",
+  types."TypeID", types."TypeName"
 FROM expenses
 JOIN 
-  Stores ON stores.StoreID = expenses.StoreID
+  Stores ON stores."StoreID" = expenses."StoreID"
 JOIN 
-  Categories ON categories.CategoryID = expenses.CategoryID
+  Categories ON categories."CategoryID" = expenses."CategoryID"
 JOIN 
-  Users ON UserID = OwnerUserId
+  Users ON users."UserID" = expenses."OwnerUserID"
 JOIN
-  "expenseTypes" as types ON types.TypeID = expenses.TypeID
+  "expenseTypes" as types ON types."TypeID" = expenses."TypeID"
 WHERE
-  (?1 IS NULL OR expenses."ExpDate" >= ?1)
+  ($1::timestamp IS NULL OR expenses."ExpDate" >= $1::timestamp)
   AND
-  (?2 IS NULL OR expenses."ExpDate" <= ?2)
+  ($2::timestamp IS NULL OR expenses."ExpDate" <= $2::timestamp)
 `
 
 type GetExpensesParams struct {
-	Startdate interface{}
-	Enddate   interface{}
+	Startdate pgtype.Timestamp
+	Enddate   pgtype.Timestamp
 }
 
 type GetExpensesRow struct {
@@ -110,7 +112,7 @@ type GetExpensesRow struct {
 }
 
 func (q *Queries) GetExpenses(ctx context.Context, arg GetExpensesParams) ([]GetExpensesRow, error) {
-	rows, err := q.db.QueryContext(ctx, getExpenses, arg.Startdate, arg.Enddate)
+	rows, err := q.db.Query(ctx, getExpenses, arg.Startdate, arg.Enddate)
 	if err != nil {
 		return nil, err
 	}
@@ -144,16 +146,13 @@ func (q *Queries) GetExpenses(ctx context.Context, arg GetExpensesParams) ([]Get
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 	return items, nil
 }
 
-const insertExpense = `-- name: InsertExpense :execresult
+const insertExpense = `-- name: InsertExpense :one
 INSERT INTO expenses(
   "Description",
   "Value",
@@ -166,24 +165,25 @@ INSERT INTO expenses(
   "SharesEven",
   "CreationDate"
 )
-VALUES(?, ?, ? , ?, ?, ?, ?, ?, ?, ?)
+VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+RETURNING "ExpID"
 `
 
 type InsertExpenseParams struct {
 	Description  string
-	Value        string
-	StoreID      int64
-	CategoryID   int64
-	TypeID       int64
-	OwnerUserID  int64
-	ExpDate      int64
-	PaidOff      bool
-	SharesEven   bool
-	CreationDate int64
+	Value        pgtype.Numeric
+	StoreID      int32
+	CategoryID   int32
+	TypeID       int32
+	OwnerUserID  int32
+	ExpDate      pgtype.Timestamp
+	PaidOff      pgtype.Bool
+	SharesEven   pgtype.Bool
+	CreationDate pgtype.Timestamp
 }
 
-func (q *Queries) InsertExpense(ctx context.Context, arg InsertExpenseParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, insertExpense,
+func (q *Queries) InsertExpense(ctx context.Context, arg InsertExpenseParams) (int32, error) {
+	row := q.db.QueryRow(ctx, insertExpense,
 		arg.Description,
 		arg.Value,
 		arg.StoreID,
@@ -195,38 +195,41 @@ func (q *Queries) InsertExpense(ctx context.Context, arg InsertExpenseParams) (s
 		arg.SharesEven,
 		arg.CreationDate,
 	)
+	var ExpID int32
+	err := row.Scan(&ExpID)
+	return ExpID, err
 }
 
 const updateExpense = `-- name: UpdateExpense :execresult
 UPDATE expenses
 SET
-  "Description" = ?,
-  "Value" = ?,
-  "StoreID" = ?,
-  "CategoryID" = ?,
-  "TypeID" = ?,
-  "OwnerUserID" = ?,
-  "PaidOff" = ?,
-  "SharesEven" = ?,
-  "ExpDate" = ?
-WHERE "ExpID" = ?
+  "Description" = $1,
+  "Value" = $2,
+  "StoreID" = $3,
+  "CategoryID" = $4,
+  "TypeID" = $5,
+  "OwnerUserID" = $6,
+  "PaidOff" = $7,
+  "SharesEven" = $8,
+  "ExpDate" = $9
+WHERE "ExpID" = $10
 `
 
 type UpdateExpenseParams struct {
 	Description string
-	Value       string
-	StoreID     int64
-	CategoryID  int64
-	TypeID      int64
-	OwnerUserID int64
-	PaidOff     bool
-	SharesEven  bool
-	ExpDate     int64
-	ExpID       int64
+	Value       pgtype.Numeric
+	StoreID     int32
+	CategoryID  int32
+	TypeID      int32
+	OwnerUserID int32
+	PaidOff     pgtype.Bool
+	SharesEven  pgtype.Bool
+	ExpDate     pgtype.Timestamp
+	ExpID       int32
 }
 
-func (q *Queries) UpdateExpense(ctx context.Context, arg UpdateExpenseParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, updateExpense,
+func (q *Queries) UpdateExpense(ctx context.Context, arg UpdateExpenseParams) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, updateExpense,
 		arg.Description,
 		arg.Value,
 		arg.StoreID,

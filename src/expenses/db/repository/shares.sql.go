@@ -7,25 +7,27 @@ package repository
 
 import (
 	"context"
-	"database/sql"
+
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const deleteShare = `-- name: DeleteShare :execresult
-DELETE FROM "expensesShares" where "ExpShareID" = ?
+DELETE FROM "expensesShares" where "ExpShareID" = $1
 `
 
-func (q *Queries) DeleteShare(ctx context.Context, expshareid int64) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteShare, expshareid)
+func (q *Queries) DeleteShare(ctx context.Context, expshareid int32) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, deleteShare, expshareid)
 }
 
 const getShares = `-- name: GetShares :many
 SELECT 
-  shares.ExpShareID, shares.ExpID, shares.UserID, shares.Share, shares.Calculated, users.UserID, users.UserName, users.UserPass
+  shares."ExpShareID", shares."ExpID", shares."UserID", shares."Share", shares."Calculated", users."UserID", users."UserName", users."UserPass"
 FROM 
   "expensesShares" as shares
 JOIN 
   users as users ON users.UserID = shares.UserID
-WHERE "ExpID" = ?
+WHERE "ExpID" = $1
 `
 
 type GetSharesRow struct {
@@ -33,8 +35,8 @@ type GetSharesRow struct {
 	User          User
 }
 
-func (q *Queries) GetShares(ctx context.Context, expid int64) ([]GetSharesRow, error) {
-	rows, err := q.db.QueryContext(ctx, getShares, expid)
+func (q *Queries) GetShares(ctx context.Context, expid int32) ([]GetSharesRow, error) {
+	rows, err := q.db.Query(ctx, getShares, expid)
 	if err != nil {
 		return nil, err
 	}
@@ -56,9 +58,6 @@ func (q *Queries) GetShares(ctx context.Context, expid int64) ([]GetSharesRow, e
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -69,18 +68,18 @@ const insertShare = `-- name: InsertShare :execresult
 INSERT INTO "expensesShares"(
   "ExpID", "UserID", "Share", "Calculated"
 )
-VALUES(?, ?, ?, ?)
+VALUES($1, $2, $3, $4)
 `
 
 type InsertShareParams struct {
-	ExpID      int64
-	UserID     int64
-	Share      string
-	Calculated string
+	ExpID      int32
+	UserID     int32
+	Share      pgtype.Numeric
+	Calculated pgtype.Numeric
 }
 
-func (q *Queries) InsertShare(ctx context.Context, arg InsertShareParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, insertShare,
+func (q *Queries) InsertShare(ctx context.Context, arg InsertShareParams) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, insertShare,
 		arg.ExpID,
 		arg.UserID,
 		arg.Share,
@@ -89,20 +88,20 @@ func (q *Queries) InsertShare(ctx context.Context, arg InsertShareParams) (sql.R
 }
 
 const updateShare = `-- name: UpdateShare :execresult
-UPDATE expensesShares
-SET "UserID" = ?, "Share" = ?, "Calculated" = ?
-WHERE "ExpShareID" = ?
+UPDATE "expensesShares"
+SET "UserID" = $1, "Share" = $2, "Calculated" = $3
+WHERE "ExpShareID" = $4
 `
 
 type UpdateShareParams struct {
-	UserID     int64
-	Share      string
-	Calculated string
-	ExpShareID int64
+	UserID     int32
+	Share      pgtype.Numeric
+	Calculated pgtype.Numeric
+	ExpShareID int32
 }
 
-func (q *Queries) UpdateShare(ctx context.Context, arg UpdateShareParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, updateShare,
+func (q *Queries) UpdateShare(ctx context.Context, arg UpdateShareParams) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, updateShare,
 		arg.UserID,
 		arg.Share,
 		arg.Calculated,

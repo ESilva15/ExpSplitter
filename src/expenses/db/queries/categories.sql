@@ -2,13 +2,13 @@
 SELECT * FROM categories;
 
 -- name: GetCategory :one
-SELECT * FROM categories WHERE "CategoryID" = ?;
+SELECT * FROM categories WHERE "CategoryID" = $1;
 
 -- name: UpdateCategory :execresult
-UPDATE categories SET "CategoryName" = ? WHERE "CategoryID" = ?;
+UPDATE categories SET "CategoryName" = $1 WHERE "CategoryID" = $2;
 
 -- name: DeleteCategory :execresult
-DELETE FROM categories WHERE "CategoryID" = ?;
+DELETE FROM categories WHERE "CategoryID" = $1;
 
 -- name: InsertCategory :execresult
-INSERT INTO categories("CategoryName") VALUES(?)
+INSERT INTO categories("CategoryName") VALUES($1);

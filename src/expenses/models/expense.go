@@ -3,30 +3,30 @@ package models
 import (
 	"context"
 	"encoding/json"
-	"expenses/config"
 	repo "expenses/expenses/db/repository"
-
-	"database/sql"
 	"fmt"
+	"time"
 
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/shopspring/decimal"
 )
 
 type Expense struct {
-	ExpID        int64            `json:"ExpID"`
+	ExpID        int32            `json:"ExpID"`
 	Description  string           `json:"Description"`
 	Value        decimal.Decimal  `json:"Value"`
 	Store        Store            `json:"Store"`
 	Type         Type             `json:"Type"`
 	Category     Category         `json:"Category"`
 	Owner        User             `json:"Owner"`
-	Date         int64            `json:"Date"`
+	Date         time.Time        `json:"Date"`
 	Payments     []ExpensePayment `json:"Payments"`
 	Shares       []Share          `json:"Shares"`
 	Debts        Debts            `json:"Debts"`
 	PaidOff      bool             `json:"PaidOff"`
 	SharesEven   bool             `json:"SharesEven"`
-	CreationDate int64            `json:"CreationDate"`
+	CreationDate time.Time        `json:"CreationDate"`
 }
 
 func NewExpense() Expense {
@@ -37,12 +37,12 @@ func NewExpense() Expense {
 		Store:        NewStore(),
 		Category:     NewCategory(),
 		Owner:        NewUser(),
-		Date:         0,
+		Date:         time.Now(),
 		Payments:     []ExpensePayment{},
 		Shares:       []Share{},
 		PaidOff:      false,
 		SharesEven:   false,
-		CreationDate: 0,
+		CreationDate: time.Now(),
 	}
 }
 
@@ -55,13 +55,18 @@ func ExpenseFromJSON(data []byte) (*Expense, error) {
 	return &expense, err
 }
 
-func GetAllExpenses(tx *sql.Tx) ([]Expense, error) {
+func GetAllExpenses(db repo.DBTX, tx pgx.Tx) ([]Expense, error) {
 	ctx := context.Background()
 
-	queries := repo.New(tx)
+	var start pgtype.Timestamp
+	start.Valid = false
+	var end pgtype.Timestamp
+	end.Valid = false
+
+	queries := repo.New(db).WithTx(tx)
 	expenses, err := queries.GetExpenses(ctx, repo.GetExpensesParams{
-		Startdate: nil,
-		Enddate:   nil,
+		Startdate: start,
+		Enddate:   end,
 	})
 	if err != nil {
 		return []Expense{}, err
@@ -70,10 +75,10 @@ func GetAllExpenses(tx *sql.Tx) ([]Expense, error) {
 	return mapRepoGetExpensesRows(expenses), nil
 }
 
-func GetExpense(tx *sql.Tx, expID int64) (Expense, error) {
+func GetExpense(db repo.DBTX, tx pgx.Tx, expID int32) (Expense, error) {
 	ctx := context.Background()
 
-	queries := repo.New(tx)
+	queries := repo.New(db).WithTx(tx)
 	expense, err := queries.GetExpense(ctx, expID)
 	if err != nil {
 		return Expense{}, err
@@ -82,56 +87,69 @@ func GetExpense(tx *sql.Tx, expID int64) (Expense, error) {
 	return mapRepoGetExpenseRow(expense), nil
 }
 
-func (exp *Expense) Insert(tx *sql.Tx) error {
+func (exp *Expense) Insert(db repo.DBTX, tx pgx.Tx) error {
 	ctx := context.Background()
 
-	queries := repo.New(tx)
-	res, err := queries.InsertExpense(ctx, repo.InsertExpenseParams{
+	value, err := decimalToNumeric(exp.Value)
+	if err != nil {
+		return err
+	}
+
+	paidOff, err := boolToPgBool(exp.PaidOff)
+	if err != nil {
+		return err
+	}
+
+	sharesEven, err := boolToPgBool(exp.SharesEven)
+	if err != nil {
+		return err
+	}
+
+	expDate, err := timeToTimestamp(exp.Date)
+	if err != nil {
+		return err
+	}
+
+	creationDate, err := timeToTimestamp(exp.CreationDate)
+	if err != nil {
+		return err
+	}
+
+	queries := repo.New(db).WithTx(tx)
+	lastInsertedID, err := queries.InsertExpense(ctx, repo.InsertExpenseParams{
 		Description:  exp.Description,
-		Value:        exp.Value.String(),
+		Value:        value,
 		StoreID:      exp.Store.StoreID,
 		CategoryID:   exp.Category.CategoryID,
 		TypeID:       exp.Type.TypeID,
 		OwnerUserID:  exp.Owner.UserID,
-		ExpDate:      exp.Date,
-		PaidOff:      exp.PaidOff,
-		SharesEven:   exp.SharesEven,
-		CreationDate: exp.CreationDate,
+		ExpDate:      expDate,
+		PaidOff:      paidOff,
+		SharesEven:   sharesEven,
+		CreationDate: creationDate,
 	})
 	if err != nil {
 		return err
 	}
 
-	expenseID, err := res.LastInsertId()
-	if err != nil {
-		return fmt.Errorf("failed to retrieve last inserted expense ID: %v", err)
-	}
+	exp.ExpID = lastInsertedID
 
-	exp.ExpID = expenseID
-
-	err = exp.InsertShares(tx)
+	err = exp.InsertShares(db, tx)
 	if err != nil {
 		return err
 	}
 
-	err = exp.InsertPayments(tx)
+	err = exp.InsertPayments(db, tx)
 	if err != nil {
 		return err
-	}
-
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
-		return fmt.Errorf("no rows were created")
 	}
 
 	return nil
 }
 
-func (exp *Expense) InsertShares(tx *sql.Tx) error {
+func (exp *Expense) InsertShares(db repo.DBTX, tx pgx.Tx) error {
 	for _, share := range exp.Shares {
-		err := share.Insert(tx, exp.ExpID)
+		err := share.Insert(db, tx, exp.ExpID)
 		if err != nil {
 			return err
 		}
@@ -139,9 +157,9 @@ func (exp *Expense) InsertShares(tx *sql.Tx) error {
 	return nil
 }
 
-func (exp *Expense) InsertPayments(tx *sql.Tx) error {
+func (exp *Expense) InsertPayments(db repo.DBTX, tx pgx.Tx) error {
 	for _, paym := range exp.Payments {
-		err := paym.Insert(tx, exp.ExpID)
+		err := paym.Insert(db, tx, exp.ExpID)
 		if err != nil {
 			return err
 		}
@@ -149,21 +167,41 @@ func (exp *Expense) InsertPayments(tx *sql.Tx) error {
 	return nil
 }
 
-func (e *Expense) Update(tx *sql.Tx) error {
+func (e *Expense) Update(db repo.DBTX, tx pgx.Tx) error {
 	ctx := context.Background()
 
-	queries := repo.New(tx)
+	value, err := decimalToNumeric(e.Value)
+	if err != nil {
+		return err
+	}
+
+	paidOff, err := boolToPgBool(e.PaidOff)
+	if err != nil {
+		return err
+	}
+
+	sharesEven, err := boolToPgBool(e.SharesEven)
+	if err != nil {
+		return err
+	}
+
+	expDate, err := timeToTimestamp(e.Date)
+	if err != nil {
+		return err
+	}
+
+	queries := repo.New(db).WithTx(tx)
 	res, err := queries.UpdateExpense(ctx, repo.UpdateExpenseParams{
 		ExpID:       e.ExpID,
 		Description: e.Description,
-		Value:       e.Value.String(),
+		Value:       value,
 		StoreID:     e.Store.StoreID,
 		CategoryID:  e.Category.CategoryID,
 		TypeID:      e.Type.TypeID,
 		OwnerUserID: e.Owner.UserID,
-		PaidOff:     e.PaidOff,
-		SharesEven:  e.SharesEven,
-		ExpDate:     e.Date,
+		PaidOff:     paidOff,
+		SharesEven:  sharesEven,
+		ExpDate:     expDate,
 	})
 	if err != nil {
 		return err
@@ -171,56 +209,45 @@ func (e *Expense) Update(tx *sql.Tx) error {
 
 	for _, share := range e.Shares {
 		if share.ExpShareID == -1 {
-			err := share.Insert(tx, e.ExpID)
+			err := share.Insert(db, tx, e.ExpID)
 			if err != nil {
 				return err
 			}
 		} else {
-			share.Update(tx)
+			share.Update(db, tx)
 		}
 	}
 
 	for _, paym := range e.Payments {
 		if paym.ExpPaymID == -1 {
-			err := paym.Insert(tx, e.ExpID)
+			err := paym.Insert(db, tx, e.ExpID)
 			if err != nil {
 				return err
 			}
 		} else {
-			paym.Update(tx)
+			paym.Update(db, tx)
 		}
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
+	rowsAffected := res.RowsAffected()
+	if rowsAffected == 0 {
 		return fmt.Errorf("no rows were updated")
 	}
 
 	return nil
 }
 
-func (e *Expense) Delete() error {
-	cfg := config.GetInstance()
+func (e *Expense) Delete(db repo.DBTX, tx pgx.Tx) error {
 	ctx := context.Background()
 
-	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
+	queries := repo.New(db).WithTx(tx)
 	res, err := queries.DeleteExpense(ctx, e.ExpID)
 	if err != nil {
 		return err
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
+	rowsAffected := res.RowsAffected()
+	if rowsAffected == 0 {
 		return fmt.Errorf("no rows were created")
 	}
 
@@ -228,13 +255,23 @@ func (e *Expense) Delete() error {
 }
 
 // SHITTY QUERIES THAT I NEED TO PUT IN SOMEWHERE MORE OGRANHJASLD
-func GetExpensesRange(tx *sql.Tx, start int64, end int64) ([]Expense, error) {
+func GetExpensesRange(db repo.DBTX, tx pgx.Tx, start time.Time, end time.Time) ([]Expense, error) {
 	ctx := context.Background()
 
-	queries := repo.New(tx)
+	startPg, err := timeToTimestamp(start)
+	if err != nil {
+		return []Expense{}, err
+	}
+
+	endPg, err := timeToTimestamp(end)
+	if err != nil {
+		return []Expense{}, err
+	}
+
+	queries := repo.New(db).WithTx(tx)
 	expenses, err := queries.GetExpenses(ctx, repo.GetExpensesParams{
-		Startdate: start,
-		Enddate:   end,
+		Startdate: startPg,
+		Enddate:   endPg,
 	})
 	if err != nil {
 		return []Expense{}, err

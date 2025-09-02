@@ -4,16 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	repo "expenses/expenses/db/repository"
-
-	"database/sql"
 	"fmt"
-
+	"github.com/jackc/pgx/v5"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/shopspring/decimal"
 )
 
 type ExpensePayment struct {
-	ExpPaymID   int64
+	ExpPaymID   int32
 	User        User
 	PayedAmount decimal.Decimal
 }
@@ -25,10 +23,10 @@ func PaymentFromJSON(data []byte) (*ExpensePayment, error) {
 	return &payment, err
 }
 
-func (e *Expense) GetPayments(tx *sql.Tx) error {
+func (e *Expense) GetPayments(db repo.DBTX, tx pgx.Tx) error {
 	ctx := context.Background()
 
-	queries := repo.New(tx)
+	queries := repo.New(db).WithTx(tx)
 	payments, err := queries.GetPayments(ctx, e.ExpID)
 	if err != nil {
 		return err
@@ -38,11 +36,11 @@ func (e *Expense) GetPayments(tx *sql.Tx) error {
 	return nil
 }
 
-func GetExpensePaymentByUserID(tx *sql.Tx, eId int64, uId int64,
+func GetExpensePaymentByUserID(db repo.DBTX, tx pgx.Tx, eId int32, uId int32,
 ) (ExpensePayment, error) {
 	ctx := context.Background()
 
-	queries := repo.New(tx)
+	queries := repo.New(db).WithTx(tx)
 	payment, err := queries.GetExpensePaymentByUser(ctx, repo.GetExpensePaymentByUserParams{
 		ExpID:  eId,
 		UserID: uId,
@@ -54,65 +52,69 @@ func GetExpensePaymentByUserID(tx *sql.Tx, eId int64, uId int64,
 	return mapRepoGetPaymentRow(payment), nil
 }
 
-func (p *ExpensePayment) Insert(tx *sql.Tx, expID int64) error {
+func (p *ExpensePayment) Insert(db repo.DBTX, tx pgx.Tx, expID int32) error {
 	ctx := context.Background()
 
-	queries := repo.New(tx)
+	payed, err := decimalToNumeric(p.PayedAmount)
+	if err != nil {
+		return err
+	}
+
+	queries := repo.New(db).WithTx(tx)
 	res, err := queries.InsertPayment(ctx, repo.InsertPaymentParams{
 		ExpID:  expID,
 		UserID: p.User.UserID,
-		Payed:  p.PayedAmount.String(),
+		Payed:  payed,
 	})
 	if err != nil {
 		return err
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
+	rowsAffected := res.RowsAffected()
+	if rowsAffected == 0 {
 		return fmt.Errorf("no rows were created")
 	}
 
 	return nil
 }
 
-func (p *ExpensePayment) Update(tx *sql.Tx) error {
+func (p *ExpensePayment) Update(db repo.DBTX, tx pgx.Tx) error {
 	ctx := context.Background()
 
-	queries := repo.New(tx)
+	payed, err := decimalToNumeric(p.PayedAmount)
+	if err != nil {
+		return err
+	}
+
+	queries := repo.New(db).WithTx(tx)
 	res, err := queries.UpdatePayment(ctx, repo.UpdatePaymentParams{
 		ExpPaymID: p.ExpPaymID,
-		Payed:     p.PayedAmount.String(),
+		Payed:     payed,
 		UserID:    p.User.UserID,
 	})
 	if err != nil {
 		return err
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
+	rowsAffected := res.RowsAffected()
+	if rowsAffected == 0 {
 		return fmt.Errorf("no rows were created")
 	}
 
 	return nil
 }
 
-func (p *ExpensePayment) Delete(tx *sql.Tx) error {
+func (p *ExpensePayment) Delete(db repo.DBTX, tx pgx.Tx) error {
 	ctx := context.Background()
 
-	queries := repo.New(tx)
+	queries := repo.New(db).WithTx(tx)
 	res, err := queries.DeletePayment(ctx, p.ExpPaymID)
 	if err != nil {
 		return err
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
+	rowsAffected := res.RowsAffected()
+	if rowsAffected == 0 {
 		return fmt.Errorf("no rows were created")
 	}
 

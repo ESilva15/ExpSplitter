@@ -33,7 +33,6 @@ func expenseFromForm(c *gin.Context) (*mod.Expense, error) {
 	if err != nil {
 		return nil, err
 	}
-	date := formattedDate.Unix()
 
 	newValue := c.PostForm("expense-value")
 	value, err := decimal.NewFromString(newValue)
@@ -70,7 +69,7 @@ func expenseFromForm(c *gin.Context) (*mod.Expense, error) {
 
 	newExp := mod.Expense{
 		Description: newDescription,
-		Date:        date,
+		Date:        formattedDate,
 		Value:       value,
 		Type: mod.Type{
 			TypeID: typID,
@@ -86,7 +85,7 @@ func expenseFromForm(c *gin.Context) (*mod.Expense, error) {
 			// This needs to be dynamic - to be added once we have logins and whatnot
 			UserID: 1,
 		},
-		CreationDate: time.Now().Unix(),
+		CreationDate: time.Now(),
 		Shares:       shares,
 		Payments:     payments,
 	}

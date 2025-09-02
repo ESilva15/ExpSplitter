@@ -4,15 +4,13 @@ import (
 	"context"
 	repo "expenses/expenses/db/repository"
 	experr "expenses/expenses/errors"
-
-	"database/sql"
 	"fmt"
-
+	"github.com/jackc/pgx/v5"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 type Type struct {
-	TypeID   int64  `json:"TypeID"`
+	TypeID   int32  `json:"TypeID"`
 	TypeName string `json:"TypeName"`
 }
 
@@ -23,10 +21,10 @@ func NewType() Type {
 	}
 }
 
-func GetAllTypes(tx *sql.Tx) ([]Type, error) {
+func GetAllTypes(db repo.DBTX, tx pgx.Tx) ([]Type, error) {
 	ctx := context.Background()
 
-	queries := repo.New(tx)
+	queries := repo.New(db).WithTx(tx)
 	typeList, err := queries.GetTypes(ctx)
 	if err != nil {
 		return []Type{}, err
@@ -35,10 +33,10 @@ func GetAllTypes(tx *sql.Tx) ([]Type, error) {
 	return mapRepoTypes(typeList), nil
 }
 
-func GetType(tx *sql.Tx, typID int64) (Type, error) {
+func GetType(db repo.DBTX, tx pgx.Tx, typID int32) (Type, error) {
 	ctx := context.Background()
 
-	queries := repo.New(tx)
+	queries := repo.New(db).WithTx(tx)
 	typ, err := queries.GetType(ctx, typID)
 	if err != nil {
 		return Type{}, err
@@ -47,10 +45,10 @@ func GetType(tx *sql.Tx, typID int64) (Type, error) {
 	return mapRepoType(typ), nil
 }
 
-func (typ *Type) Insert(tx *sql.Tx) error {
+func (typ *Type) Insert(db repo.DBTX, tx pgx.Tx) error {
 	ctx := context.Background()
 
-	queries := repo.New(tx)
+	queries := repo.New(db).WithTx(tx)
 	res, err := queries.InsertType(ctx, typ.TypeName)
 	if err != nil {
 		return err
@@ -59,39 +57,35 @@ func (typ *Type) Insert(tx *sql.Tx) error {
 	// TODO
 	// Move all theses things outside of this, I'll handle it wherever I'm doing
 	// logics
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
+	rowsAffected := res.RowsAffected()
+	if rowsAffected == 0 {
 		return fmt.Errorf("no rows were created")
 	}
 
 	return nil
 }
 
-func (typ *Type) Delete(tx *sql.Tx) error {
+func (typ *Type) Delete(db repo.DBTX, tx pgx.Tx) error {
 	ctx := context.Background()
 
-	queries := repo.New(tx)
+	queries := repo.New(db).WithTx(tx)
 	res, err := queries.DeleteType(ctx, typ.TypeID)
 	if err != nil {
 		return err
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
+	rowsAffected := res.RowsAffected()
+	if rowsAffected == 0 {
 		return experr.ErrNotFound
 	}
 
 	return nil
 }
 
-func (typ *Type) Update(tx *sql.Tx) error {
+func (typ *Type) Update(db repo.DBTX, tx pgx.Tx) error {
 	ctx := context.Background()
 
-	queries := repo.New(tx)
+	queries := repo.New(db).WithTx(tx)
 	res, err := queries.UpdateType(ctx, repo.UpdateTypeParams{
 		TypeID:   typ.TypeID,
 		TypeName: typ.TypeName,
@@ -100,10 +94,8 @@ func (typ *Type) Update(tx *sql.Tx) error {
 		return err
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
+	rowsAffected := res.RowsAffected()
+	if rowsAffected == 0 {
 		return experr.ErrNotFound
 	}
 

@@ -4,52 +4,61 @@
 
 package repository
 
+import (
+	"github.com/jackc/pgx/v5/pgtype"
+)
+
 type Category struct {
-	CategoryID   int64
+	CategoryID   int32
 	CategoryName string
 }
 
 type Expense struct {
-	ExpID        int64
+	ExpID        int32
 	Description  string
-	Value        string
-	StoreID      int64
-	CategoryID   int64
-	OwnerUserID  int64
-	TypeID       int64
-	ExpDate      int64
-	CreationDate int64
-	PaidOff      bool
-	SharesEven   bool
+	Value        pgtype.Numeric
+	StoreID      int32
+	CategoryID   int32
+	OwnerUserID  int32
+	TypeID       int32
+	ExpDate      pgtype.Timestamp
+	CreationDate pgtype.Timestamp
+	PaidOff      pgtype.Bool
+	SharesEven   pgtype.Bool
 }
 
 type ExpenseType struct {
-	TypeID   int64
+	TypeID   int32
 	TypeName string
 }
 
 type ExpensesPayment struct {
-	ExpPaymID int64
-	ExpID     int64
-	UserID    int64
-	Payed     string
+	ExpPaymID int32
+	ExpID     int32
+	UserID    int32
+	Payed     pgtype.Numeric
 }
 
 type ExpensesShare struct {
-	ExpShareID int64
-	ExpID      int64
-	UserID     int64
-	Share      string
-	Calculated string
+	ExpShareID int32
+	ExpID      int32
+	UserID     int32
+	Share      pgtype.Numeric
+	Calculated pgtype.Numeric
+}
+
+type SchemaMigration struct {
+	Version int64
+	Dirty   pgtype.Bool
 }
 
 type Store struct {
-	StoreID   int64
+	StoreID   int32
 	StoreName string
 }
 
 type User struct {
-	UserID   int64
+	UserID   int32
 	UserName string
 	UserPass string
 }

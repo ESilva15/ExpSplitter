@@ -4,12 +4,9 @@ import (
 	"database/sql"
 	exp "expenses/expenses"
 	experr "expenses/expenses/errors"
-
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,7 +15,7 @@ const (
 )
 
 func categoriesGlobalPage(c *gin.Context) {
-	categories, err := exp.GetAllCategories()
+	categories, err := exp.App.GetAllCategories()
 	if err != nil {
 		ServerErrorView(c, "The server too makes mistakes")
 		return
@@ -33,13 +30,13 @@ func categoriesGlobalPage(c *gin.Context) {
 }
 
 func categoryPage(c *gin.Context) {
-	categoryID, err := strconv.ParseInt(c.Param("id"), 10, 16)
+	categoryID, err := exp.ParseID(c.Param("id"))
 	if err != nil {
 		NotFoundView(c, "No such category")
 		return
 	}
 
-	category, err := exp.GetCategory(categoryID)
+	category, err := exp.App.GetCategory(categoryID)
 	if err == sql.ErrNoRows {
 		NotFoundView(c, fmt.Sprintf("Could not find category `%d`", categoryID))
 		return

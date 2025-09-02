@@ -1,7 +1,10 @@
 package expenses
 
 import (
+	"context"
 	mod "expenses/expenses/models"
+
+	"github.com/jackc/pgx/v5"
 	dec "github.com/shopspring/decimal"
 )
 
@@ -45,71 +48,75 @@ func ParseFormPayments(userIDs []string, paymentsIDs []string,
 	return payments, nil
 }
 
-func (a *ExpensesApp) GetExpensePaymentByUserID(eId int64, uId int64,
+func (a *ExpensesApp) GetExpensePaymentByUserID(eId int32, uId int32,
 ) (mod.ExpensePayment, error) {
-	tx, err := a.DB.Begin()
+	ctx := context.Background()
+	tx, err := a.DB.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return mod.ExpensePayment{}, err
 	}
-	defer tx.Rollback()
+	defer tx.Rollback(ctx)
 
-	payment, err := mod.GetExpensePaymentByUserID(tx, eId, uId)
+	payment, err := mod.GetExpensePaymentByUserID(a.DB, tx, eId, uId)
 
-	return payment, tx.Commit()
+	return payment, tx.Commit(ctx)
 }
 
 // insertPayment allows us to insert a payment manually
 // for now its private, need to figure out if it needs to be public
-func (a *ExpensesApp) insertPayment(payment mod.ExpensePayment, eIdx int64) error {
-	tx, err := a.DB.Begin()
+func (a *ExpensesApp) insertPayment(payment mod.ExpensePayment, eIdx int32) error {
+	ctx := context.Background()
+	tx, err := a.DB.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer tx.Rollback(ctx)
 
-	err = payment.Insert(tx, eIdx)
+	err = payment.Insert(a.DB, tx, eIdx)
 	if err != nil {
 		return err
 	}
 
-	return tx.Commit()
+	return tx.Commit(ctx)
 }
 
-func (a *ExpensesApp) DeletePayment(id int64) error {
-	tx, err := a.DB.Begin()
+func (a *ExpensesApp) DeletePayment(id int32) error {
+	ctx := context.Background()
+	tx, err := a.DB.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer tx.Rollback(ctx)
 
 	payment := mod.ExpensePayment{
 		ExpPaymID: id,
 	}
 
-	err = payment.Delete(tx)
+	err = payment.Delete(a.DB, tx)
 	if err != nil {
 		return err
 	}
 
-	return tx.Commit()
+	return tx.Commit(ctx)
 }
 
 func (a *ExpensesApp) UpdatePayment(payment mod.ExpensePayment) error {
-	tx, err := a.DB.Begin()
+	ctx := context.Background()
+	tx, err := a.DB.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer tx.Rollback(ctx)
 
-	err = payment.Update(tx)
+	err = payment.Update(a.DB, tx)
 	if err != nil {
 		return err
 	}
 
-	return tx.Commit()
+	return tx.Commit(ctx)
 }
 
-func (a *ExpensesApp) AddPayment(expID int64, userID int64, sum dec.Decimal) error {
+func (a *ExpensesApp) AddPayment(expID int32, userID int32, sum dec.Decimal) error {
 	payment := mod.ExpensePayment{
 		User: mod.User{
 			UserID: userID,

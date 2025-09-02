@@ -2,12 +2,14 @@ package models
 
 import (
 	repo "expenses/expenses/db/repository"
-
-	"github.com/shopspring/decimal"
 )
 
 func mapRepoGetExpenseRow(e repo.GetExpenseRow) Expense {
-	value, _ := decimal.NewFromString(e.Expense.Value)
+	value := pgNumericToDecimal(e.Expense.Value)
+	paidOff := pgBoolToBool(e.Expense.PaidOff)
+	sharesEven := pgBoolToBool(e.Expense.SharesEven)
+	expDate := pgTimestampToTime(e.Expense.ExpDate)
+	creationDate := pgTimestampToTime(e.Expense.CreationDate)
 
 	return Expense{
 		ExpID:       e.Expense.ExpID,
@@ -29,17 +31,21 @@ func mapRepoGetExpenseRow(e repo.GetExpenseRow) Expense {
 			UserID:   e.User.UserID,
 			UserName: e.User.UserName,
 		},
-		Date:         e.Expense.ExpDate,
+		Date:         expDate,
 		Shares:       []Share{},
 		Payments:     []ExpensePayment{},
-		PaidOff:      e.Expense.PaidOff,
-		SharesEven:   e.Expense.SharesEven,
-		CreationDate: e.Expense.CreationDate,
+		PaidOff:      paidOff,
+		SharesEven:   sharesEven,
+		CreationDate: creationDate,
 	}
 }
 
 func mapRepoGetExpenseRowMulti(e repo.GetExpensesRow) Expense {
-	value, _ := decimal.NewFromString(e.Expense.Value)
+	value := pgNumericToDecimal(e.Expense.Value)
+	paidOff := pgBoolToBool(e.Expense.PaidOff)
+	sharesEven := pgBoolToBool(e.Expense.SharesEven)
+	expDate := pgTimestampToTime(e.Expense.ExpDate)
+	creationDate := pgTimestampToTime(e.Expense.CreationDate)
 
 	return Expense{
 		ExpID:       e.Expense.ExpID,
@@ -61,12 +67,12 @@ func mapRepoGetExpenseRowMulti(e repo.GetExpensesRow) Expense {
 			UserID:   e.User.UserID,
 			UserName: e.User.UserName,
 		},
-		Date:         e.Expense.ExpDate,
+		Date:         expDate,
 		Shares:       []Share{},
 		Payments:     []ExpensePayment{},
-		PaidOff:      e.Expense.PaidOff,
-		SharesEven:   e.Expense.SharesEven,
-		CreationDate: e.Expense.CreationDate,
+		PaidOff:      paidOff,
+		SharesEven:   sharesEven,
+		CreationDate: creationDate,
 	}
 }
 

@@ -7,6 +7,7 @@ import (
 	experr "expenses/expenses/errors"
 	mod "expenses/expenses/models"
 	"fmt"
+	"log"
 
 	"net/http"
 
@@ -32,6 +33,7 @@ func expensesPartial(c *gin.Context) {
 func ExpensesGlobalPage(c *gin.Context) {
 	expenses, err := exp.App.GetAllExpenses()
 	if err != nil {
+		log.Panicln("error:", err)
 		c.Header("HX-Redirect", "/500")
 		return
 	}
@@ -75,7 +77,7 @@ func expensePage(c *gin.Context) {
 		return
 	}
 
-	categories, err := exp.GetAllCategories()
+	categories, err := exp.App.GetAllCategories()
 	if err != nil {
 		ServerErrorView(c, "failed to fetch categories")
 		return
@@ -120,7 +122,7 @@ func expensePage(c *gin.Context) {
 }
 
 func newExpensePage(c *gin.Context) {
-	categories, err := exp.GetAllCategories()
+	categories, err := exp.App.GetAllCategories()
 	if err != nil {
 		ServerErrorView(c, "failed to fetch categories")
 		return

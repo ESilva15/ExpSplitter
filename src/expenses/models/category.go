@@ -2,16 +2,14 @@ package models
 
 import (
 	"context"
-	"database/sql"
-	config "expenses/config"
 	repo "expenses/expenses/db/repository"
 	experr "expenses/expenses/errors"
 	"fmt"
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/jackc/pgx/v5"
 )
 
 type Category struct {
-	CategoryID   int64  `json:"CategoryID"`
+	CategoryID   int32  `json:"CategoryID"`
 	CategoryName string `json:"CategoryName"`
 }
 
@@ -22,17 +20,10 @@ func NewCategory() Category {
 	}
 }
 
-func GetAllCategories() ([]Category, error) {
-	cfg := config.GetInstance()
+func GetAllCategories(db repo.DBTX, tx pgx.Tx) ([]Category, error) {
 	ctx := context.Background()
 
-	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
-	if err != nil {
-		return nil, err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
+	queries := repo.New(db).WithTx(tx)
 	categories, err := queries.GetCategories(ctx)
 	if err != nil {
 		return []Category{}, nil
@@ -41,75 +32,53 @@ func GetAllCategories() ([]Category, error) {
 	return MapRepoCategories(categories), nil
 }
 
-func GetCategory(catID int64) (Category, error) {
-	cfg := config.GetInstance()
+func GetCategory(db repo.DBTX, tx pgx.Tx, catID int32) (Category, error) {
 	ctx := context.Background()
 
-	db, err := sql.Open(cfg.DBSys, cfg.DBPath)
-	if err != nil {
-		return Category{}, err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
+	queries := repo.New(db).WithTx(tx)
 	category, err := queries.GetCategory(ctx, catID)
 
 	return MapRepoCategory(category), err
 }
 
-func (cat *Category) Insert(tx *sql.Tx) error {
+func (cat *Category) Insert(db repo.DBTX, tx pgx.Tx) error {
 	ctx := context.Background()
 
-	queries := repo.New(tx)
+	queries := repo.New(db).WithTx(tx)
 	res, err := queries.InsertCategory(ctx, cat.CategoryName)
 	if err != nil {
 		return err
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
+	rowsAffected := res.RowsAffected()
+	if rowsAffected == 0 {
 		return fmt.Errorf("no rows were created")
 	}
 
 	return nil
 }
 
-func (cat *Category) Delete() error {
-	cfg := config.GetInstance()
+func (cat *Category) Delete(db repo.DBTX, tx pgx.Tx) error {
 	ctx := context.Background()
 
-	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
+	queries := repo.New(db).WithTx(tx)
+	res, err := queries.DeleteCategory(ctx, cat.CategoryID)
 	if err != nil {
 		return err
 	}
-	defer db.Close()
 
-	queries := repo.New(db)
-	res, err := queries.DeleteCategory(ctx, cat.CategoryID)
-
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
+	rowsAffected := res.RowsAffected()
+	if rowsAffected == 0 {
 		return experr.ErrNotFound
 	}
 
 	return nil
 }
 
-func (cat *Category) Update() error {
-	cfg := config.GetInstance()
+func (cat *Category) Update(db repo.DBTX, tx pgx.Tx) error {
 	ctx := context.Background()
 
-	db, err := sql.Open(cfg.DBSys, "file:"+cfg.DBPath+"?_foreign_keys=on")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	queries := repo.New(db)
+	queries := repo.New(db).WithTx(tx)
 	res, err := queries.UpdateCategory(ctx, repo.UpdateCategoryParams{
 		CategoryName: cat.CategoryName,
 		CategoryID:   cat.CategoryID,
@@ -118,10 +87,8 @@ func (cat *Category) Update() error {
 		return err
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
+	rowsAffected := res.RowsAffected()
+	if rowsAffected == 0 {
 		return experr.ErrNotFound
 	}
 

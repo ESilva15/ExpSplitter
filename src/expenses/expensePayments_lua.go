@@ -2,7 +2,6 @@ package expenses
 
 import (
 	mod "expenses/expenses/models"
-
 	lua "github.com/yuin/gopher-lua"
 )
 
@@ -15,7 +14,7 @@ func (a *ExpensesApp) luaInsertPayment(L *lua.LState) int {
 		return returnWithError(L, err.Error())
 	}
 
-	err = a.insertPayment(*payment, int64(expenseID))
+	err = a.insertPayment(*payment, int32(expenseID))
 	if err != nil {
 		return returnWithError(L, err.Error())
 	}

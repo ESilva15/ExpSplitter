@@ -1,6 +1,10 @@
 assets: "./assets/"
 port: 8081
-dbpath: "./data/data.db"
-dbsys: "sqlite3"
+postgres:
+  user: expuser
+  pass: exppass
+  db: expdb
+  host: 127.0.0.1
+  port: 5431
 migrations_path: "file://expenses/db/migrations/"
 mig_custom_scripts: "./expenses/db/migrations/custom/"

@@ -7,23 +7,24 @@ package repository
 
 import (
 	"context"
-	"database/sql"
+
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 const deleteCategory = `-- name: DeleteCategory :execresult
-DELETE FROM categories WHERE "CategoryID" = ?
+DELETE FROM categories WHERE "CategoryID" = $1
 `
 
-func (q *Queries) DeleteCategory(ctx context.Context, categoryid int64) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteCategory, categoryid)
+func (q *Queries) DeleteCategory(ctx context.Context, categoryid int32) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, deleteCategory, categoryid)
 }
 
 const getCategories = `-- name: GetCategories :many
-SELECT CategoryID, CategoryName FROM categories
+SELECT "CategoryID", "CategoryName" FROM categories
 `
 
 func (q *Queries) GetCategories(ctx context.Context) ([]Category, error) {
-	rows, err := q.db.QueryContext(ctx, getCategories)
+	rows, err := q.db.Query(ctx, getCategories)
 	if err != nil {
 		return nil, err
 	}
@@ -36,9 +37,6 @@ func (q *Queries) GetCategories(ctx context.Context) ([]Category, error) {
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -46,33 +44,33 @@ func (q *Queries) GetCategories(ctx context.Context) ([]Category, error) {
 }
 
 const getCategory = `-- name: GetCategory :one
-SELECT CategoryID, CategoryName FROM categories WHERE "CategoryID" = ?
+SELECT "CategoryID", "CategoryName" FROM categories WHERE "CategoryID" = $1
 `
 
-func (q *Queries) GetCategory(ctx context.Context, categoryid int64) (Category, error) {
-	row := q.db.QueryRowContext(ctx, getCategory, categoryid)
+func (q *Queries) GetCategory(ctx context.Context, categoryid int32) (Category, error) {
+	row := q.db.QueryRow(ctx, getCategory, categoryid)
 	var i Category
 	err := row.Scan(&i.CategoryID, &i.CategoryName)
 	return i, err
 }
 
 const insertCategory = `-- name: InsertCategory :execresult
-INSERT INTO categories("CategoryName") VALUES(?)
+INSERT INTO categories("CategoryName") VALUES($1)
 `
 
-func (q *Queries) InsertCategory(ctx context.Context, categoryname string) (sql.Result, error) {
-	return q.db.ExecContext(ctx, insertCategory, categoryname)
+func (q *Queries) InsertCategory(ctx context.Context, categoryname string) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, insertCategory, categoryname)
 }
 
 const updateCategory = `-- name: UpdateCategory :execresult
-UPDATE categories SET "CategoryName" = ? WHERE "CategoryID" = ?
+UPDATE categories SET "CategoryName" = $1 WHERE "CategoryID" = $2
 `
 
 type UpdateCategoryParams struct {
 	CategoryName string
-	CategoryID   int64
+	CategoryID   int32
 }
 
-func (q *Queries) UpdateCategory(ctx context.Context, arg UpdateCategoryParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, updateCategory, arg.CategoryName, arg.CategoryID)
+func (q *Queries) UpdateCategory(ctx context.Context, arg UpdateCategoryParams) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, updateCategory, arg.CategoryName, arg.CategoryID)
 }

@@ -2,14 +2,13 @@ package models
 
 import (
 	"context"
-	"database/sql"
 	repo "expenses/expenses/db/repository"
-
+	"github.com/jackc/pgx/v5"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 type User struct {
-	UserID   int64  `json:"UserID"`
+	UserID   int32  `json:"UserID"`
 	UserName string `json:"UserName"`
 }
 
@@ -20,10 +19,10 @@ func NewUser() User {
 	}
 }
 
-func GetAllUsers(tx *sql.Tx) ([]User, error) {
+func GetAllUsers(db repo.DBTX, tx pgx.Tx) ([]User, error) {
 	ctx := context.Background()
 
-	queries := repo.New(tx)
+	queries := repo.New(db).WithTx(tx)
 	userList, err := queries.GetUsers(ctx)
 	if err != nil {
 		return []User{}, err

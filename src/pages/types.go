@@ -4,11 +4,8 @@ import (
 	"database/sql"
 	exp "expenses/expenses"
 	experr "expenses/expenses/errors"
-
 	"fmt"
 	"net/http"
-	"strconv"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -32,7 +29,7 @@ func typesGlobalPage(c *gin.Context) {
 }
 
 func typePage(c *gin.Context) {
-	typeID, err := strconv.ParseInt(c.Param("id"), 10, 16)
+	typeID, err := exp.ParseID(c.Param("id"))
 	if err != nil {
 		NotFoundView(c, "requested type doesn't exist")
 		return

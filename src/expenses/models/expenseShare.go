@@ -2,18 +2,17 @@ package models
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"expenses/expenses/db/repository"
 	repo "expenses/expenses/db/repository"
 	"fmt"
-
+	"github.com/jackc/pgx/v5"
 	_ "github.com/mattn/go-sqlite3"
 	dec "github.com/shopspring/decimal"
 )
 
 type Share struct {
-	ExpShareID int64       `json:"ExpShareID"`
+	ExpShareID int32       `json:"ExpShareID"`
 	User       User        `json:"User"`
 	Share      dec.Decimal `json:"Share"`
 	Calculated dec.Decimal `json:"Calculated"`
@@ -45,10 +44,10 @@ func (sh Shares) Equal(other Shares) bool {
 	return true
 }
 
-func (e *Expense) GetShares(tx *sql.Tx) error {
+func (e *Expense) GetShares(db repo.DBTX, tx pgx.Tx) error {
 	ctx := context.Background()
 
-	queries := repository.New(tx)
+	queries := repository.New(db).WithTx(tx)
 	shares, err := queries.GetShares(ctx, e.ExpID)
 	if err != nil {
 		return err
@@ -58,67 +57,79 @@ func (e *Expense) GetShares(tx *sql.Tx) error {
 	return nil
 }
 
-func (sh *Share) Insert(tx *sql.Tx, expID int64) error {
+func (sh *Share) Insert(db repo.DBTX, tx pgx.Tx, expID int32) error {
 	ctx := context.Background()
 
-	queries := repo.New(tx)
+	share, err := decimalToNumeric(sh.Share)
+	if err != nil {
+		return err
+	}
+	calculated, err := decimalToNumeric(sh.Calculated)
+	if err != nil {
+		return err
+	}
+
+	queries := repo.New(db).WithTx(tx)
 	res, err := queries.InsertShare(ctx, repo.InsertShareParams{
 		ExpID:      expID,
-		Share:      sh.Share.String(),
+		Share:      share,
 		UserID:     sh.User.UserID,
-		Calculated: sh.Calculated.String(),
+		Calculated: calculated,
 	})
 	if err != nil {
 		return err
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
+	rowsAffected := res.RowsAffected()
+	if rowsAffected == 0 {
 		return fmt.Errorf("no rows were created")
 	}
 
 	return nil
 }
 
-func (sh *Share) Update(tx *sql.Tx) error {
+func (sh *Share) Update(db repo.DBTX, tx pgx.Tx) error {
 	ctx := context.Background()
 
-	queries := repo.New(tx)
+	share, err := decimalToNumeric(sh.Share)
+	if err != nil {
+		return err
+	}
+	calculated, err := decimalToNumeric(sh.Calculated)
+	if err != nil {
+		return err
+	}
+
+	queries := repo.New(db).WithTx(tx)
 	res, err := queries.UpdateShare(ctx, repo.UpdateShareParams{
 		ExpShareID: sh.ExpShareID,
-		Share:      sh.Share.String(),
+		Share:      share,
 		UserID:     sh.User.UserID,
-		Calculated: sh.Calculated.String(),
+		Calculated: calculated,
 	})
 	if err != nil {
 		return err
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
+	rowsAffected := res.RowsAffected()
+	if rowsAffected == 0 {
 		return fmt.Errorf("no rows were created")
 	}
 
 	return nil
 }
 
-func (sh *Share) Delete(tx *sql.Tx) error {
+func (sh *Share) Delete(db repo.DBTX, tx pgx.Tx) error {
 	ctx := context.Background()
 
-	queries := repo.New(tx)
+	queries := repo.New(db).WithTx(tx)
 	res, err := queries.DeleteShare(ctx, sh.ExpShareID)
 	if err != nil {
 		return err
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
+	rowsAffected := res.RowsAffected()
+	if rowsAffected == 0 {
 		return fmt.Errorf("no rows were created")
 	}
 

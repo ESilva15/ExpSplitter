@@ -17,12 +17,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// TODO MOVE THIS REGISTERED FUNCTIONS SOMEWHER ELSE
 // This can be set in the compilation command - in the Makefile
 var (
 	ginMode     = "debug"
 	tmplFuncMap = template.FuncMap{
-		"formatDate": func(ts int64) string {
-			return time.Unix(ts, 0).Format("02-Jan-2006")
+		"formatDate": func(t time.Time) string {
+			return t.Format("02-Jan-2006")
 		},
 		"formatPrice": func(v decimal.Decimal) string {
 			return fmt.Sprintf("%s", v.Round(2).StringFixed(2))

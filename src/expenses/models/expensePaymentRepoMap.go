@@ -2,12 +2,10 @@ package models
 
 import (
 	repo "expenses/expenses/db/repository"
-
-	"github.com/shopspring/decimal"
 )
 
 func mapRepoGetPaymentsRow(s repo.GetPaymentsRow) ExpensePayment {
-	payed, _ := decimal.NewFromString(s.ExpensesPayment.Payed)
+	payed := pgNumericToDecimal(s.ExpensesPayment.Payed)
 
 	return ExpensePayment{
 		ExpPaymID:   s.ExpensesPayment.ExpPaymID,
@@ -28,7 +26,7 @@ func mapRepoGetPaymentsRows(ep []repo.GetPaymentsRow) []ExpensePayment {
 }
 
 func mapRepoGetPaymentRow(s repo.GetExpensePaymentByUserRow) ExpensePayment {
-	payed, _ := decimal.NewFromString(s.ExpensesPayment.Payed)
+	payed := pgNumericToDecimal(s.ExpensesPayment.Payed)
 
 	return ExpensePayment{
 		ExpPaymID:   s.ExpensesPayment.ExpPaymID,

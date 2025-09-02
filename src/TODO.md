@@ -1,8 +1,6 @@
 # DOING
-Adding the field `Calculated` to `Share` to avoid computing what each user owes
-everytime due to the fractional cents problem
-Make a script for the current migration to compute the Calculated value with
-our rules
+Migrating to postgres
+Refactor how the models access the database (move the Tx creation to the models)
 
 # TODO
 - [ ] On the categories page, add a column of how many times a given category is

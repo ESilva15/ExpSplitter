@@ -1,23 +1,30 @@
 package expenses
 
 import (
+	"context"
 	mod "expenses/expenses/models"
 	"log"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/shopspring/decimal"
 )
 
 func (a *ExpensesApp) GetAllExpenses() ([]mod.Expense, error) {
-	tx, err := a.DB.Begin()
+	ctx := context.Background()
+
+	tx, err := a.DB.Begin(ctx)
 	if err != nil {
 		return []mod.Expense{}, err
 	}
-	defer tx.Rollback()
+	defer tx.Rollback(ctx)
 
-	expenses, err := mod.GetAllExpenses(tx)
+	expenses, err := mod.GetAllExpenses(a.DB, tx)
+	if err != nil {
+		return []mod.Expense{}, err
+	}
 
-	return expenses, tx.Commit()
+	return expenses, tx.Commit(ctx)
 }
 
 func (a *ExpensesApp) GetExpensesRanged(startDate string, endDate string) ([]mod.Expense, error) {
@@ -26,69 +33,75 @@ func (a *ExpensesApp) GetExpensesRanged(startDate string, endDate string) ([]mod
 		log.Printf("error startDate: %v", err)
 		return []mod.Expense{}, nil
 	}
-	start := startDateTime.Unix()
 
 	endDateTime, err := time.ParseInLocation("02-Jan-2006 15:04:05", endDate, time.UTC)
 	if err != nil {
 		log.Printf("error endDate: %v", err)
 		return []mod.Expense{}, nil
 	}
-	end := endDateTime.Unix()
 
-	tx, err := a.DB.Begin()
+	ctx := context.Background()
+
+	tx, err := a.DB.Begin(ctx)
 	if err != nil {
 		return []mod.Expense{}, err
 	}
-	defer tx.Rollback()
+	defer tx.Rollback(ctx)
 
-	expenses, err := mod.GetExpensesRange(tx, start, end)
+	expenses, err := mod.GetExpensesRange(a.DB, tx, startDateTime, endDateTime)
 
-	return expenses, tx.Commit()
+	return expenses, tx.Commit(ctx)
 }
 
-func (a *ExpensesApp) GetExpense(id int64) (mod.Expense, error) {
-	tx, err := a.DB.Begin()
+func (a *ExpensesApp) GetExpense(id int32) (mod.Expense, error) {
+	ctx := context.Background()
+
+	tx, err := a.DB.Begin(ctx)
 	if err != nil {
 		return mod.Expense{}, err
 	}
-	defer tx.Rollback()
+	defer tx.Rollback(ctx)
 
-	expense, err := mod.GetExpense(tx, id)
+	expense, err := mod.GetExpense(a.DB, tx, id)
 	if err != nil {
 		return mod.Expense{}, err
 	}
 
-	return expense, tx.Commit()
+	return expense, tx.Commit(ctx)
 }
 
 func (a *ExpensesApp) LoadExpenseShares(e *mod.Expense) error {
-	tx, err := a.DB.Begin()
+	ctx := context.Background()
+
+	tx, err := a.DB.Begin(ctx)
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer tx.Rollback(ctx)
 
-	err = e.GetShares(tx)
+	err = e.GetShares(a.DB, tx)
 	if err != nil {
 		return err
 	}
 
-	return tx.Commit()
+	return tx.Commit(ctx)
 }
 
 func (a *ExpensesApp) LoadExpensePayments(e *mod.Expense) error {
-	tx, err := a.DB.Begin()
+	ctx := context.Background()
+
+	tx, err := a.DB.Begin(ctx)
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer tx.Rollback(ctx)
 
-	err = e.GetPayments(tx)
+	err = e.GetPayments(a.DB, tx)
 	if err != nil {
 		return err
 	}
 
-	return tx.Commit()
+	return tx.Commit(ctx)
 }
 
 func (a *ExpensesApp) LoadExpenseDebts(e *mod.Expense) error {
@@ -98,23 +111,24 @@ func (a *ExpensesApp) LoadExpenseDebts(e *mod.Expense) error {
 	return nil
 }
 
-func (a *ExpensesApp) DeleteExpense(id int64) error {
-	tx, err := a.DB.Begin()
+func (a *ExpensesApp) DeleteExpense(id int32) error {
+	ctx := context.Background()
+	tx, err := a.DB.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer tx.Rollback(ctx)
 
 	expense := mod.Expense{
 		ExpID: id,
 	}
 
-	err = expense.Delete()
+	err = expense.Delete(a.DB, tx)
 	if err != nil {
 		return err
 	}
 
-	return tx.Commit()
+	return tx.Commit(ctx)
 }
 
 func mapShares(e *mod.Expense) map[mod.User]decimal.Decimal {
@@ -176,35 +190,38 @@ func (a *ExpensesApp) analyzeExpense(e *mod.Expense) {
 }
 
 func (a *ExpensesApp) NewExpense(exp mod.Expense) error {
-	tx, err := a.DB.Begin()
+	ctx := context.Background()
+	tx, err := a.DB.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer tx.Rollback(ctx)
 
 	a.analyzeExpense(&exp)
 
-	err = exp.Insert(tx)
+	err = exp.Insert(a.DB, tx)
 	if err != nil {
 		return err
 	}
 
-	return tx.Commit()
+	return tx.Commit(ctx)
 }
 
 func (a *ExpensesApp) UpdateExpense(exp mod.Expense) error {
-	tx, err := a.DB.Begin()
+	ctx := context.Background()
+
+	tx, err := a.DB.Begin(ctx)
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer tx.Rollback(ctx)
 
 	a.analyzeExpense(&exp)
 
-	err = exp.Update(tx)
+	err = exp.Update(a.DB, tx)
 	if err != nil {
 		return err
 	}
 
-	return tx.Commit()
+	return tx.Commit(ctx)
 }

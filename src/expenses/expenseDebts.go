@@ -1,9 +1,11 @@
 package expenses
 
 import (
+	"context"
 	mod "expenses/expenses/models"
 	"sort"
 
+	"github.com/jackc/pgx/v5"
 	dec "github.com/shopspring/decimal"
 )
 
@@ -143,28 +145,29 @@ func CalculateDebts(e *mod.Expense) (mod.Debts, error) {
 }
 
 func (a *ExpensesApp) settleDebt(payment mod.ExpensePayment,
-	credit mod.ExpensePayment, eId int64) error {
-	tx, err := a.DB.Begin()
+	credit mod.ExpensePayment, eId int32) error {
+	ctx := context.Background()
+	tx, err := a.DB.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer tx.Rollback(ctx)
 
 	credit.PayedAmount = credit.PayedAmount.Sub(payment.PayedAmount)
 
-	err = payment.Insert(tx, eId)
+	err = payment.Insert(a.DB, tx, eId)
 	if err != nil {
 		return err
 	}
-	err = credit.Update(tx)
+	err = credit.Update(a.DB, tx)
 	if err != nil {
 		return err
 	}
 
-	return tx.Commit()
+	return tx.Commit(ctx)
 }
 
-func (a *ExpensesApp) ProcessDebt(expID int64, debt mod.Debt) error {
+func (a *ExpensesApp) ProcessDebt(expID int32, debt mod.Debt) error {
 	// We have to balance the debtor and creditor payments
 	payment := mod.ExpensePayment{
 		User: mod.User{
