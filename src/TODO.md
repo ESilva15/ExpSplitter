@@ -1,6 +1,8 @@
 # DOING
 Migrating to postgres
 Refactor how the models access the database (move the Tx creation to the models)
+Refactor the Makefiles
+Refactor the App start function
 
 # TODO
 - [ ] On the categories page, add a column of how many times a given category is
@@ -21,11 +23,39 @@ used
 - [ ] Better UX when adding expenses on the payments and share values (default even split)
 - [ ] Verification popups for delete actions
 
+### Functionalities
+#### Expenses
+- Create
+- View
+- Update
+- Delete
+
+#### Categories
+- View
+- Create
+- Delete
+- Update
+
+#### Stores
+- View
+- Create
+- Delete
+- Update
+
+#### Types
+- View
+- Create
+- Delete
+- Update
+
 ### Stack
 - Go
 - golang-migrate
 - sqlc
-- sqlite
+~- sqlite~
+- postgresql
+- python
+- lua
 
 ### Patterns
 - Service Pattern

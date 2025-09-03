@@ -4,7 +4,7 @@ SELECT
 FROM 
   "expensesShares" as shares
 JOIN 
-  users as users ON users.UserID = shares.UserID
+  users as users ON users."UserID" = shares."UserID"
 WHERE "ExpID" = $1;
 
 -- name: InsertShare :execresult

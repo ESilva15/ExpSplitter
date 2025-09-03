@@ -1,16 +1,13 @@
 package pages
 
 import (
-	"database/sql"
 	"encoding/json"
 	exp "expenses/expenses"
 	experr "expenses/expenses/errors"
 	mod "expenses/expenses/models"
 	"fmt"
 	"log"
-
 	"net/http"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -54,19 +51,21 @@ func expensePage(c *gin.Context) {
 	}
 
 	expense, err := exp.App.GetExpense(expenseID)
-	if err == sql.ErrNoRows {
+	if err != nil {
 		NotFoundView(c, "didn't find requested expense")
 		return
 	}
 
 	err = exp.App.LoadExpenseShares(&expense)
 	if err != nil {
+		log.Println("error:", err)
 		ServerErrorView(c, "failed to fetch shares")
 		return
 	}
 
 	err = exp.App.LoadExpensePayments(&expense)
 	if err != nil {
+		log.Println("error:", err)
 		ServerErrorView(c, "failed to fetch payments")
 		return
 	}
@@ -211,12 +210,14 @@ func deleteExpense(c *gin.Context) {
 
 	err = exp.App.DeleteExpense(expenseID)
 	if err == experr.ErrNotFound {
+		log.Println("error:", err)
 		errMsg := fmt.Sprintf("category %d not found", expenseID)
 		c.String(http.StatusNotFound, errMsg)
 		return
 	}
 
 	if err != nil {
+		log.Println("error:", err)
 		errMsg := fmt.Sprintf("error deleting category %d", expenseID)
 		c.String(http.StatusInternalServerError, errMsg)
 		return

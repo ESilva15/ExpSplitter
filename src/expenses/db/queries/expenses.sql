@@ -7,11 +7,11 @@ SELECT
   sqlc.embed(types)
 FROM expenses
 JOIN 
-  Stores ON stores."StoreID" = expenses."StoreID"
+  stores ON stores."StoreID" = expenses."StoreID"
 JOIN 
-  Categories ON categories."CategoryID" = expenses."CategoryID"
+  categories ON categories."CategoryID" = expenses."CategoryID"
 JOIN 
-  Users ON users."UserID" = expenses."OwnerUserID"
+  users ON users."UserID" = expenses."OwnerUserID"
 JOIN
   "expenseTypes" as types ON types."TypeID" = expenses."TypeID"
 WHERE
@@ -28,11 +28,11 @@ SELECT
   sqlc.embed(types)
 FROM expenses
 JOIN 
-  Stores ON stores."StoreID" = expenses."StoreID"
+  stores ON stores."StoreID" = expenses."StoreID"
 JOIN 
-  Categories ON categories."CategoryID" = expenses."CategoryID"
+  categories ON categories."CategoryID" = expenses."CategoryID"
 JOIN 
-  Users ON "UserID" = "OwnerUserID"
+  users ON "UserID" = "OwnerUserID"
 JOIN
   "expenseTypes" as types ON types."TypeID" = expenses."TypeID"
 WHERE 
@@ -55,7 +55,13 @@ VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 RETURNING "ExpID";
 
 -- name: DeleteExpense :execresult
-DELETE FROM expenses WHERE "ExpID" = $1;
+WITH delPayments AS (
+  DELETE FROM "expensesPayments" WHERE "ExpID" = $1
+),
+delShares AS (
+  DELETE FROM "expensesShares" WHERE "ExpID" = $1
+)
+DELETE FROM expenses WHERE expenses."ExpID" = $1;
 
 -- name: UpdateExpense :execresult
 UPDATE expenses

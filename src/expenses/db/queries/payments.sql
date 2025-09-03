@@ -4,7 +4,7 @@ SELECT
 FROM 
   "expensesPayments" as payments
 JOIN 
-  users as users ON users.UserID = payments.UserID
+  users as users ON users."UserID" = payments."UserID"
 WHERE "ExpID" = $1;
 
 -- name: GetExpensePaymentByUser :one
@@ -13,7 +13,7 @@ SELECT
 FROM
   "expensesPayments" as payments
 JOIN
-  users as users ON users.UserID = payments.UserID
+  users as users ON users."UserID" = payments."UserID"
 WHERE
   "ExpID" = $1 AND users."UserID" = $2;
   

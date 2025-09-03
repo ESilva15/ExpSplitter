@@ -1,5 +1,7 @@
 service = expenses-pgdb
-version = v0.0.81-alpha
+registry = dir.esilva.org
+repo = esilva
+tag = v0.0.81-alpha
 image = $(service)
 container = $(image)-container
 
@@ -12,7 +14,10 @@ clean:
 build:
 	cp ../expenses/db/schema.sql .
 	docker buildx build \
-		-t $(image) .
+		-t $(registry)/$(repo)/expensesdb:$(tag) .
+
+push_image:
+	docker push $(registry)/$(repo)/expensesdb:$(tag)
 
 attach:
 	docker exec -it $(container) zsh
@@ -26,6 +31,6 @@ remove-dev-container:
 test: remove-dev-container
 	docker run -p 5431:5432 \
 		--name $(container)-dev \
-		$$(cat .env | sed 's/^/-e /') \
+		--env-file .env \
 		-v ./pgsql-data-dev/:/var/lib/postgresql/data/ \
 		-it $(image)

@@ -27,6 +27,7 @@ EXPOSE 5431
 
 # Copies the start script
 COPY ./start.sh /start.sh
+COPY ./healthcheck.sh /healthcheck.sh
 USER $UNAME
 STOPSIGNAL SIGTERM
 ENTRYPOINT [ "/start.sh" ]

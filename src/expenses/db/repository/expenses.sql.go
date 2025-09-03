@@ -13,7 +13,13 @@ import (
 )
 
 const deleteExpense = `-- name: DeleteExpense :execresult
-DELETE FROM expenses WHERE "ExpID" = $1
+WITH delPayments AS (
+  DELETE FROM "expensesPayments" WHERE "ExpID" = $1
+),
+delShares AS (
+  DELETE FROM "expensesShares" WHERE "ExpID" = $1
+)
+DELETE FROM expenses WHERE expenses."ExpID" = $1
 `
 
 func (q *Queries) DeleteExpense(ctx context.Context, expid int32) (pgconn.CommandTag, error) {
@@ -29,11 +35,11 @@ SELECT
   types."TypeID", types."TypeName"
 FROM expenses
 JOIN 
-  Stores ON stores."StoreID" = expenses."StoreID"
+  stores ON stores."StoreID" = expenses."StoreID"
 JOIN 
-  Categories ON categories."CategoryID" = expenses."CategoryID"
+  categories ON categories."CategoryID" = expenses."CategoryID"
 JOIN 
-  Users ON "UserID" = "OwnerUserID"
+  users ON "UserID" = "OwnerUserID"
 JOIN
   "expenseTypes" as types ON types."TypeID" = expenses."TypeID"
 WHERE 
@@ -85,11 +91,11 @@ SELECT
   types."TypeID", types."TypeName"
 FROM expenses
 JOIN 
-  Stores ON stores."StoreID" = expenses."StoreID"
+  stores ON stores."StoreID" = expenses."StoreID"
 JOIN 
-  Categories ON categories."CategoryID" = expenses."CategoryID"
+  categories ON categories."CategoryID" = expenses."CategoryID"
 JOIN 
-  Users ON users."UserID" = expenses."OwnerUserID"
+  users ON users."UserID" = expenses."OwnerUserID"
 JOIN
   "expenseTypes" as types ON types."TypeID" = expenses."TypeID"
 WHERE

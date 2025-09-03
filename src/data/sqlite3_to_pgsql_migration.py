@@ -2,7 +2,7 @@
 
 import psycopg2
 from psycopg2 import Error
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
 class DB():
@@ -86,12 +86,24 @@ def mig_data(db, m):
     fields = ','.join([f"\"{h}\"" for h in m["headers"]])
     query = f"INSERT INTO \"{m["table"]}\" ({fields}) VALUES({values})"
 
+    lastId = -1
     try:
         data = get_data(m["csvFile"])
         insert_data(db, query, data)
+        lastId = data[0]
     except (Exception, Error) as error:
         raise error
 
+    if lastId != -1:
+        if m["table"] == "schema_migrations":
+            return
+        try:
+            db.runQuery(
+                f"SELECT setval(pg_get_serial_sequence('\"{m["table"]}\"', '{m["headers"][0]}'),"
+                f"(SELECT MAX(\"{m["headers"][0]}\") FROM \"{m["table"]}\"))", []
+            )
+        except (Exception, Error) as error:
+            raise error
 
 if __name__ == "__main__":
     if False:
@@ -105,11 +117,6 @@ if __name__ == "__main__":
             exit(0)
 
         migs = [
-            {
-                "table": "schema_migrations",
-                "csvFile": "./schema_migrations.csv",
-                "headers": ["version", "dirty"],
-            },
             {
                 "table": "categories",
                 "csvFile": "./categories.csv",
@@ -157,3 +164,4 @@ if __name__ == "__main__":
                 mig_data(dbObj, m)
             except (Exception, Error) as error:
                 print("failed to migrate data:", error)
+                exit(1)

@@ -6,6 +6,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	lua "github.com/yuin/gopher-lua"
 	"log"
+	"strings"
 )
 
 type ExpensesApp struct {
@@ -37,12 +38,24 @@ func StartLuaVM() (*lua.LState, error) {
 	return L, nil
 }
 
+func getPgConnString(cfg *config.Configuration) string {
+	var s strings.Builder
+
+	s.WriteString("port=" + cfg.PgCfg.Port + " ")
+	s.WriteString("host=" + cfg.PgCfg.Host + " ")
+	s.WriteString("user=" + cfg.PgCfg.User + " ")
+	s.WriteString("dbname=" + cfg.PgCfg.DB + " ")
+	s.WriteString("password=" + cfg.PgCfg.Pass)
+
+	return s.String()
+}
+
 func StartApp() error {
 	config.SetConfig("./config.yaml")
-	// cfg := config.GetInstance()
+	cfg := config.GetInstance()
 
 	ctx := context.Background()
-	pgStr := "port=5431 host=127.0.0.1 user=expuser dbname=expdb password=exppass"
+	pgStr := getPgConnString(cfg)
 	conn, err := pgx.Connect(ctx, pgStr)
 	if err != nil {
 		log.Fatalf("Failed to open migration DB: %v", err)
