@@ -1,8 +1,8 @@
 # DOING
-Migrating to postgres
 Refactor how the models access the database (move the Tx creation to the models)
 Refactor the Makefiles
 Refactor the App start function
+Add NIF columns to stores and to users
 
 # TODO
 - [ ] On the categories page, add a column of how many times a given category is

@@ -1,7 +1,5 @@
+include ../vars.mk
 service = expenses-pgdb
-registry = dir.esilva.org
-repo = esilva
-tag = v0.0.81-alpha
 image = $(service)
 container = $(image)-container
 
@@ -34,3 +32,6 @@ test: remove-dev-container
 		--env-file .env \
 		-v ./pgsql-data-dev/:/var/lib/postgresql/data/ \
 		-it $(image)
+
+build_image:
+	make -C ./

@@ -1,7 +1,5 @@
+include vars.mk
 build = ./build/expensesweb
-registry = dir.esilva.org
-repo = esilva
-tag = v0.0.81-alpha
 
 build_release_alpine:
 	rm -rf build && mkdir -p $(build)
@@ -32,3 +30,6 @@ test:
 	go test -coverprofile=coverage.out ./...
 	go tool cover -html=coverage.out -o coverage.html
 	rm ./coverage.out
+
+build_db_image:
+	make -C ./pgImage build
