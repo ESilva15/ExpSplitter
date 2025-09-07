@@ -7,7 +7,6 @@ import (
 	"log"
 	"strings"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	lua "github.com/yuin/gopher-lua"
 )
@@ -60,32 +59,48 @@ func getPgConnString(cfg *config.Configuration) string {
 	return s.String()
 }
 
+func runMigrations(luaVM *lua.LState) error {
+	migrator, err := repo.NewPgMigrator()
+	if err != nil {
+		return err
+	}
+
+	err = migrator.RunMigrations(luaVM)
+	if err != nil {
+		log.Fatalf("Failed to apply migrations: %v", err)
+	}
+
+	migrator.Close()
+
+	return nil
+}
+
+func (a *ExpensesApp) GoToMigration(id uint) error {
+	migrator, err := repo.NewPgMigrator()
+	if err != nil {
+		return err
+	}
+
+	return migrator.Goto(id)
+}
+
 func StartApp() error {
 	config.SetConfig("./config.yaml")
 	cfg := config.GetInstance()
-
 	ctx := context.Background()
 	pgStr := getPgConnString(cfg)
-	conn, err := pgxpool.New(ctx, pgStr)
-	if err != nil {
-		log.Fatalf("Failed to open migration DB: %v", err)
-	}
 
-	App = NewExpenseApp(conn, nil)
-
+	// Create the LuaVM
 	luaVM, err := StartLuaVM()
 	if err != nil {
 		return err
 	}
-	App.Lua = luaVM
 
-	err = RunMigrations(conn, luaVM)
-	if err != nil {
-		log.Fatalf("Failed to apply migrations: %v", err)
-	}
-	App.Close()
+	// Run the migrations
+	err = runMigrations(luaVM)
 
-	conn, err = pgx.Connect(ctx, pgStr)
+	// Create our final app thing
+	conn, err := pgxpool.New(ctx, pgStr)
 	if err != nil {
 		log.Fatalf("Failed to open DB: %v", err)
 	}

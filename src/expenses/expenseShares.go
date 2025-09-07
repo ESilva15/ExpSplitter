@@ -3,7 +3,6 @@ package expenses
 import (
 	"context"
 	mod "expenses/expenses/models"
-	"github.com/jackc/pgx/v5"
 	dec "github.com/shopspring/decimal"
 )
 
@@ -70,38 +69,12 @@ func (a *ExpensesApp) NormalizeShares(e *mod.Expense) error {
 
 // insertShare allows us to insert a share manually
 // for now its private, need to figure out if it needs to be public
-func (a *ExpensesApp) insertShare(share *mod.Share, eIdx int32) error {
+func (a *ExpensesApp) insertShare(share mod.Share, eIdx int32) error {
 	ctx := context.Background()
-	tx, err := a.DB.BeginTx(ctx, pgx.TxOptions{})
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback(ctx)
-
-	err = share.Insert(a.DB, tx, eIdx)
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit(ctx)
+	return a.ExpRepo.InsertShare(ctx, eIdx, share)
 }
 
 func (a *ExpensesApp) DeleteShare(id int32) error {
 	ctx := context.Background()
-	tx, err := a.DB.BeginTx(ctx, pgx.TxOptions{})
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback(ctx)
-
-	share := mod.Share{
-		ExpShareID: id,
-	}
-
-	err = share.Delete(a.DB, tx)
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit(ctx)
+	return a.ExpRepo.DeleteShare(ctx, id)
 }

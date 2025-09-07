@@ -19,6 +19,10 @@ func NewPgCatRepo(db *pgxpool.Pool) CategoryRepository {
 	}
 }
 
+func (p PgCatRepo) Close() {
+	p.DB.Close()
+}
+
 func (p PgCatRepo) Get(ctx context.Context, id int32) (mod.Category, error) {
 	queries := pgsqlc.New(p.DB)
 	category, err := queries.GetCategory(ctx, id)

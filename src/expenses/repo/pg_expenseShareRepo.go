@@ -107,9 +107,9 @@ func (p PgExpRepo) UpdateShare(ctx context.Context, sh mod.Share) error {
 }
 
 func (p *PgExpRepo) deleteShare(
-	ctx context.Context, q *pgsqlc.Queries, sh mod.Share) error {
+	ctx context.Context, q *pgsqlc.Queries, id int32) error {
 
-	res, err := q.DeleteShare(ctx, sh.ExpShareID)
+	res, err := q.DeleteShare(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -122,8 +122,8 @@ func (p *PgExpRepo) deleteShare(
 	return nil
 }
 
-func (p PgExpRepo) DeleteShare(ctx context.Context, sh mod.Share) error {
-	return p.deleteShare(ctx, pgsqlc.New(p.DB), sh)
+func (p PgExpRepo) DeleteShare(ctx context.Context, id int32) error {
+	return p.deleteShare(ctx, pgsqlc.New(p.DB), id)
 }
 
 func (p *PgExpRepo) getShares(

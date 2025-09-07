@@ -21,7 +21,7 @@ type ExpenseRepository interface {
 	UpdateShare(ctx context.Context, sh mod.Share) error
 	InsertShare(ctx context.Context, eId int32, sh mod.Share) error
 	InsertShares(ctx context.Context, eId int32, sh mod.Shares) error
-	DeleteShare(ctx context.Context, sh mod.Share) error
+	DeleteShare(ctx context.Context, id int32) error
 
 	// Payment methods
 	GetPayments(ctx context.Context, eId int32) (mod.Payments, error)
@@ -30,5 +30,7 @@ type ExpenseRepository interface {
 	UpdatePayment(ctx context.Context, pm mod.Payment) error
 	InsertPayment(ctx context.Context, eId int32, pm mod.Payment) error
 	InsertPayments(ctx context.Context, eId int32, pm mod.Payments) error
-	DeletePayment(ctx context.Context, pm mod.Payment) error
+	DeletePayment(ctx context.Context, id int32) error
+
+	Close()
 }

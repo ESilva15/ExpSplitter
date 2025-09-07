@@ -3,11 +3,9 @@ package expenses
 import (
 	"context"
 	mod "expenses/expenses/models"
+	"github.com/shopspring/decimal"
 	"log"
 	"time"
-
-	"github.com/jackc/pgx/v5"
-	"github.com/shopspring/decimal"
 )
 
 func (a *ExpensesApp) GetAllExpenses() ([]mod.Expense, error) {
@@ -36,15 +34,7 @@ func (a *ExpensesApp) GetExpensesRanged(startDate string, endDate string) ([]mod
 
 	ctx := context.Background()
 
-	tx, err := a.DB.Begin(ctx)
-	if err != nil {
-		return []mod.Expense{}, err
-	}
-	defer tx.Rollback(ctx)
-
-	expenses, err := mod.GetExpensesRange(a.DB, tx, startDateTime, endDateTime)
-
-	return expenses, tx.Commit(ctx)
+	return a.ExpRepo.GetExpensesRange(ctx, startDateTime, endDateTime)
 }
 
 func (a *ExpensesApp) GetExpense(id int32) (mod.Expense, error) {
@@ -61,35 +51,19 @@ func (a *ExpensesApp) GetExpense(id int32) (mod.Expense, error) {
 func (a *ExpensesApp) LoadExpenseShares(e *mod.Expense) error {
 	ctx := context.Background()
 
-	tx, err := a.DB.Begin(ctx)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback(ctx)
+	var err error
+	e.Shares, err = a.ExpRepo.GetShares(ctx, e.ExpID)
 
-	err = e.GetShares(a.DB, tx)
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit(ctx)
+	return err
 }
 
 func (a *ExpensesApp) LoadExpensePayments(e *mod.Expense) error {
 	ctx := context.Background()
 
-	tx, err := a.DB.Begin(ctx)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback(ctx)
+	var err error
+	e.Payments, err = a.ExpRepo.GetPayments(ctx, e.ExpID)
 
-	err = e.GetPayments(a.DB, tx)
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit(ctx)
+	return err
 }
 
 func (a *ExpensesApp) LoadExpenseDebts(e *mod.Expense) error {
@@ -164,31 +138,19 @@ func (a *ExpensesApp) analyzeExpense(e *mod.Expense) {
 }
 
 func (a *ExpensesApp) NewExpense(exp mod.Expense) error {
+	ctx := context.Background()
+
 	a.analyzeExpense(&exp)
 
-	err := a.Storage.Insert()
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit(ctx)
+	return a.ExpRepo.Insert(ctx, exp)
 }
 
 func (a *ExpensesApp) UpdateExpense(exp mod.Expense) error {
 	ctx := context.Background()
 
-	tx, err := a.DB.Begin(ctx)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback(ctx)
-
+	// TODO
+	// Move these functions to the models
 	a.analyzeExpense(&exp)
 
-	err = exp.Update(a.DB, tx)
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit(ctx)
+	return a.ExpRepo.Update(ctx, exp)
 }

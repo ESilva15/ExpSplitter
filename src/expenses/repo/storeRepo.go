@@ -11,4 +11,6 @@ type StoreRepository interface {
 	Update(ctx context.Context, cat mod.Store) error
 	Insert(ctx context.Context, cat mod.Store) error
 	Delete(ctx context.Context, id int32) error
+
+	Close()
 }

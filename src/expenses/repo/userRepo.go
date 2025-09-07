@@ -7,4 +7,6 @@ import (
 
 type UserRepository interface {
 	GetAll(ctx context.Context) (mod.Users, error)
+
+	Close()
 }

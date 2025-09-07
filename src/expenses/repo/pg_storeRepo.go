@@ -19,6 +19,10 @@ func NewPgStoreRepo(db *pgxpool.Pool) StoreRepository {
 	}
 }
 
+func (p PgStoreRepo) Close() {
+	p.DB.Close()
+}
+
 func (p PgStoreRepo) Get(ctx context.Context, id int32) (mod.Store, error) {
 	queries := pgsqlc.New(p.DB)
 	store, err := queries.GetStore(ctx, id)

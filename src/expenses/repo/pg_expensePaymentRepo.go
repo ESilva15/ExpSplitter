@@ -84,9 +84,9 @@ func (p PgExpRepo) UpdatePayment(
 }
 
 func (p *PgExpRepo) deletePayment(
-	ctx context.Context, q *pgsqlc.Queries, pm mod.Payment) error {
+	ctx context.Context, q *pgsqlc.Queries, id int32) error {
 
-	res, err := q.DeletePayment(ctx, pm.ExpPaymID)
+	res, err := q.DeletePayment(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -99,8 +99,8 @@ func (p *PgExpRepo) deletePayment(
 	return nil
 }
 
-func (p PgExpRepo) DeletePayment(ctx context.Context, pm mod.Payment) error {
-	return p.deletePayment(ctx, pgsqlc.New(p.DB), pm)
+func (p PgExpRepo) DeletePayment(ctx context.Context, id int32) error {
+	return p.deletePayment(ctx, pgsqlc.New(p.DB), id)
 }
 
 func (p *PgExpRepo) getPayments(

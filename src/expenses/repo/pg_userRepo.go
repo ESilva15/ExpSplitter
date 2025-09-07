@@ -17,6 +17,10 @@ func NewPgUserRepo(db *pgxpool.Pool) UserRepository {
 	}
 }
 
+func (p PgUserRepo) Close() {
+	p.DB.Close()
+}
+
 func (p PgUserRepo) GetAll(ctx context.Context) (mod.Users, error) {
 	queries := pgsqlc.New(p.DB)
 	userList, err := queries.GetUsers(ctx)

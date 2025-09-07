@@ -22,7 +22,8 @@ func (a *ExpensesApp) prepareExpense(exp *mod.Expense) error {
 }
 
 func (a *ExpensesApp) luaGetAllExpenses(L *lua.LState) int {
-	expenses, err := a.Storage.GetAllExpenses()
+	ctx := context.Background()
+	expenses, err := a.ExpRepo.GetAll(ctx)
 
 	tbl := L.NewTable()
 	for _, e := range expenses {
@@ -52,13 +53,8 @@ func (a *ExpensesApp) luaGetExpense(L *lua.LState) int {
 	// TODO
 	// This also doesnt make sense
 	ctx := context.Background()
-	tx, err := a.DB.Begin(ctx)
-	if err != nil {
-		return returnWithError(L, err.Error())
-	}
-	defer tx.Rollback(ctx)
 
-	expense, err := mod.GetExpense(a.DB, tx, int32(expId))
+	expense, err := a.ExpRepo.Get(ctx, int32(expId))
 	if err != nil {
 		return returnWithError(L, err.Error())
 	}

@@ -23,9 +23,9 @@ func migrate(cmd *cobra.Command, args []string) {
 		log.Fatalf("%s is an invalid migration ID", args[1])
 	}
 
-	err = expenses.App.Goto(uint(migID))
+	err = expenses.App.GoToMigration(uint(migID))
 	if err != nil {
-		log.Fatalf("Failed to apply migration: %v", err)
+		log.Fatalf("Failed to move to migration `%d`: %+v", migID, err)
 	}
 }
 

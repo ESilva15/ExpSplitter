@@ -11,4 +11,6 @@ type CategoryRepository interface {
 	Update(ctx context.Context, cat mod.Category) error
 	Insert(ctx context.Context, cat mod.Category) error
 	Delete(ctx context.Context, id int32) error
+
+	Close() 
 }

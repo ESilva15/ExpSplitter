@@ -19,6 +19,10 @@ func NewPgTypeRepo(db *pgxpool.Pool) TypeRepository {
 	}
 }
 
+func (p PgTypeRepo) Close() {
+	p.DB.Close()
+}
+
 func (p PgTypeRepo) Get(ctx context.Context, id int32) (mod.Type, error) {
 	queries := pgsqlc.New(p.DB)
 	typ, err := queries.GetType(ctx, id)

@@ -3,10 +3,8 @@ package expenses
 import (
 	"context"
 	mod "expenses/expenses/models"
-	"sort"
-
-	"github.com/jackc/pgx/v5"
 	dec "github.com/shopspring/decimal"
+	"sort"
 )
 
 type UserTab struct {
@@ -147,24 +145,15 @@ func CalculateDebts(e *mod.Expense) (mod.Debts, error) {
 func (a *ExpensesApp) settleDebt(payment mod.Payment,
 	credit mod.Payment, eId int32) error {
 	ctx := context.Background()
-	tx, err := a.DB.BeginTx(ctx, pgx.TxOptions{})
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback(ctx)
 
 	credit.PayedAmount = credit.PayedAmount.Sub(payment.PayedAmount)
 
-	err = payment.Insert(a.DB, tx, eId)
-	if err != nil {
-		return err
-	}
-	err = credit.Update(a.DB, tx)
-	if err != nil {
-		return err
-	}
+	// TODO
+	// This needs to run as a transaction
+	err := a.ExpRepo.InsertPayment(ctx, eId, payment)
+	err = a.ExpRepo.UpdatePayment(ctx, credit)
 
-	return tx.Commit(ctx)
+	return err
 }
 
 func (a *ExpensesApp) ProcessDebt(expID int32, debt mod.Debt) error {

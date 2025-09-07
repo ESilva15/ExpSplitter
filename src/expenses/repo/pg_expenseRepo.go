@@ -22,6 +22,10 @@ func NewPgExpRepo(db *pgxpool.Pool) ExpenseRepository {
 	}
 }
 
+func (p PgExpRepo) Close() {
+	p.DB.Close()
+}
+
 func (r *PgExpRepo) withTx(ctx context.Context, fn func(q *pgsqlc.Queries) error) error {
 	tx, err := r.DB.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
@@ -120,6 +124,9 @@ func (p PgExpRepo) Update(
 				}
 			} else {
 				err := p.updateShare(ctx, q, share)
+				if err != nil {
+					return err
+				}
 			}
 		}
 

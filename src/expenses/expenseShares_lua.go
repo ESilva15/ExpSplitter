@@ -14,7 +14,7 @@ func (a *ExpensesApp) luaInsertShare(L *lua.LState) int {
 		return returnWithError(L, err.Error())
 	}
 
-	err = a.insertShare(share, int32(expenseID))
+	err = a.insertShare(*share, int32(expenseID))
 	if err != nil {
 		return returnWithError(L, err.Error())
 	}

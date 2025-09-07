@@ -11,4 +11,6 @@ type TypeRepository interface {
 	Update(ctx context.Context, typ mod.Type) error
 	Insert(ctx context.Context, typ mod.Type) error
 	Delete(ctx context.Context, id int32) error
+
+	Close()
 }
