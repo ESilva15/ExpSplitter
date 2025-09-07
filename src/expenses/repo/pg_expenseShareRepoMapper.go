@@ -1,17 +1,18 @@
-package models
+package repo
 
 import (
-	repo "expenses/expenses/db/repository"
+	mod "expenses/expenses/models"
+	"expenses/expenses/repo/pgdb/pgsqlc"
 )
 
-func mapRepoGetSharesRow(s repo.GetSharesRow) Share {
+func mapRepoGetSharesRow(s pgsqlc.GetSharesRow) mod.Share {
 	share := pgNumericToDecimal(s.ExpensesShare.Share)
 	calculated := pgNumericToDecimal(s.ExpensesShare.Calculated)
 
-	return Share{
+	return mod.Share{
 		ExpShareID: s.ExpensesShare.ExpShareID,
 		Share:      share,
-		User: User{
+		User: mod.User{
 			UserID:   s.User.UserID,
 			UserName: s.User.UserName,
 		},
@@ -19,8 +20,8 @@ func mapRepoGetSharesRow(s repo.GetSharesRow) Share {
 	}
 }
 
-func mapRepoGetSharesRows(es []repo.GetSharesRow) []Share {
-	shares := make([]Share, len(es))
+func mapRepoGetSharesRows(es []pgsqlc.GetSharesRow) mod.Shares {
+	shares := make(mod.Shares, len(es))
 	for k, exp := range es {
 		shares[k] = mapRepoGetSharesRow(exp)
 	}

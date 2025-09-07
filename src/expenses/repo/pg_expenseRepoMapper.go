@@ -1,83 +1,84 @@
-package models
+package repo
 
 import (
-	repo "expenses/expenses/db/repository"
+	mod "expenses/expenses/models"
+	"expenses/expenses/repo/pgdb/pgsqlc"
 )
 
-func mapRepoGetExpenseRow(e repo.GetExpenseRow) Expense {
+func mapRepoGetExpenseRow(e pgsqlc.GetExpenseRow) mod.Expense {
 	value := pgNumericToDecimal(e.Expense.Value)
 	paidOff := pgBoolToBool(e.Expense.PaidOff)
 	sharesEven := pgBoolToBool(e.Expense.SharesEven)
 	expDate := pgTimestampToTime(e.Expense.ExpDate)
 	creationDate := pgTimestampToTime(e.Expense.CreationDate)
 
-	return Expense{
+	return mod.Expense{
 		ExpID:       e.Expense.ExpID,
 		Description: e.Expense.Description,
 		Value:       value,
-		Store: Store{
+		Store: mod.Store{
 			StoreID:   e.Store.StoreID,
 			StoreName: e.Store.StoreName,
 		},
-		Type: Type{
+		Type: mod.Type{
 			TypeID:   e.ExpenseType.TypeID,
 			TypeName: e.ExpenseType.TypeName,
 		},
-		Category: Category{
+		Category: mod.Category{
 			CategoryID:   e.Category.CategoryID,
 			CategoryName: e.Category.CategoryName,
 		},
-		Owner: User{
+		Owner: mod.User{
 			UserID:   e.User.UserID,
 			UserName: e.User.UserName,
 		},
 		Date:         expDate,
-		Shares:       []Share{},
-		Payments:     []ExpensePayment{},
+		Shares:       []mod.Share{},
+		Payments:     []mod.Payment{},
 		PaidOff:      paidOff,
 		SharesEven:   sharesEven,
 		CreationDate: creationDate,
 	}
 }
 
-func mapRepoGetExpenseRowMulti(e repo.GetExpensesRow) Expense {
+func mapRepoGetExpenseRowMulti(e pgsqlc.GetExpensesRow) mod.Expense {
 	value := pgNumericToDecimal(e.Expense.Value)
 	paidOff := pgBoolToBool(e.Expense.PaidOff)
 	sharesEven := pgBoolToBool(e.Expense.SharesEven)
 	expDate := pgTimestampToTime(e.Expense.ExpDate)
 	creationDate := pgTimestampToTime(e.Expense.CreationDate)
 
-	return Expense{
+	return mod.Expense{
 		ExpID:       e.Expense.ExpID,
 		Description: e.Expense.Description,
 		Value:       value,
-		Store: Store{
+		Store: mod.Store{
 			StoreID:   e.Store.StoreID,
 			StoreName: e.Store.StoreName,
 		},
-		Type: Type{
+		Type: mod.Type{
 			TypeID:   e.ExpenseType.TypeID,
 			TypeName: e.ExpenseType.TypeName,
 		},
-		Category: Category{
+		Category: mod.Category{
 			CategoryID:   e.Category.CategoryID,
 			CategoryName: e.Category.CategoryName,
 		},
-		Owner: User{
+		Owner: mod.User{
 			UserID:   e.User.UserID,
 			UserName: e.User.UserName,
 		},
 		Date:         expDate,
-		Shares:       []Share{},
-		Payments:     []ExpensePayment{},
+		Shares:       []mod.Share{},
+		Payments:     []mod.Payment{},
 		PaidOff:      paidOff,
 		SharesEven:   sharesEven,
 		CreationDate: creationDate,
 	}
 }
 
-func mapRepoGetExpensesRows(er []repo.GetExpensesRow) []Expense {
-	expenses := make([]Expense, len(er))
+func mapRepoGetExpensesRows(er []pgsqlc.GetExpensesRow) []mod.Expense {
+	expenses := make([]mod.Expense, len(er))
 	for k, exp := range er {
 		expenses[k] = mapRepoGetExpenseRowMulti(exp)
 	}

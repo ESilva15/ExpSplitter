@@ -3,32 +3,42 @@ package expenses
 import (
 	"context"
 	"expenses/config"
-	"github.com/jackc/pgx/v5"
-	lua "github.com/yuin/gopher-lua"
+	"expenses/expenses/repo"
 	"log"
 	"strings"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
+	lua "github.com/yuin/gopher-lua"
 )
 
 type ExpensesApp struct {
-	DB  *pgx.Conn
-	Lua *lua.LState
+	Lua          *lua.LState
+	ExpRepo      repo.ExpenseRepository
+	CategoryRepo repo.CategoryRepository
+	UserRepo     repo.UserRepository
+	StoreRepo    repo.StoreRepository
+	TypeRepo     repo.TypeRepository
 }
 
 var (
 	App *ExpensesApp
 )
 
-func NewExpenseApp(db *pgx.Conn, luaVM *lua.LState) *ExpensesApp {
+func NewExpenseApp(db *pgxpool.Pool, luaVM *lua.LState) *ExpensesApp {
 	return &ExpensesApp{
-		DB:  db,
-		Lua: luaVM,
+		ExpRepo:      repo.NewPgExpRepo(db),
+		CategoryRepo: repo.NewPgCatRepo(db),
+		UserRepo:     repo.NewPgUserRepo(db),
+		StoreRepo:    repo.NewPgStoreRepo(db),
+		TypeRepo:     repo.NewPgTypeRepo(db),
+		Lua:          luaVM,
 	}
 }
 
 func (a *ExpensesApp) Close() {
-	ctx := context.Background()
-
-	a.DB.Close(ctx)
+	// TODO
+	// Close the repos?
 	a.Lua.Close()
 }
 
@@ -56,7 +66,7 @@ func StartApp() error {
 
 	ctx := context.Background()
 	pgStr := getPgConnString(cfg)
-	conn, err := pgx.Connect(ctx, pgStr)
+	conn, err := pgxpool.New(ctx, pgStr)
 	if err != nil {
 		log.Fatalf("Failed to open migration DB: %v", err)
 	}

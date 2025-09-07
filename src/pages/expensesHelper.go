@@ -17,7 +17,7 @@ func processFormShares(c *gin.Context) ([]mod.Share, error) {
 	return expenses.ParseFormShares(userIDS, shares, shareIDs)
 }
 
-func processFormPayments(c *gin.Context) ([]mod.ExpensePayment, error) {
+func processFormPayments(c *gin.Context) ([]mod.Payment, error) {
 	userIDs := c.PostFormArray("payments-user-ids[]")
 	paymentIDs := c.PostFormArray("payments-ids[]")
 	values := c.PostFormArray("payments-payment[]")

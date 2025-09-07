@@ -13,8 +13,8 @@ import (
 // conversion that the user calls before calling this
 // Can even create a struct to then hold the data
 func ParseFormPayments(userIDs []string, paymentsIDs []string,
-	values []string) ([]mod.ExpensePayment, error) {
-	payments := []mod.ExpensePayment{}
+	values []string) ([]mod.Payment, error) {
+	payments := []mod.Payment{}
 	for k := range userIDs {
 		userID, err := ParseID(userIDs[k])
 		if err != nil {
@@ -26,7 +26,7 @@ func ParseFormPayments(userIDs []string, paymentsIDs []string,
 			return nil, err
 		}
 
-		newPayment := mod.ExpensePayment{
+		newPayment := mod.Payment{
 			ExpPaymID: -1,
 			User: mod.User{
 				UserID: userID,
@@ -49,11 +49,11 @@ func ParseFormPayments(userIDs []string, paymentsIDs []string,
 }
 
 func (a *ExpensesApp) GetExpensePaymentByUserID(eId int32, uId int32,
-) (mod.ExpensePayment, error) {
+) (mod.Payment, error) {
 	ctx := context.Background()
 	tx, err := a.DB.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
-		return mod.ExpensePayment{}, err
+		return mod.Payment{}, err
 	}
 	defer tx.Rollback(ctx)
 
@@ -64,7 +64,7 @@ func (a *ExpensesApp) GetExpensePaymentByUserID(eId int32, uId int32,
 
 // insertPayment allows us to insert a payment manually
 // for now its private, need to figure out if it needs to be public
-func (a *ExpensesApp) insertPayment(payment mod.ExpensePayment, eIdx int32) error {
+func (a *ExpensesApp) insertPayment(payment mod.Payment, eIdx int32) error {
 	ctx := context.Background()
 	tx, err := a.DB.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
@@ -88,7 +88,7 @@ func (a *ExpensesApp) DeletePayment(id int32) error {
 	}
 	defer tx.Rollback(ctx)
 
-	payment := mod.ExpensePayment{
+	payment := mod.Payment{
 		ExpPaymID: id,
 	}
 
@@ -100,7 +100,7 @@ func (a *ExpensesApp) DeletePayment(id int32) error {
 	return tx.Commit(ctx)
 }
 
-func (a *ExpensesApp) UpdatePayment(payment mod.ExpensePayment) error {
+func (a *ExpensesApp) UpdatePayment(payment mod.Payment) error {
 	ctx := context.Background()
 	tx, err := a.DB.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
@@ -117,7 +117,7 @@ func (a *ExpensesApp) UpdatePayment(payment mod.ExpensePayment) error {
 }
 
 func (a *ExpensesApp) AddPayment(expID int32, userID int32, sum dec.Decimal) error {
-	payment := mod.ExpensePayment{
+	payment := mod.Payment{
 		User: mod.User{
 			UserID: userID,
 		},

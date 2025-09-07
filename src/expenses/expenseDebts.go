@@ -144,8 +144,8 @@ func CalculateDebts(e *mod.Expense) (mod.Debts, error) {
 	return debts, nil
 }
 
-func (a *ExpensesApp) settleDebt(payment mod.ExpensePayment,
-	credit mod.ExpensePayment, eId int32) error {
+func (a *ExpensesApp) settleDebt(payment mod.Payment,
+	credit mod.Payment, eId int32) error {
 	ctx := context.Background()
 	tx, err := a.DB.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
@@ -169,7 +169,7 @@ func (a *ExpensesApp) settleDebt(payment mod.ExpensePayment,
 
 func (a *ExpensesApp) ProcessDebt(expID int32, debt mod.Debt) error {
 	// We have to balance the debtor and creditor payments
-	payment := mod.ExpensePayment{
+	payment := mod.Payment{
 		User: mod.User{
 			UserID: debt.Debtor.UserID,
 		},

@@ -22,16 +22,7 @@ func (a *ExpensesApp) prepareExpense(exp *mod.Expense) error {
 }
 
 func (a *ExpensesApp) luaGetAllExpenses(L *lua.LState) int {
-	// TODO
-	// It makes no sense this repeats this db thing
-	ctx := context.Background()
-	tx, err := a.DB.Begin(ctx)
-	if err != nil {
-		return returnWithError(L, err.Error())
-	}
-	defer tx.Rollback(ctx)
-
-	expenses, err := mod.GetAllExpenses(a.DB, tx)
+	expenses, err := a.Storage.GetAllExpenses()
 
 	tbl := L.NewTable()
 	for _, e := range expenses {

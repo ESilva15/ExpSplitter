@@ -13,18 +13,12 @@ import (
 func (a *ExpensesApp) GetAllExpenses() ([]mod.Expense, error) {
 	ctx := context.Background()
 
-	tx, err := a.DB.Begin(ctx)
-	if err != nil {
-		return []mod.Expense{}, err
-	}
-	defer tx.Rollback(ctx)
-
-	expenses, err := mod.GetAllExpenses(a.DB, tx)
+	expenses, err := a.ExpRepo.GetAll(ctx)
 	if err != nil {
 		return []mod.Expense{}, err
 	}
 
-	return expenses, tx.Commit(ctx)
+	return expenses, nil
 }
 
 func (a *ExpensesApp) GetExpensesRanged(startDate string, endDate string) ([]mod.Expense, error) {
@@ -56,18 +50,12 @@ func (a *ExpensesApp) GetExpensesRanged(startDate string, endDate string) ([]mod
 func (a *ExpensesApp) GetExpense(id int32) (mod.Expense, error) {
 	ctx := context.Background()
 
-	tx, err := a.DB.Begin(ctx)
-	if err != nil {
-		return mod.Expense{}, err
-	}
-	defer tx.Rollback(ctx)
-
-	expense, err := mod.GetExpense(a.DB, tx, id)
+	expense, err := a.ExpRepo.Get(ctx, id)
 	if err != nil {
 		return mod.Expense{}, err
 	}
 
-	return expense, tx.Commit(ctx)
+	return expense, nil
 }
 
 func (a *ExpensesApp) LoadExpenseShares(e *mod.Expense) error {
@@ -113,22 +101,8 @@ func (a *ExpensesApp) LoadExpenseDebts(e *mod.Expense) error {
 
 func (a *ExpensesApp) DeleteExpense(id int32) error {
 	ctx := context.Background()
-	tx, err := a.DB.BeginTx(ctx, pgx.TxOptions{})
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback(ctx)
-
-	expense := mod.Expense{
-		ExpID: id,
-	}
-
-	err = expense.Delete(a.DB, tx)
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit(ctx)
+	err := a.ExpRepo.Delete(ctx, id)
+	return err
 }
 
 func mapShares(e *mod.Expense) map[mod.User]decimal.Decimal {
@@ -190,16 +164,9 @@ func (a *ExpensesApp) analyzeExpense(e *mod.Expense) {
 }
 
 func (a *ExpensesApp) NewExpense(exp mod.Expense) error {
-	ctx := context.Background()
-	tx, err := a.DB.BeginTx(ctx, pgx.TxOptions{})
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback(ctx)
-
 	a.analyzeExpense(&exp)
 
-	err = exp.Insert(a.DB, tx)
+	err := a.Storage.Insert()
 	if err != nil {
 		return err
 	}

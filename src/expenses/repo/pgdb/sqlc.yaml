@@ -6,8 +6,8 @@ sql:
     gen:
       go:
         sql_package: "pgx/v5"
-        package: "repository"
-        out: "repository"
+        package: "pgsqlc"
+        out: "pgsqlc"
         rename:
           expenseTypes: "ExpenseTypes"
           expenseShares: "ExpenseShares"

@@ -3,7 +3,7 @@
 //   sqlc v1.29.0
 // source: types.sql
 
-package repository
+package pgsqlc
 
 import (
 	"context"

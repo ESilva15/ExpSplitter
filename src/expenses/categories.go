@@ -8,18 +8,13 @@ import (
 
 func (a *ExpensesApp) GetAllCategories() ([]mod.Category, error) {
 	ctx := context.Background()
-	tx, err := a.DB.BeginTx(ctx, pgx.TxOptions{})
-	if err != nil {
-		return []mod.Category{}, err
-	}
-	defer tx.Rollback(ctx)
 
-	expenses, err := mod.GetAllCategories(a.DB, tx)
+	categories, err := a.CategoryRepo.GetAll(ctx)
 	if err != nil {
 		return []mod.Category{}, err
 	}
 
-	return expenses, tx.Commit(ctx)
+	return categories, nil
 }
 
 func (a *ExpensesApp) GetCategory(id int32) (mod.Category, error) {
