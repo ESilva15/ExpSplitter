@@ -3,8 +3,9 @@ package expenses
 import (
 	"context"
 	mod "expenses/expenses/models"
-	dec "github.com/shopspring/decimal"
 	"sort"
+
+	dec "github.com/shopspring/decimal"
 )
 
 type UserTab struct {
@@ -142,18 +143,19 @@ func CalculateDebts(e *mod.Expense) (mod.Debts, error) {
 	return debts, nil
 }
 
+// settleDebt updates a debt settlement on the database
+// it takes away the payed debt by payment from the creditor payments
+// TODO
+// This won't work if the payment was made with multiple payments - but for my
+// use case that won't be a thing. Right now every expense I introduce has been
+// fully payed in one go
 func (a *ExpensesApp) settleDebt(payment mod.Payment,
 	credit mod.Payment, eId int32) error {
 	ctx := context.Background()
 
 	credit.PayedAmount = credit.PayedAmount.Sub(payment.PayedAmount)
 
-	// TODO
-	// This needs to run as a transaction
-	err := a.ExpRepo.InsertPayment(ctx, eId, payment)
-	err = a.ExpRepo.UpdatePayment(ctx, credit)
-
-	return err
+	return a.ExpRepo.SettleDebt(ctx, eId, payment, credit)
 }
 
 func (a *ExpensesApp) ProcessDebt(expID int32, debt mod.Debt) error {

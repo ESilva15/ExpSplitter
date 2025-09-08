@@ -26,14 +26,18 @@ func (p PgExpRepo) Close() {
 	p.DB.Close()
 }
 
-func (r *PgExpRepo) withTx(ctx context.Context, fn func(q *pgsqlc.Queries) error) error {
-	tx, err := r.DB.BeginTx(ctx, pgx.TxOptions{})
+func withTx(
+	pgPool *pgxpool.Pool,
+	ctx context.Context,
+	fn func(q *pgsqlc.Queries) error) error {
+
+	tx, err := pgPool.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback(ctx)
 
-	q := pgsqlc.New(tx) // bind sqlc to this tx
+	q := pgsqlc.New(tx)
 
 	if err := fn(q); err != nil {
 		return err
@@ -79,7 +83,7 @@ func (p PgExpRepo) Update(
 	ctx context.Context,
 	exp mod.Expense) error {
 
-	return p.withTx(ctx, func(q *pgsqlc.Queries) error {
+	return withTx(p.DB, ctx, func(q *pgsqlc.Queries) error {
 		value, err := decimalToNumeric(exp.Value)
 		if err != nil {
 			return err
@@ -157,7 +161,7 @@ func (p PgExpRepo) Insert(
 	ctx context.Context,
 	exp mod.Expense) error {
 
-	return p.withTx(ctx, func(q *pgsqlc.Queries) error {
+	return withTx(p.DB, ctx, func(q *pgsqlc.Queries) error {
 		value, err := decimalToNumeric(exp.Value)
 		if err != nil {
 			return err

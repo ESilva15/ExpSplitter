@@ -32,5 +32,9 @@ type ExpenseRepository interface {
 	InsertPayments(ctx context.Context, eId int32, pm mod.Payments) error
 	DeletePayment(ctx context.Context, id int32) error
 
+	// Debts
+	SettleDebt(ctx context.Context, eId int32,
+		payment mod.Payment, credit mod.Payment) error
+
 	Close()
 }
