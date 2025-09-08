@@ -1,5 +1,10 @@
+# Expenses
+Small webapp to manage expenses and split expenses.
+
+
 # DOING
 Implement scanning the invoice QR code to insert stuff into the tables
+
 
 # TODO
 - [ ] On the categories page, add a column of how many times a given category is
@@ -16,37 +21,14 @@ used
 - [X] Ownership on the image for the expenses webapp dir need to be changed
 - [X] The button for deleting share rows isn't working at all unlike the payments
 - [X] Use shopspring/decimal for money handling
-- [ ] Rename this file
+- [X] Rename this file
 - [ ] Better UX when adding expenses on the payments and share values (default even split)
 - [ ] Verification popups for delete actions
 
-### Functionalities
-#### Expenses
-- Create
-- View
-- Update
-- Delete
-
-#### Categories
-- View
-- Create
-- Delete
-- Update
-
-#### Stores
-- View
-- Create
-- Delete
-- Update
-
-#### Types
-- View
-- Create
-- Delete
-- Update
 
 ### Stack
 - Go
+- Gin Web Framework
 - golang-migrate
 - sqlc
 ~- sqlite~
@@ -54,5 +36,16 @@ used
 - python
 - lua
 
+
 ### Patterns
 - Service Pattern
+- Repository Pattern
+
+
+### Architecture
+- MVC
+
+
+## Thanks to
+https://threedots.tech/post/database-transactions-in-go/
+https://github.com/m110
