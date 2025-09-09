@@ -20,18 +20,29 @@ func (q *Queries) DeleteStore(ctx context.Context, storeid int32) (pgconn.Comman
 }
 
 const getStore = `-- name: GetStore :one
-SELECT "StoreID", "StoreName" FROM stores WHERE "StoreID" = $1
+SELECT "StoreID", "StoreName", "NIF" FROM stores WHERE "StoreID" = $1
 `
 
 func (q *Queries) GetStore(ctx context.Context, storeid int32) (Store, error) {
 	row := q.db.QueryRow(ctx, getStore, storeid)
 	var i Store
-	err := row.Scan(&i.StoreID, &i.StoreName)
+	err := row.Scan(&i.StoreID, &i.StoreName, &i.NIF)
+	return i, err
+}
+
+const getStoreByNIF = `-- name: GetStoreByNIF :one
+SELECT "StoreID", "StoreName", "NIF" FROM stores WHERE "NIF" = $1
+`
+
+func (q *Queries) GetStoreByNIF(ctx context.Context, nif string) (Store, error) {
+	row := q.db.QueryRow(ctx, getStoreByNIF, nif)
+	var i Store
+	err := row.Scan(&i.StoreID, &i.StoreName, &i.NIF)
 	return i, err
 }
 
 const getStores = `-- name: GetStores :many
-SELECT "StoreID", "StoreName" FROM stores
+SELECT "StoreID", "StoreName", "NIF" FROM stores
 `
 
 func (q *Queries) GetStores(ctx context.Context) ([]Store, error) {
@@ -43,7 +54,7 @@ func (q *Queries) GetStores(ctx context.Context) ([]Store, error) {
 	var items []Store
 	for rows.Next() {
 		var i Store
-		if err := rows.Scan(&i.StoreID, &i.StoreName); err != nil {
+		if err := rows.Scan(&i.StoreID, &i.StoreName, &i.NIF); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -55,22 +66,28 @@ func (q *Queries) GetStores(ctx context.Context) ([]Store, error) {
 }
 
 const insertStore = `-- name: InsertStore :execresult
-INSERT INTO stores("StoreName") VALUES($1)
+INSERT INTO stores("StoreName", "NIF") VALUES($1, $2)
 `
 
-func (q *Queries) InsertStore(ctx context.Context, storename string) (pgconn.CommandTag, error) {
-	return q.db.Exec(ctx, insertStore, storename)
+type InsertStoreParams struct {
+	StoreName string
+	NIF       string
+}
+
+func (q *Queries) InsertStore(ctx context.Context, arg InsertStoreParams) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, insertStore, arg.StoreName, arg.NIF)
 }
 
 const updateStore = `-- name: UpdateStore :execresult
-UPDATE stores SET "StoreName" = $1 WHERE "StoreID" = $2
+UPDATE stores SET "StoreName" = $1, "NIF" = $2 WHERE "StoreID" = $3
 `
 
 type UpdateStoreParams struct {
 	StoreName string
+	NIF       string
 	StoreID   int32
 }
 
 func (q *Queries) UpdateStore(ctx context.Context, arg UpdateStoreParams) (pgconn.CommandTag, error) {
-	return q.db.Exec(ctx, updateStore, arg.StoreName, arg.StoreID)
+	return q.db.Exec(ctx, updateStore, arg.StoreName, arg.NIF, arg.StoreID)
 }

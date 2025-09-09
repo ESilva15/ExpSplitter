@@ -20,6 +20,7 @@ type Expense struct {
 	Debts        Debts           `json:"Debts"`
 	PaidOff      bool            `json:"PaidOff"`
 	SharesEven   bool            `json:"SharesEven"`
+	QRString     string          `json:"qr"`
 	CreationDate time.Time       `json:"CreationDate"`
 }
 type Expenses []Expense

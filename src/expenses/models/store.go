@@ -3,6 +3,7 @@ package models
 type Store struct {
 	StoreID   int32  `json:"StoreID"`
 	StoreName string `json:"StoreName"`
+	StoreNIF  string `json:"StoreNIF"`
 }
 type Stores []Store
 

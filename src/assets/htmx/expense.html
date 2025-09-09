@@ -5,6 +5,15 @@
     <fieldset id="form-box-boundaries">
       <legend>EXPENSE FORM</legend>
       <div class="form-container form-inline">
+
+        <label css="white-space: nowrap;" for="expense-qr">QR:</label>
+        <input style="flex: 1; box-sizing: border-box;"
+          class="tui-input underline" type="text" name="expense-qr"
+          value="{{ .expense.QRString }}"
+          id="expense-qr" hx-trigger="keydown[key=='Enter'] consume"
+          hx-post="/expenses/scanQR" hx-swap="none">
+
+
         {{ if eq .method "put" }}
         <label for="expense-desc">ID:</label>
         <input 
@@ -110,5 +119,37 @@
       row.remove();
     }
   }
+
+  // TODO
+  // Avoid triggering the form submission action
+  // Create a class or whatever to use a query-select on this and put this on
+  // the forms.js thing
+  document.getElementById("expense-qr").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+    }
+  });
+
+  document.body.addEventListener("htmx:afterRequest", function(evt){
+    if (evt.detail.xhr.responseType === "" 
+      || evt.detail.xhr.responseType === "text") {
+      try {
+        const data = JSON.parse(evt.detail.xhr.responseText);
+        console.log(data);
+        
+        document.getElementById("expense-date").value = data["date"];
+        document.getElementById("expense-value").value = data["total"];
+
+        if (data["storeID"] !== "-1") {
+          document.getElementById("newexp-store-dropdown").value = data["storeID"];
+        }
+
+        addPaymentRow(data["total"]);
+        addShareRow();
+      } catch(e) {
+        console.error("Invalid JSON", e);
+      }
+    }
+  })
 </script>
 {{ end }}

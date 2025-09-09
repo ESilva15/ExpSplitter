@@ -1,15 +1,19 @@
-function addRow(tableNameID, templateRowID) {
+function addRow(tableNameID, templateRowID, value) {
   const table = document.getElementById(tableNameID);
   const templateRow = document.getElementById(templateRowID);
   const clone = templateRow.cloneNode(true);
 
   // Remove the ID so we don't end up duplicating it and unhide it
   clone.removeAttribute("id");
-  clone.style.display = ""; 
+  clone.style.display = "";
 
   // Enable all the disabled input fields
   // They are disabled so that they don't get grabbed by the backend
   clone.querySelectorAll('input, select').forEach(el => el.disabled = false);
+  if (value) {
+    const field = clone.querySelector(`[name="payments-payment[]"]`)
+    field.value = value;
+  }
 
   table.appendChild(clone);
 }
@@ -18,8 +22,8 @@ function addShareRow() {
   addRow("shares-table", "template-share-row");
 }
 
-function addPaymentRow() {
-  addRow("payments-table", "template-payment-row");
+function addPaymentRow(value) {
+  addRow("payments-table", "template-payment-row", value);
 }
 
 // forms main function

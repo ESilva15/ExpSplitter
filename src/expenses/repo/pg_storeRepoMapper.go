@@ -9,6 +9,7 @@ func mapRepoStore(rs pgsqlc.Store) mod.Store {
 	return mod.Store{
 		StoreID:   rs.StoreID,
 		StoreName: rs.StoreName,
+		StoreNIF:  rs.NIF,
 	}
 }
 

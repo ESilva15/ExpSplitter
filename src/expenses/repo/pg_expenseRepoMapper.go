@@ -37,6 +37,7 @@ func mapRepoGetExpenseRow(e pgsqlc.GetExpenseRow) mod.Expense {
 		Payments:     []mod.Payment{},
 		PaidOff:      paidOff,
 		SharesEven:   sharesEven,
+		QRString:     e.Expense.Qr,
 		CreationDate: creationDate,
 	}
 }
@@ -73,6 +74,7 @@ func mapRepoGetExpenseRowMulti(e pgsqlc.GetExpensesRow) mod.Expense {
 		Payments:     []mod.Payment{},
 		PaidOff:      paidOff,
 		SharesEven:   sharesEven,
+		QRString:     e.Expense.Qr,
 		CreationDate: creationDate,
 	}
 }

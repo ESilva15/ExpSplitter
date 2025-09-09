@@ -49,3 +49,7 @@ func pgBoolToBool(n pgtype.Bool) bool {
 func pgTimestampToTime(ts pgtype.Timestamp) time.Time {
 	return ts.Time
 }
+
+func pgTextToString(s pgtype.Text) string {
+	return s.String
+}

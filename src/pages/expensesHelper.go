@@ -28,6 +28,7 @@ func processFormPayments(c *gin.Context) ([]mod.Payment, error) {
 func expenseFromForm(c *gin.Context) (*mod.Expense, error) {
 	newDescription := c.PostForm("expense-desc")
 	newDate := c.PostForm("expense-date")
+	newQR := c.PostForm("expense-qr")
 
 	formattedDate, err := time.ParseInLocation("02-Jan-2006", newDate, time.UTC)
 	if err != nil {
@@ -88,6 +89,7 @@ func expenseFromForm(c *gin.Context) (*mod.Expense, error) {
 		CreationDate: time.Now(),
 		Shares:       shares,
 		Payments:     payments,
+		QRString:     newQR,
 	}
 	return &newExp, nil
 }

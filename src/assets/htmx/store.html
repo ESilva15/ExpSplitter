@@ -6,6 +6,11 @@
       <div class="form-container form-inline">
         <div id="form-state" class="warning"></div><br>
 
+        <label class="fullwidth-label" for="store-qr">QR:</label>
+        <input class="tui-input underline" type="text" name="store-qr" 
+          hx-post="/stores/getNIF" hx-swap="none"
+          hx-trigger="keydown[key=='Enter'] consume" id="store-qr" value="">
+
         {{ if eq .method "put" }}
         <label class="fullwidth-label" for="store-id">ID:</label>
         <input class="tui-input underline" type="text" name="store-id" 
@@ -15,6 +20,10 @@
         <label class="fullwidth-label" for="store-name">NAME:</label>
         <input class="tui-input underline" type="text" name="store-name" 
           id="store-name" value="{{ .store.StoreName }}">
+
+        <label class="fullwidth-label" for="store-nif">NIF:</label>
+        <input class="tui-input underline" type="text" name="store-nif" 
+          id="store-nif" value="{{ .store.StoreNIF }}">
       </div>
     </fieldset>
 
@@ -41,5 +50,33 @@
 
   </form>
 </div>
+<script>
+  // TODO
+  // Avoid triggering the form submission action
+  // Create a class or whatever to use a query-select on this and put this on
+  // the forms.js thing
+  document.getElementById("store-qr").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+    }
+  });
+
+  // TODO
+  // Find a way to make this more generic or whatever, it also happens
+  // in the expense.html thing
+  document.body.addEventListener("htmx:afterRequest", function(evt){
+    if (evt.detail.xhr.responseType === "" 
+      || evt.detail.xhr.responseType === "text") {
+      try {
+        const data = JSON.parse(evt.detail.xhr.responseText);
+        console.log(data);
+        
+        document.getElementById("store-nif").value = data["nif"];
+      } catch(e) {
+        console.error("Invalid JSON", e);
+      }
+    }
+  })
+</script>
 {{ template "deleteModal" }}
 {{ end }}

@@ -114,6 +114,7 @@ func (p PgExpRepo) Update(
 			OwnerUserID: exp.Owner.UserID,
 			PaidOff:     paidOff,
 			SharesEven:  sharesEven,
+			Qr:          exp.QRString,
 			ExpDate:     expDate,
 		})
 		if err != nil {
@@ -197,6 +198,7 @@ func (p PgExpRepo) Insert(
 			ExpDate:      expDate,
 			PaidOff:      paidOff,
 			SharesEven:   sharesEven,
+			Qr:           exp.QRString,
 			CreationDate: creationDate,
 		})
 		if err != nil {

@@ -1,14 +1,14 @@
 module expenses
 
-go 1.24.4
+go 1.24.6
 
 require (
+	github.com/ESilva15/gofatqr v1.0.0
 	github.com/gin-gonic/gin v1.10.1
 	github.com/golang-migrate/migrate/v4 v4.18.3
 	github.com/jackc/pgx/v5 v5.5.4
 	github.com/layeh/gopher-json v0.0.0-20201124131017-552bb3c4c3bf
-	github.com/mattn/go-sqlite3 v1.14.28
-	github.com/shopspring/decimal v1.2.0
+	github.com/shopspring/decimal v1.4.0
 	github.com/spf13/cobra v1.9.1
 	github.com/yuin/gopher-lua v1.1.1
 	gopkg.in/yaml.v2 v2.4.0

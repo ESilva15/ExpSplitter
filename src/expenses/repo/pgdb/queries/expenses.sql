@@ -49,9 +49,10 @@ INSERT INTO expenses(
   "ExpDate",
   "PaidOff",
   "SharesEven",
+  "qr",
   "CreationDate"
 )
-VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 RETURNING "ExpID";
 
 -- name: DeleteExpense :execresult
@@ -74,5 +75,6 @@ SET
   "OwnerUserID" = $6,
   "PaidOff" = $7,
   "SharesEven" = $8,
-  "ExpDate" = $9
-WHERE "ExpID" = $10;
+  "qr" = $9,
+  "ExpDate" = $10
+WHERE "ExpID" = $11;

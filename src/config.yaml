@@ -7,4 +7,4 @@ postgres:
   host: 127.0.0.1
   port: 5431
 migrations_path: "file://expenses/repo/pgdb/migrations/"
-mig_custom_scripts: "./expenses/db/migrations/custom/"
+mig_custom_scripts: "./expenses/repo/pgdb/migrations/custom/"

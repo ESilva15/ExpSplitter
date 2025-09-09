@@ -6,9 +6,10 @@ import (
 	experr "expenses/expenses/errors"
 	mod "expenses/expenses/models"
 	"fmt"
+	fatqr "github.com/ESilva15/gofatqr"
+	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
-	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -164,6 +165,7 @@ func createExpense(c *gin.Context) {
 		// TODO
 		// Change this to something the user can see
 		c.Header("HX-Redirect", "/500")
+		return
 	}
 
 	err = exp.App.NewExpense(*newExp)
@@ -226,6 +228,33 @@ func deleteExpense(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+func qrRequest(c *gin.Context) {
+	qr := c.PostForm("expense-qr")
+	log.Println(qr)
+
+	var fat fatqr.FatQR
+	err := fat.Scan(qr, 0)
+	if err != nil {
+		// TODO
+		// handle the error here for the user
+		return
+	}
+
+	// try to find storeID
+	storeID, err := exp.App.GetStoreIDFromNIF(fat.TaxRegistrationNumber)
+	if err != nil {
+		return
+	}
+
+	response := map[string]string{
+		"total":   fat.GrossTotal.String(),
+		"date":    fat.InvoiceDate.Format("02-Jan-2006"),
+		"storeID": fmt.Sprintf("%d", storeID),
+	}
+
+	c.JSON(200, response)
+}
+
 func RouteExpenses(router *gin.Engine) {
 	router.GET(ExpensesPath, ExpensesGlobalPage)
 	router.GET(ExpensesPath+"/:id", expensePage)
@@ -235,4 +264,6 @@ func RouteExpenses(router *gin.Engine) {
 	router.POST(ExpensesPath+"/new", createExpense)
 	router.PUT(ExpensesPath+"/:id", updateExpense)
 	router.DELETE(ExpensesPath+"/:id", deleteExpense)
+
+	router.POST(ExpensesPath+"/scanQR", qrRequest)
 }

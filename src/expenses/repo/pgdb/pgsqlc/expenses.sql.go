@@ -28,8 +28,8 @@ func (q *Queries) DeleteExpense(ctx context.Context, expid int32) (pgconn.Comman
 
 const getExpense = `-- name: GetExpense :one
 SELECT 
-  expenses."ExpID", expenses."Description", expenses."Value", expenses."StoreID", expenses."CategoryID", expenses."OwnerUserID", expenses."TypeID", expenses."ExpDate", expenses."CreationDate", expenses."PaidOff", expenses."SharesEven",
-  stores."StoreID", stores."StoreName",
+  expenses."ExpID", expenses."Description", expenses."Value", expenses."StoreID", expenses."CategoryID", expenses."OwnerUserID", expenses."TypeID", expenses."ExpDate", expenses."CreationDate", expenses."PaidOff", expenses."SharesEven", expenses.qr,
+  stores."StoreID", stores."StoreName", stores."NIF",
   categories."CategoryID", categories."CategoryName",
   users."UserID", users."UserName", users."UserPass",
   types."TypeID", types."TypeName"
@@ -69,8 +69,10 @@ func (q *Queries) GetExpense(ctx context.Context, expid int32) (GetExpenseRow, e
 		&i.Expense.CreationDate,
 		&i.Expense.PaidOff,
 		&i.Expense.SharesEven,
+		&i.Expense.Qr,
 		&i.Store.StoreID,
 		&i.Store.StoreName,
+		&i.Store.NIF,
 		&i.Category.CategoryID,
 		&i.Category.CategoryName,
 		&i.User.UserID,
@@ -84,8 +86,8 @@ func (q *Queries) GetExpense(ctx context.Context, expid int32) (GetExpenseRow, e
 
 const getExpenses = `-- name: GetExpenses :many
 SELECT 
-  expenses."ExpID", expenses."Description", expenses."Value", expenses."StoreID", expenses."CategoryID", expenses."OwnerUserID", expenses."TypeID", expenses."ExpDate", expenses."CreationDate", expenses."PaidOff", expenses."SharesEven",
-  stores."StoreID", stores."StoreName",
+  expenses."ExpID", expenses."Description", expenses."Value", expenses."StoreID", expenses."CategoryID", expenses."OwnerUserID", expenses."TypeID", expenses."ExpDate", expenses."CreationDate", expenses."PaidOff", expenses."SharesEven", expenses.qr,
+  stores."StoreID", stores."StoreName", stores."NIF",
   categories."CategoryID", categories."CategoryName",
   users."UserID", users."UserName", users."UserPass",
   types."TypeID", types."TypeName"
@@ -138,8 +140,10 @@ func (q *Queries) GetExpenses(ctx context.Context, arg GetExpensesParams) ([]Get
 			&i.Expense.CreationDate,
 			&i.Expense.PaidOff,
 			&i.Expense.SharesEven,
+			&i.Expense.Qr,
 			&i.Store.StoreID,
 			&i.Store.StoreName,
+			&i.Store.NIF,
 			&i.Category.CategoryID,
 			&i.Category.CategoryName,
 			&i.User.UserID,
@@ -169,9 +173,10 @@ INSERT INTO expenses(
   "ExpDate",
   "PaidOff",
   "SharesEven",
+  "qr",
   "CreationDate"
 )
-VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 RETURNING "ExpID"
 `
 
@@ -185,6 +190,7 @@ type InsertExpenseParams struct {
 	ExpDate      pgtype.Timestamp
 	PaidOff      pgtype.Bool
 	SharesEven   pgtype.Bool
+	Qr           string
 	CreationDate pgtype.Timestamp
 }
 
@@ -199,6 +205,7 @@ func (q *Queries) InsertExpense(ctx context.Context, arg InsertExpenseParams) (i
 		arg.ExpDate,
 		arg.PaidOff,
 		arg.SharesEven,
+		arg.Qr,
 		arg.CreationDate,
 	)
 	var ExpID int32
@@ -217,8 +224,9 @@ SET
   "OwnerUserID" = $6,
   "PaidOff" = $7,
   "SharesEven" = $8,
-  "ExpDate" = $9
-WHERE "ExpID" = $10
+  "qr" = $9,
+  "ExpDate" = $10
+WHERE "ExpID" = $11
 `
 
 type UpdateExpenseParams struct {
@@ -230,6 +238,7 @@ type UpdateExpenseParams struct {
 	OwnerUserID int32
 	PaidOff     pgtype.Bool
 	SharesEven  pgtype.Bool
+	Qr          string
 	ExpDate     pgtype.Timestamp
 	ExpID       int32
 }
@@ -244,6 +253,7 @@ func (q *Queries) UpdateExpense(ctx context.Context, arg UpdateExpenseParams) (p
 		arg.OwnerUserID,
 		arg.PaidOff,
 		arg.SharesEven,
+		arg.Qr,
 		arg.ExpDate,
 		arg.ExpID,
 	)

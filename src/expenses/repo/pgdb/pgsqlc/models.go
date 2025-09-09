@@ -25,6 +25,7 @@ type Expense struct {
 	CreationDate pgtype.Timestamp
 	PaidOff      pgtype.Bool
 	SharesEven   pgtype.Bool
+	Qr           string
 }
 
 type ExpenseType struct {
@@ -55,6 +56,7 @@ type SchemaMigration struct {
 type Store struct {
 	StoreID   int32
 	StoreName string
+	NIF       string
 }
 
 type User struct {

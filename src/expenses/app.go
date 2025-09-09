@@ -98,6 +98,9 @@ func StartApp() error {
 
 	// Run the migrations
 	err = runMigrations(luaVM)
+	if err != nil {
+		log.Printf("Unable to run migrations: %v", err)
+	}
 
 	// Create our final app thing
 	conn, err := pgxpool.New(ctx, pgStr)

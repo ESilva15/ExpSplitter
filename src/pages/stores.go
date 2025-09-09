@@ -5,7 +5,10 @@ import (
 	exp "expenses/expenses"
 	experr "expenses/expenses/errors"
 	"fmt"
+	"log"
 	"net/http"
+
+	fatqr "github.com/ESilva15/gofatqr"
 	"github.com/gin-gonic/gin"
 )
 
@@ -65,10 +68,12 @@ func newStorePage(c *gin.Context) {
 
 func createStore(c *gin.Context) {
 	storeName := c.PostForm("store-name")
+	storeNIF := c.PostForm("store-nif")
 
-	err := exp.App.NewStore(storeName)
+	err := exp.App.NewStore(storeName, storeNIF)
 	if err != nil {
 		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
+		return
 	}
 
 	c.Header("HX-Trigger", "{\"formState\":\"Success\"}")
@@ -80,8 +85,9 @@ func updateStore(c *gin.Context) {
 		c.Redirect(404, "/404")
 	}
 	newName := c.PostForm("store-name")
+	newNIF := c.PostForm("store-nif")
 
-	err = exp.App.UpdateStore(storeID, newName)
+	err = exp.App.UpdateStore(storeID, newName, newNIF)
 	if err != nil {
 		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
 		return
@@ -112,6 +118,25 @@ func deleteStore(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+func getNIF(c *gin.Context) {
+	qr := c.PostForm("store-qr")
+	log.Println(qr)
+
+	var fat fatqr.FatQR
+	err := fat.Scan(qr, 0)
+	if err != nil {
+		// TODO
+		// handle the error here for the user
+		return
+	}
+
+	response := map[string]string{
+		"nif": fat.TaxRegistrationNumber,
+	}
+
+	c.JSON(200, response)
+}
+
 func RouteStores(router *gin.Engine) {
 	router.GET(StoresPath, storesGlobalPage)
 	router.GET(StoresPath+"/:id", storePage)
@@ -121,4 +146,6 @@ func RouteStores(router *gin.Engine) {
 	router.POST(StoresPath+"/new", createStore)
 	router.PUT(StoresPath+"/:id", updateStore)
 	router.DELETE(StoresPath+"/:id", deleteStore)
+
+	router.POST(StoresPath+"/getNIF", getNIF)
 }

@@ -33,6 +33,16 @@ func (p PgStoreRepo) Get(ctx context.Context, id int32) (mod.Store, error) {
 	return mapRepoStore(store), nil
 }
 
+func (p PgStoreRepo) GetByNIF(ctx context.Context, nif string) (mod.Store, error) {
+	queries := pgsqlc.New(p.DB)
+	store, err := queries.GetStoreByNIF(ctx, nif)
+	if err != nil {
+		return mod.Store{}, err
+	}
+
+	return mapRepoStore(store), nil
+}
+
 func (p PgStoreRepo) GetAll(ctx context.Context) (mod.Stores, error) {
 	queries := pgsqlc.New(p.DB)
 	storeList, err := queries.GetStores(ctx)
@@ -48,6 +58,7 @@ func (p PgStoreRepo) Update(ctx context.Context, s mod.Store) error {
 	_, err := queries.UpdateStore(ctx, pgsqlc.UpdateStoreParams{
 		StoreID:   s.StoreID,
 		StoreName: s.StoreName,
+		NIF:       s.StoreNIF,
 	})
 	if err != nil {
 		return err
@@ -58,7 +69,10 @@ func (p PgStoreRepo) Update(ctx context.Context, s mod.Store) error {
 
 func (p PgStoreRepo) Insert(ctx context.Context, s mod.Store) error {
 	queries := pgsqlc.New(p.DB)
-	res, err := queries.InsertStore(ctx, s.StoreName)
+	res, err := queries.InsertStore(ctx, pgsqlc.InsertStoreParams{
+		StoreName: s.StoreName,
+		NIF:       s.StoreNIF,
+	})
 	if err != nil {
 		return err
 	}
