@@ -1,5 +1,7 @@
-# Expenses
-Small webapp to manage expenses and split expenses.
+# WIP
+This is a simple webapp I use to track expenses. It has many holes and things
+that don't work properly. I use this README internally to keep in mind what
+I'm working on.
 
 
 # BUGS
@@ -7,13 +9,19 @@ Inserting an expense where the owner has no payments results in a panic
 
 
 # DOING
-Implement scanning the invoice QR code to insert stuff into the tables
+-
 
 
 # TODO
+- [ ] Users/Authentication/Autherization
+- [ ] API
+- [ ] Create an interface to get data from a QR code so that we can have both
+a web API and our go package
+- [ ] If unable to connect to the database, try again, after X seconds
 - [ ] On the categories page, add a column of how many times a given category is
 used
 - [ ] Multiple categories per expense
+- [ ] Associate categories to a given store (automate giving a category when inserting via QR)
 - [X] Make all the other items update/create page be like expenses
 - [ ] Ability to attach a document to an expense
 ~~- [ ] Debts table~~
