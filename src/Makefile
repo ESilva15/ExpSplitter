@@ -8,8 +8,8 @@ build_release_alpine:
 		-o $(build)/expensesweb
 	cp -r ./assets $(build)
 	cp ./config.yaml $(build)
-	mkdir -p $(build)/expenses/db/migrations/ && \
-		cp -r ./expenses/db/migrations/ $(build)/expenses/db/
+	mkdir -p $(build)/expenses/repo/pgdb/migrations/ && \
+		cp -r ./expenses/repo/pgdb/migrations/ $(build)/expenses/repo/pgdb/
 	mkdir -p $(build)/data/
 	find $(build) -name "*.ttf" ! -name DejaVuSansMono.ttf -delete
 

@@ -2,6 +2,10 @@
 Small webapp to manage expenses and split expenses.
 
 
+# BUGS
+Inserting an expense where the owner has no payments results in a panic
+
+
 # DOING
 Implement scanning the invoice QR code to insert stuff into the tables
 

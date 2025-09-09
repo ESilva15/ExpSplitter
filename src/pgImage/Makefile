@@ -10,7 +10,7 @@ clean:
 	docker image rm $(image) || true
 
 build:
-	cp ../expenses/db/schema.sql .
+	cp ../expenses/repo/pgdb/schema.sql .
 	docker buildx build \
 		-t $(registry)/$(repo)/expensesdb:$(tag) .
 
