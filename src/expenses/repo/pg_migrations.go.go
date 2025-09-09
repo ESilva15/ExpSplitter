@@ -24,7 +24,7 @@ func NewPgMigrator() (Migrator, error) {
 	cfg := config.GetInstance()
 
 	str := "postgres://" + cfg.PgCfg.User + ":" + cfg.PgCfg.Pass + "@" +
-		cfg.PgCfg.Host + ":" + cfg.PgCfg.Port + "/" + cfg.PgCfg.DB + "?sslmod=disable"
+		cfg.PgCfg.Host + ":" + cfg.PgCfg.Port + "/" + cfg.PgCfg.DB + "?sslmode=disable"
 
 	m, err := mig.New(cfg.MigrationsPath, str)
 	if err != nil {
@@ -45,6 +45,8 @@ func (a PgMigrator) Goto(id uint) error {
 	if err != nil && err != mig.ErrNoChange {
 		return err
 	}
+
+	log.Println("migrated to", id)
 
 	return nil
 }
