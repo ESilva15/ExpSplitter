@@ -137,7 +137,7 @@ func getNIF(c *gin.Context) {
 	c.JSON(200, response)
 }
 
-func RouteStores(router *gin.Engine) {
+func RouteStores(router *gin.RouterGroup) {
 	router.GET(StoresPath, storesGlobalPage)
 	router.GET(StoresPath+"/:id", storePage)
 	router.POST(StoresPath, storesGlobalPage)

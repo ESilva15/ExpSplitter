@@ -112,7 +112,7 @@ func updateType(c *gin.Context) {
 	c.Header("HX-Trigger", "{\"formState\":\"Success\"}")
 }
 
-func RouteTypes(router *gin.Engine) {
+func RouteTypes(router *gin.RouterGroup) {
 	router.GET(TypesPath, typesGlobalPage)
 	router.GET(TypesPath+"/:id", typePage)
 	router.POST(TypesPath, typesGlobalPage)

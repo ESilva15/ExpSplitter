@@ -9,7 +9,7 @@ Inserting an expense where the owner has no payments results in a panic
 
 
 # DOING
--
+- Auth
 
 
 # TODO

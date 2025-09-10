@@ -117,7 +117,7 @@ func deleteCategory(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-func RouteCategories(router *gin.Engine) {
+func RouteCategories(router *gin.RouterGroup) {
 	router.GET(CategoriesPath, categoriesGlobalPage)
 	router.GET(CategoriesPath+"/:id", categoryPage)
 	router.POST(CategoriesPath, categoriesGlobalPage)

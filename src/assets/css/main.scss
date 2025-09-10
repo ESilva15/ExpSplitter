@@ -218,3 +218,15 @@ dt {
     font-size: var(--html_mobile_font_size);
   }
 }
+
+#login-box-boundaries {
+  height: 100%;
+}
+
+.login-container {
+  display: block;
+  // width: 100%; /* Adjust width as needed */
+  // max-width: 300px; /* Adjust max-width as needed */
+  margin: auto;
+  text-align: center;
+}

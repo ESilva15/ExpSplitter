@@ -83,7 +83,7 @@ func getResults(c *gin.Context) {
 	})
 }
 
-func RouteOverview(router *gin.Engine) {
+func RouteOverview(router *gin.RouterGroup) {
 	router.GET("/overview", overviewPage)
 	router.POST("/overview", overviewPartialPage)
 

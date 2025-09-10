@@ -65,7 +65,7 @@ func addPayment(c *gin.Context) {
 	}
 }
 
-func RoutePayments(router *gin.Engine) {
+func RoutePayments(router *gin.RouterGroup) {
 	router.DELETE("/payments/:id", deletePayment)
 
 	router.POST("/payments/add", addPayment)

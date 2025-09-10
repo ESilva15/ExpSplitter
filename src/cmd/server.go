@@ -2,8 +2,11 @@ package cmd
 
 import (
 	"expenses/config"
+	"expenses/expenses/auth"
 	"expenses/pages"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/shopspring/decimal"
 	"github.com/spf13/cobra"
 
@@ -48,7 +51,7 @@ func configGin(cfg *config.Configuration) *gin.Engine {
 	return router
 }
 
-func setRoutes(router *gin.Engine) {
+func setRoutes(router *gin.RouterGroup, eng *gin.Engine) {
 	pages.RouteHome(router)
 	pages.RouteExpenses(router)
 	pages.RouteCategories(router)
@@ -57,15 +60,28 @@ func setRoutes(router *gin.Engine) {
 	pages.RoutePayments(router)
 	pages.RouteShares(router)
 	pages.RouteOverview(router)
-	pages.RouteNotFound(router)
-	pages.RouteServerError(router)
+
+	// This are for the engine, I really need to rethink this
+	pages.RouteLogin(eng)
+	pages.RouteNotFound(eng)
+	pages.RouteServerError(eng)
 }
 
 func startWebserver() {
 	cfg := config.GetInstance()
 
 	router := configGin(cfg)
-	setRoutes(router)
+	// setRoutes(router)
+
+	store := cookie.NewStore([]byte("secret"))
+	router.Use(sessions.Sessions("mysessions", store))
+
+	// Set auth groups
+	authGroup := router.Group("/")
+	authGroup.Use(auth.AuthMiddleware())
+	{
+		setRoutes(authGroup, router)
+	}
 
 	err := router.Run(":" + cfg.Port)
 	if err != nil {

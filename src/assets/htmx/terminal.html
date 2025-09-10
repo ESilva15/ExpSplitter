@@ -49,6 +49,8 @@
               {{ template "expense" . }}
             {{ else if eq .content "expenses" }}
               {{ template "expenses" . }}
+            {{ else if eq .content "login" }}
+              {{ template "login" . }}
             {{ else if eq .content "newExpense" }}
               {{ template "expense" . }}
             {{ else if eq .content "panic" }}

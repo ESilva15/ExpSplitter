@@ -255,7 +255,7 @@ func qrRequest(c *gin.Context) {
 	c.JSON(200, response)
 }
 
-func RouteExpenses(router *gin.Engine) {
+func RouteExpenses(router *gin.RouterGroup) {
 	router.GET(ExpensesPath, ExpensesGlobalPage)
 	router.GET(ExpensesPath+"/:id", expensePage)
 	router.POST(ExpensesPath, expensesPartial)

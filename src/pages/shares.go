@@ -32,6 +32,6 @@ func deleteShare(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-func RouteShares(router *gin.Engine) {
+func RouteShares(router *gin.RouterGroup) {
 	router.DELETE("/shares/:id", deleteShare)
 }

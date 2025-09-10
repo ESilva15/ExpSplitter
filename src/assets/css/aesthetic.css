@@ -27,19 +27,19 @@
 
 @keyframes flicker {
   0% {
-    opacity: 0.9;
-  }
-  20% {
     opacity: 1.1;
   }
-  40% {
+  20% {
     opacity: 0.9;
+  }
+  40% {
+    opacity: 1.1;
   }
   60% {
     opacity: 0.9;
   }
   80% {
-    opacity: 1.1;
+    opacity: 1;
   }
   100% {
     opacity: 1.1;
@@ -421,6 +421,15 @@ dt {
   html {
     font-size: var(--html_mobile_font_size);
   }
+}
+#login-box-boundaries {
+  height: 100%;
+}
+
+.login-container {
+  display: block;
+  margin: auto;
+  text-align: center;
 }
 
 /*# sourceMappingURL=aesthetic.css.map */

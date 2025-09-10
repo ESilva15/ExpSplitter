@@ -3,6 +3,7 @@ package models
 type User struct {
 	UserID   int32  `json:"UserID"`
 	UserName string `json:"UserName"`
+	Password string `json:"Password"`
 }
 type Users []User
 
