@@ -26,6 +26,7 @@ There are many features to be implemented!
 - [X] API (not complete, but going)
 - [ ] Add more logging (and configure the logger)
 - [ ] Need to add many UTs
+- [ ] Figure out how to distribute the database (the migrations and whatnot problems)
 - [ ] Need to think about where the authentication endpoints are its separation
 of concerns
 - [ ] Create an interface to get data from a QR code so that we can have both

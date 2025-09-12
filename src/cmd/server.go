@@ -83,6 +83,13 @@ func startWebserver() {
 	// setRoutes(router)
 
 	store := cookie.NewStore([]byte("secret"))
+	store.Options(sessions.Options{
+		Path:     "/",
+		MaxAge:   int(time.Hour * 24),
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteLaxMode,
+	})
 	router.Use(sessions.Sessions("mysessions", store))
 
 	// Set auth groups
