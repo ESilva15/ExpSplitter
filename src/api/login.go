@@ -4,7 +4,6 @@ import (
 	exp "expenses/expenses"
 	"expenses/expenses/auth"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 )
 
@@ -21,19 +20,14 @@ func login(c *gin.Context) {
 		return
 	}
 
-	log.Println("user:", loginData.Name)
-	log.Println("pass:", loginData.Pass)
-
 	user, err := exp.App.ValidateCredentials(loginData.Name, loginData.Pass)
 	if err != nil {
-		log.Println("Error validating user: ", err)
 		// TODO - go to an error page or login failed or something
 		return
 	}
 
 	token, err := auth.GenerateToken(user.UserName)
 	if err != nil {
-		log.Println("Error generating token: ", err)
 		// TODO - get error return
 		return
 	}
