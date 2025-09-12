@@ -5,8 +5,7 @@ import (
 	mod "expenses/expenses/models"
 )
 
-func (a *ExpensesApp) GetAllStores() ([]mod.Store, error) {
-	ctx := context.Background()
+func (a *ExpensesApp) GetAllStores(ctx context.Context) ([]mod.Store, error) {
 	return a.StoreRepo.GetAll(ctx)
 }
 

@@ -101,12 +101,15 @@ JOIN
 JOIN
   "expenseTypes" as types ON types."TypeID" = expenses."TypeID"
 WHERE
-  ($1::timestamp IS NULL OR expenses."ExpDate" >= $1::timestamp)
+  expenses."ExpID" IN (SELECT "ExpID" from "expensesShares" WHERE "expensesShares"."UserID" = $1)
+AND
+  ($2::timestamp IS NULL OR expenses."ExpDate" >= $2::timestamp)
   AND
-  ($2::timestamp IS NULL OR expenses."ExpDate" <= $2::timestamp)
+  ($3::timestamp IS NULL OR expenses."ExpDate" <= $3::timestamp)
 `
 
 type GetExpensesParams struct {
+	UserID    int32
 	Startdate pgtype.Timestamp
 	Enddate   pgtype.Timestamp
 }
@@ -120,7 +123,7 @@ type GetExpensesRow struct {
 }
 
 func (q *Queries) GetExpenses(ctx context.Context, arg GetExpensesParams) ([]GetExpensesRow, error) {
-	rows, err := q.db.Query(ctx, getExpenses, arg.Startdate, arg.Enddate)
+	rows, err := q.db.Query(ctx, getExpenses, arg.UserID, arg.Startdate, arg.Enddate)
 	if err != nil {
 		return nil, err
 	}

@@ -5,8 +5,8 @@ import (
 	exp "expenses/expenses"
 	experr "expenses/expenses/errors"
 	"fmt"
-	"net/http"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 const (
@@ -14,7 +14,13 @@ const (
 )
 
 func typesGlobalPage(c *gin.Context) {
-	types, err := exp.App.GetAllTypes()
+	ctx, err := getLoggedInUserCTX(c)
+	if err != nil {
+		ServerErrorView(c, "could not get logged in user")
+		return
+	}
+
+	types, err := exp.App.GetAllTypes(ctx)
 	if err != nil {
 		ServerErrorView(c, "the server failed to get the types")
 		return

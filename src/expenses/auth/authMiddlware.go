@@ -23,6 +23,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		uid := session.Get("user_id")
 		log.Println("UID is: ", uid)
 		if uid != nil {
+			log.Println("Got UUID: ", uid)
 			user, err = exp.App.GetUser(uid.(int32))
 			log.Println("Got User: ", user)
 			if err != nil {
@@ -30,15 +31,6 @@ func AuthMiddleware() gin.HandlerFunc {
 				return
 			}
 		}
-
-		// Check if we have an authorization header
-		// if user == nil {
-		// 	authHeader := c.GetHeader("Authorization")
-		// 	if strings.HasPrefix(authHeader, "Bearer ") {
-		// 		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
-		// 		claims, err := validateJWT(tokenStr)
-		// 	}
-		// }
 
 		if user == nil {
 			log.Println("No User: ", user)

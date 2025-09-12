@@ -15,6 +15,8 @@ JOIN
 JOIN
   "expenseTypes" as types ON types."TypeID" = expenses."TypeID"
 WHERE
+  expenses."ExpID" IN (SELECT "ExpID" from "expensesShares" WHERE "expensesShares"."UserID" = $1)
+AND
   (sqlc.narg(StartDate)::timestamp IS NULL OR expenses."ExpDate" >= sqlc.narg(StartDate)::timestamp)
   AND
   (sqlc.narg(EndDate)::timestamp IS NULL OR expenses."ExpDate" <= sqlc.narg(EndDate)::timestamp);

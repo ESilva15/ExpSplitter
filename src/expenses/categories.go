@@ -5,8 +5,7 @@ import (
 	mod "expenses/expenses/models"
 )
 
-func (a *ExpensesApp) GetAllCategories() ([]mod.Category, error) {
-	ctx := context.Background()
+func (a *ExpensesApp) GetAllCategories(ctx context.Context) ([]mod.Category, error) {
 	return a.CategoryRepo.GetAll(ctx)
 }
 

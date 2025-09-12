@@ -6,10 +6,11 @@ import (
 	experr "expenses/expenses/errors"
 	mod "expenses/expenses/models"
 	"fmt"
-	fatqr "github.com/ESilva15/gofatqr"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+
+	fatqr "github.com/ESilva15/gofatqr"
+	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -17,7 +18,13 @@ const (
 )
 
 func expensesPartial(c *gin.Context) {
-	expenses, err := exp.App.GetAllExpenses()
+	ctx, err := getLoggedInUserCTX(c)
+	if err != nil {
+		ServerErrorView(c, "Could not get logged in user")
+		return
+	}
+
+	expenses, err := exp.App.GetAllExpenses(ctx)
 	if err != nil {
 		c.Header("HX-Redirect", "/500")
 		return
@@ -29,7 +36,13 @@ func expensesPartial(c *gin.Context) {
 }
 
 func ExpensesGlobalPage(c *gin.Context) {
-	expenses, err := exp.App.GetAllExpenses()
+	ctx, err := getLoggedInUserCTX(c)
+	if err != nil {
+		ServerErrorView(c, "Could not get logged in user")
+		return
+	}
+
+	expenses, err := exp.App.GetAllExpenses(ctx)
 	if err != nil {
 		log.Panicln("error:", err)
 		c.Header("HX-Redirect", "/500")
@@ -45,6 +58,12 @@ func ExpensesGlobalPage(c *gin.Context) {
 }
 
 func expensePage(c *gin.Context) {
+	ctx, err := getLoggedInUserCTX(c)
+	if err != nil {
+		ServerErrorView(c, "Could not get logged in user")
+		return
+	}
+
 	expenseID, err := exp.ParseID(c.Param("id"))
 	if err != nil {
 		ServerErrorView(c, "failed to parse requested expenses id")
@@ -77,35 +96,29 @@ func expensePage(c *gin.Context) {
 		return
 	}
 
-	categories, err := exp.App.GetAllCategories()
+	categories, err := exp.App.GetAllCategories(ctx)
 	if err != nil {
 		ServerErrorView(c, "failed to fetch categories")
 		return
 	}
 
-	stores, err := exp.App.GetAllStores()
+	stores, err := exp.App.GetAllStores(ctx)
 	if err != nil {
 		ServerErrorView(c, "failed to fetch stores")
 		return
 	}
 
-	types, err := exp.App.GetAllTypes()
+	types, err := exp.App.GetAllTypes(ctx)
 	if err != nil {
 		ServerErrorView(c, "failed to fetch types")
 		return
 	}
 
-	users, err := exp.App.GetAllUsers()
+	users, err := exp.App.GetAllUsers(ctx)
 	if err != nil {
 		ServerErrorView(c, "failed to fetch users")
 		return
 	}
-
-	// summary, err := expense.GetSummary()
-	// if err != nil {
-	// 	ServerErrorView(c, "failed to get summary")
-	// 	return
-	// }
 
 	c.HTML(http.StatusOK, "terminal", gin.H{
 		"page":         "expense",
@@ -122,25 +135,32 @@ func expensePage(c *gin.Context) {
 }
 
 func newExpensePage(c *gin.Context) {
-	categories, err := exp.App.GetAllCategories()
+	ctx, err := getLoggedInUserCTX(c)
+	if err != nil {
+		log.Println("failed to fetch logged in user -", err.Error())
+		ServerErrorView(c, "The server too makes mistakes")
+		return
+	}
+
+	categories, err := exp.App.GetAllCategories(ctx)
 	if err != nil {
 		ServerErrorView(c, "failed to fetch categories")
 		return
 	}
 
-	stores, err := exp.App.GetAllStores()
+	stores, err := exp.App.GetAllStores(ctx)
 	if err != nil {
 		ServerErrorView(c, "failed to fetch stores")
 		return
 	}
 
-	types, err := exp.App.GetAllTypes()
+	types, err := exp.App.GetAllTypes(ctx)
 	if err != nil {
 		ServerErrorView(c, "failed to fetch types")
 		return
 	}
 
-	users, err := exp.App.GetAllUsers()
+	users, err := exp.App.GetAllUsers(ctx)
 	if err != nil {
 		ServerErrorView(c, "failed to fetch users")
 		return
@@ -160,7 +180,14 @@ func newExpensePage(c *gin.Context) {
 }
 
 func createExpense(c *gin.Context) {
-	newExp, err := expenseFromForm(c)
+	ctx, err := getLoggedInUserCTX(c)
+	if err != nil {
+		log.Println("failed to fetch logged in user -", err.Error())
+		ServerErrorView(c, "The server too makes mistakes")
+		return
+	}
+
+	newExp, err := expenseFromForm(c, ctx)
 	if err != nil {
 		// TODO
 		// Change this to something the user can see
@@ -168,7 +195,7 @@ func createExpense(c *gin.Context) {
 		return
 	}
 
-	err = exp.App.NewExpense(*newExp)
+	err = exp.App.NewExpense(ctx, *newExp)
 	if err != nil {
 		c.Header("HX-Trigger", fmt.Sprintf("{\"formState\":\"%s\"}", err.Error()))
 		return
@@ -178,13 +205,20 @@ func createExpense(c *gin.Context) {
 }
 
 func updateExpense(c *gin.Context) {
+	ctx, err := getLoggedInUserCTX(c)
+	if err != nil {
+		log.Println("failed to fetch logged in user -", err.Error())
+		ServerErrorView(c, "The server too makes mistakes")
+		return
+	}
+
 	expenseID, err := exp.ParseID(c.Param("id"))
 	if err != nil {
 		c.Header("HX-Redirect", "/404")
 		return
 	}
 
-	newExp, err := expenseFromForm(c)
+	newExp, err := expenseFromForm(c, ctx)
 	if err != nil {
 		// TODO
 		// Change this to something the user can see
@@ -235,14 +269,20 @@ func qrRequest(c *gin.Context) {
 	var fat fatqr.FatQR
 	err := fat.Scan(qr, 0)
 	if err != nil {
-		// TODO
-		// handle the error here for the user
+		log.Println("error scanning QR code:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
 	// try to find storeID
 	storeID, err := exp.App.GetStoreIDFromNIF(fat.TaxRegistrationNumber)
 	if err != nil {
+		log.Println("error getting storeID:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 

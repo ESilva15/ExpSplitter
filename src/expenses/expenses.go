@@ -8,10 +8,10 @@ import (
 	"time"
 )
 
-func (a *ExpensesApp) GetAllExpenses() ([]mod.Expense, error) {
-	ctx := context.Background()
+func (a *ExpensesApp) GetAllExpenses(ctx context.Context) ([]mod.Expense, error) {
+	user := *ctx.Value("user").(*mod.User)
 
-	expenses, err := a.ExpRepo.GetAll(ctx)
+	expenses, err := a.ExpRepo.GetAll(ctx, user.UserID)
 	if err != nil {
 		return []mod.Expense{}, err
 	}
@@ -19,7 +19,8 @@ func (a *ExpensesApp) GetAllExpenses() ([]mod.Expense, error) {
 	return expenses, nil
 }
 
-func (a *ExpensesApp) GetExpensesRanged(startDate string, endDate string) ([]mod.Expense, error) {
+func (a *ExpensesApp) GetExpensesRanged(
+	ctx context.Context, startDate string, endDate string) ([]mod.Expense, error) {
 	startDateTime, err := time.ParseInLocation("02-Jan-2006 15:04:05", startDate, time.UTC)
 	if err != nil {
 		log.Printf("error startDate: %v", err)
@@ -32,9 +33,8 @@ func (a *ExpensesApp) GetExpensesRanged(startDate string, endDate string) ([]mod
 		return []mod.Expense{}, nil
 	}
 
-	ctx := context.Background()
-
-	return a.ExpRepo.GetExpensesRange(ctx, startDateTime, endDateTime)
+	user := *ctx.Value("user").(*mod.User)
+	return a.ExpRepo.GetExpensesRange(ctx, startDateTime, endDateTime, user.UserID)
 }
 
 func (a *ExpensesApp) GetExpense(id int32) (mod.Expense, error) {
@@ -137,9 +137,7 @@ func (a *ExpensesApp) analyzeExpense(e *mod.Expense) {
 	a.NormalizeShares(e)
 }
 
-func (a *ExpensesApp) NewExpense(exp mod.Expense) error {
-	ctx := context.Background()
-
+func (a *ExpensesApp) NewExpense(ctx context.Context, exp mod.Expense) error {
 	a.analyzeExpense(&exp)
 
 	return a.ExpRepo.Insert(ctx, exp)

@@ -2,11 +2,13 @@ package pages
 
 import (
 	"database/sql"
+	"encoding/json"
 	exp "expenses/expenses"
 	experr "expenses/expenses/errors"
-	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,7 +17,14 @@ const (
 )
 
 func categoriesGlobalPage(c *gin.Context) {
-	categories, err := exp.App.GetAllCategories()
+	ctx, err := getLoggedInUserCTX(c)
+	if err != nil {
+		log.Println("failed to fetch logged in user -", err.Error())
+		ServerErrorView(c, "The server too makes mistakes")
+		return
+	}
+
+	categories, err := exp.App.GetAllCategories(ctx)
 	if err != nil {
 		ServerErrorView(c, "The server too makes mistakes")
 		return

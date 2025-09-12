@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"expenses/api"
 	"expenses/config"
 	"expenses/expenses/auth"
 	"expenses/pages"
@@ -67,6 +68,14 @@ func setRoutes(router *gin.RouterGroup, eng *gin.Engine) {
 	pages.RouteServerError(eng)
 }
 
+func setAPI(router *gin.RouterGroup) {
+	api.RouteExpenses(router)
+	api.RouteUsers(router)
+	api.RouteStores(router)
+	api.RouteTypes(router)
+	api.RouteCategories(router)
+}
+
 func startWebserver() {
 	cfg := config.GetInstance()
 
@@ -81,6 +90,14 @@ func startWebserver() {
 	authGroup.Use(auth.AuthMiddleware())
 	{
 		setRoutes(authGroup, router)
+	}
+
+	// TODO - this also needs authentication
+	apiGroup := router.Group(api.APIPath)
+	{
+		apiAuth := apiGroup.Group("/")
+		apiAuth.Use(api.APIAuthMiddleWare())
+		setAPI(apiAuth)
 	}
 
 	err := router.Run(":" + cfg.Port)

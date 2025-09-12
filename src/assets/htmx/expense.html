@@ -135,7 +135,7 @@
       || evt.detail.xhr.responseType === "text") {
       try {
         const data = JSON.parse(evt.detail.xhr.responseText);
-        console.log(data);
+        console.log("Data: " + data);
         
         document.getElementById("expense-date").value = data["date"];
         document.getElementById("expense-value").value = data["total"];

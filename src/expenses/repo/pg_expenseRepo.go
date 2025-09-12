@@ -45,7 +45,8 @@ func withTx(
 	return tx.Commit(ctx)
 }
 
-func (p *PgExpRepo) getAll(ctx context.Context, q *pgsqlc.Queries) (mod.Expenses, error) {
+func (p *PgExpRepo) getAll(
+	ctx context.Context, q *pgsqlc.Queries, uId int32) (mod.Expenses, error) {
 	// We want to select all here, no timestamps
 	var start pgtype.Timestamp
 	start.Valid = false
@@ -55,6 +56,7 @@ func (p *PgExpRepo) getAll(ctx context.Context, q *pgsqlc.Queries) (mod.Expenses
 	expenses, err := q.GetExpenses(ctx, pgsqlc.GetExpensesParams{
 		Startdate: start,
 		Enddate:   end,
+		UserID:    uId,
 	})
 	if err != nil {
 		return []mod.Expense{}, err
@@ -63,8 +65,8 @@ func (p *PgExpRepo) getAll(ctx context.Context, q *pgsqlc.Queries) (mod.Expenses
 	return mapRepoGetExpensesRows(expenses), err
 }
 
-func (p PgExpRepo) GetAll(ctx context.Context) (mod.Expenses, error) {
-	return p.getAll(ctx, pgsqlc.New(p.DB))
+func (p PgExpRepo) GetAll(ctx context.Context, uId int32) (mod.Expenses, error) {
+	return p.getAll(ctx, pgsqlc.New(p.DB), uId)
 }
 
 func (p *PgExpRepo) get(ctx context.Context, q *pgsqlc.Queries, id int32) (mod.Expense, error) {
@@ -237,7 +239,10 @@ func (p PgExpRepo) Delete(ctx context.Context, id int32) error {
 }
 
 func (p PgExpRepo) GetExpensesRange(
-	ctx context.Context, start time.Time, end time.Time) (mod.Expenses, error) {
+	ctx context.Context,
+	start time.Time,
+	end time.Time,
+	uId int32) (mod.Expenses, error) {
 
 	startPg, err := timeToTimestamp(start)
 	if err != nil {
@@ -253,6 +258,7 @@ func (p PgExpRepo) GetExpensesRange(
 	expenses, err := queries.GetExpenses(ctx, pgsqlc.GetExpensesParams{
 		Startdate: startPg,
 		Enddate:   endPg,
+		UserID:    uId,
 	})
 	if err != nil {
 		return mod.Expenses{}, err

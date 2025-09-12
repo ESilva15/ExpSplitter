@@ -23,7 +23,8 @@ func (a *ExpensesApp) prepareExpense(exp *mod.Expense) error {
 
 func (a *ExpensesApp) luaGetAllExpenses(L *lua.LState) int {
 	ctx := context.Background()
-	expenses, err := a.ExpRepo.GetAll(ctx)
+	// TODO - what do we do about the LUA API
+	expenses, err := a.ExpRepo.GetAll(ctx, 1)
 
 	tbl := L.NewTable()
 	for _, e := range expenses {

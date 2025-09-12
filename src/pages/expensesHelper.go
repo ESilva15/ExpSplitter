@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"context"
 	"expenses/expenses"
 	mod "expenses/expenses/models"
 	"time"
@@ -25,7 +26,7 @@ func processFormPayments(c *gin.Context) ([]mod.Payment, error) {
 	return expenses.ParseFormPayments(userIDs, paymentIDs, values)
 }
 
-func expenseFromForm(c *gin.Context) (*mod.Expense, error) {
+func expenseFromForm(c *gin.Context, ctx context.Context) (*mod.Expense, error) {
 	newDescription := c.PostForm("expense-desc")
 	newDate := c.PostForm("expense-date")
 	newQR := c.PostForm("expense-qr")
@@ -68,7 +69,8 @@ func expenseFromForm(c *gin.Context) (*mod.Expense, error) {
 		return nil, err
 	}
 
-	newExp := mod.Expense{
+	creator := *ctx.Value("user").(*mod.User)
+	return &mod.Expense{
 		Description: newDescription,
 		Date:        formattedDate,
 		Value:       value,
@@ -81,15 +83,10 @@ func expenseFromForm(c *gin.Context) (*mod.Expense, error) {
 		Store: mod.Store{
 			StoreID: storeID,
 		},
-		Owner: mod.User{
-			// TODO
-			// This needs to be dynamic - to be added once we have logins and whatnot
-			UserID: 1,
-		},
+		Owner:        creator,
 		CreationDate: time.Now(),
 		Shares:       shares,
 		Payments:     payments,
 		QRString:     newQR,
-	}
-	return &newExp, nil
+	}, nil
 }

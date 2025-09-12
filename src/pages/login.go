@@ -6,7 +6,6 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -25,16 +24,9 @@ func loginUser(c *gin.Context) {
 	username := c.PostForm("login-user")
 	password := c.PostForm("login-pass")
 
-	user, err := exp.App.GetUserByName(username)
-	if err != nil {
-		// TODO - go to an error page here
-		return
-	}
-
-	// Check password
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
-	if err != nil {
-		// TODO - wrong password
+	user, err := exp.App.ValidateCredentials(username, password)
+	if err != nil  {
+		// TODO - go to an error page or login failed or something
 		return
 	}
 

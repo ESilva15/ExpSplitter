@@ -5,8 +5,7 @@ import (
 	mod "expenses/expenses/models"
 )
 
-func (a *ExpensesApp) GetAllTypes() (mod.Types, error) {
-	ctx := context.Background()
+func (a *ExpensesApp) GetAllTypes(ctx context.Context) (mod.Types, error) {
 	return a.TypeRepo.GetAll(ctx)
 }
 

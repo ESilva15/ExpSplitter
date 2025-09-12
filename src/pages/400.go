@@ -1,12 +1,23 @@
 package pages
 
 import (
+	"expenses/api"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
 func NotFoundView(c *gin.Context, msg string) {
+	if strings.HasPrefix(c.Request.URL.Path, api.APIPath) {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "not_found",
+			"message": "endpoint doesn't exist",
+			"path":    c.Param("path"),
+		})
+		return
+	}
+
 	c.HTML(404, "terminal", gin.H{
 		"warning":      true,
 		"renderNavBar": false,

@@ -17,7 +17,14 @@ const (
 )
 
 func storesGlobalPage(c *gin.Context) {
-	stores, err := exp.App.GetAllStores()
+	ctx, err := getLoggedInUserCTX(c)
+	if err != nil {
+		log.Println("failed to fetch logged in user -", err.Error())
+		ServerErrorView(c, "The server too makes mistakes")
+		return
+	}
+
+	stores, err := exp.App.GetAllStores(ctx)
 	if err != nil {
 		ServerErrorView(c, "Failed to fetch stores content")
 		return

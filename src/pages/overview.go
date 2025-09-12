@@ -34,10 +34,16 @@ func overviewPage(c *gin.Context) {
 }
 
 func getResults(c *gin.Context) {
+	ctx, err := getLoggedInUserCTX(c)
+	if err != nil {
+		ServerErrorView(c, "Could not get logged in user")
+		return
+	}
+
 	startDate := c.PostForm("range-start") + " 00:00:00"
 	endDate := c.PostForm("range-end") + " 23:59:59"
 
-	queriedExpenses, err := exp.App.GetExpensesRanged(startDate, endDate)
+	queriedExpenses, err := exp.App.GetExpensesRanged(ctx, startDate, endDate)
 	if err != nil {
 		log.Printf("getting expenses: %v", err)
 		return
