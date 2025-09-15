@@ -5,7 +5,7 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
-func (a *ExpensesApp) luaInsertShare(L *lua.LState) int {
+func (a *ExpApp) luaInsertShare(L *lua.LState) int {
 	shareJson := L.CheckString(1)
 	expenseID := L.CheckInt(2)
 

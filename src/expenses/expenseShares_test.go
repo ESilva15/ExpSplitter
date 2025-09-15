@@ -44,7 +44,7 @@ func TestNormalizeShares(t *testing.T) {
 	}
 
 	// dummy service to call it
-	app := ExpensesApp{}
+	app := ExpApp{}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			err := app.NormalizeShares(tc.exp)

@@ -1,3 +1,4 @@
+// main will start the expenses app
 package main
 
 import (

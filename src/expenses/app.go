@@ -1,17 +1,20 @@
+// Package expenses will be the core of the expenses splitter webapp's functionalities
 package expenses
 
 import (
 	"context"
-	"expenses/config"
-	"expenses/expenses/repo"
 	"log"
 	"strings"
+
+	"expenses/config"
+	"expenses/expenses/repo"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	lua "github.com/yuin/gopher-lua"
 )
 
-type ExpensesApp struct {
+// ExpApp is the data structure for the main runtime of this application.
+type ExpApp struct {
 	Lua          *lua.LState
 	ExpRepo      repo.ExpenseRepository
 	CategoryRepo repo.CategoryRepository
@@ -21,29 +24,33 @@ type ExpensesApp struct {
 }
 
 var (
-	App *ExpensesApp
+	// App provides access to the expenses main service.
+	App *ExpApp
 )
 
-func NewExpenseApp(db *pgxpool.Pool, luaVM *lua.LState) *ExpensesApp {
-	return &ExpensesApp{
-		ExpRepo:      repo.NewPgExpRepo(db),
-		CategoryRepo: repo.NewPgCatRepo(db),
-		UserRepo:     repo.NewPgUserRepo(db),
-		StoreRepo:    repo.NewPgStoreRepo(db),
-		TypeRepo:     repo.NewPgTypeRepo(db),
+// NewExpenseApp returns a new instance of our core App.
+func NewExpenseApp(dbPool *pgxpool.Pool, luaVM *lua.LState) *ExpApp {
+	return &ExpApp{
+		ExpRepo:      repo.NewPgExpRepo(dbPool),
+		CategoryRepo: repo.NewPgCatRepo(dbPool),
+		UserRepo:     repo.NewPgUserRepo(dbPool),
+		StoreRepo:    repo.NewPgStoreRepo(dbPool),
+		TypeRepo:     repo.NewPgTypeRepo(dbPool),
 		Lua:          luaVM,
 	}
 }
 
-func (a *ExpensesApp) Close() {
-	// TODO
-	// Close the repos?
+// Close will close this ExpApp instance.
+func (a *ExpApp) Close() {
+	// TODO - Close the repos?
 	a.Lua.Close()
 }
 
-func StartLuaVM() (*lua.LState, error) {
+// startLuaVM creates the LuaVM we require to run our custom scripts.
+func startLuaVM() (*lua.LState, error) {
 	L := lua.NewState()
 	App.registerLuaBinds(L)
+
 	return L, nil
 }
 
@@ -75,7 +82,8 @@ func runMigrations(luaVM *lua.LState) error {
 	return nil
 }
 
-func (a *ExpensesApp) GoToMigration(id uint) error {
+// GoToMigration provides a way to force moving to the specified migration.
+func (a *ExpApp) GoToMigration(id uint) error {
 	migrator, err := repo.NewPgMigrator()
 	if err != nil {
 		return err
@@ -84,6 +92,7 @@ func (a *ExpensesApp) GoToMigration(id uint) error {
 	return migrator.Goto(id)
 }
 
+// StartApp will configure and open the required connections to run this app.
 func StartApp() error {
 	config.SetConfig("./config.yaml")
 	cfg := config.GetInstance()
@@ -91,7 +100,7 @@ func StartApp() error {
 	pgStr := getPgConnString(cfg)
 
 	// Create the LuaVM
-	luaVM, err := StartLuaVM()
+	luaVM, err := startLuaVM()
 	if err != nil {
 		return err
 	}

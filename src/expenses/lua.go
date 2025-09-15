@@ -7,7 +7,7 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
-func (a *ExpensesApp) registerLuaBinds(L *lua.LState) {
+func (a *ExpApp) registerLuaBinds(L *lua.LState) {
 	ljson.Preload(L)
 	// Add the decimal.Decimal operations
 	L.SetGlobal("AddDecimal", L.NewFunction(luadec.AddDecimal))

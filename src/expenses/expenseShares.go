@@ -48,7 +48,7 @@ func ParseFormShares(userIDs []string, shares []string, sharesIDs []string,
 
 // NormalizeShares will take the total of an expense and the proposed shares
 // and calculate how much each user actually has to pay - avoids fracd cents
-func (a *ExpensesApp) NormalizeShares(e *mod.Expense) error {
+func (a *ExpApp) NormalizeShares(e *mod.Expense) error {
 	excess := dec.NewFromFloat(0.0)
 	ownerShIdx := -1
 	for k := range e.Shares {
@@ -69,12 +69,13 @@ func (a *ExpensesApp) NormalizeShares(e *mod.Expense) error {
 
 // insertShare allows us to insert a share manually
 // for now its private, need to figure out if it needs to be public
-func (a *ExpensesApp) insertShare(share mod.Share, eIdx int32) error {
+func (a *ExpApp) insertShare(share mod.Share, eIdx int32) error {
 	ctx := context.Background()
 	return a.ExpRepo.InsertShare(ctx, eIdx, share)
 }
 
-func (a *ExpensesApp) DeleteShare(id int32) error {
+// DeleteShare will delete a share by its `id`.
+func (a *ExpApp) DeleteShare(id int32) error {
 	ctx := context.Background()
 	return a.ExpRepo.DeleteShare(ctx, id)
 }

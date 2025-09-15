@@ -22,6 +22,7 @@ func getAllUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"users": users})
 }
 
+// RouteUsers will route the endpoints for the users resources
 func RouteUsers(router *gin.RouterGroup) {
 	router.GET("users", getAllUsers)
 }

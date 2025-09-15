@@ -143,20 +143,20 @@ var (
 		},
 	}
 
-	expense4 = mod.Expense{
-		ExpID: 7,
-		Value: dec.NewFromFloat(0.50),
-		Shares: []mod.Share{
-			{ExpShareID: 0, User: user1, Share: dec.NewFromFloat(0.34)},
-			{ExpShareID: 1, User: user2, Share: dec.NewFromFloat(0.33)},
-			{ExpShareID: 2, User: user3, Share: dec.NewFromFloat(0.33)},
-		},
-		Payments: []mod.Payment{
-			{ExpPaymID: 0, User: user1, PayedAmount: dec.NewFromFloat(0.18)},
-			{ExpPaymID: 1, User: user1, PayedAmount: dec.NewFromFloat(0.16)},
-			{ExpPaymID: 2, User: user2, PayedAmount: dec.NewFromFloat(0.16)},
-		},
-	}
+	// expense4 = mod.Expense{
+	// 	ExpID: 7,
+	// 	Value: dec.NewFromFloat(0.50),
+	// 	Shares: []mod.Share{
+	// 		{ExpShareID: 0, User: user1, Share: dec.NewFromFloat(0.34)},
+	// 		{ExpShareID: 1, User: user2, Share: dec.NewFromFloat(0.33)},
+	// 		{ExpShareID: 2, User: user3, Share: dec.NewFromFloat(0.33)},
+	// 	},
+	// 	Payments: []mod.Payment{
+	// 		{ExpPaymID: 0, User: user1, PayedAmount: dec.NewFromFloat(0.18)},
+	// 		{ExpPaymID: 1, User: user1, PayedAmount: dec.NewFromFloat(0.16)},
+	// 		{ExpPaymID: 2, User: user2, PayedAmount: dec.NewFromFloat(0.16)},
+	// 	},
+	// }
 
 	expense5 = mod.Expense{
 		ExpID: 9,

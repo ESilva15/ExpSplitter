@@ -44,8 +44,8 @@ func ExpensesGlobalPage(c *gin.Context) {
 
 	expenses, err := exp.App.GetAllExpenses(ctx)
 	if err != nil {
-		log.Panicln("error:", err)
-		c.Header("HX-Redirect", "/500")
+		log.Println("error:", err)
+		ServerErrorView(c, "Could not get logged in user")
 		return
 	}
 

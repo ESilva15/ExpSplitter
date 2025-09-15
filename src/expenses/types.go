@@ -5,16 +5,19 @@ import (
 	mod "expenses/expenses/models"
 )
 
-func (a *ExpensesApp) GetAllTypes(ctx context.Context) (mod.Types, error) {
+// GetAllTypes returns all types
+func (a *ExpApp) GetAllTypes(ctx context.Context) (mod.Types, error) {
 	return a.TypeRepo.GetAll(ctx)
 }
 
-func (a *ExpensesApp) GetType(id int32) (mod.Type, error) {
+// GetType returns a type by its `id`
+func (a *ExpApp) GetType(id int32) (mod.Type, error) {
 	ctx := context.Background()
 	return a.TypeRepo.Get(ctx, id)
 }
 
-func (a *ExpensesApp) NewType(name string) error {
+// NewType creates a new type in the DB, or fails with error
+func (a *ExpApp) NewType(name string) error {
 	ctx := context.Background()
 
 	newTyp := mod.Type{
@@ -24,12 +27,14 @@ func (a *ExpensesApp) NewType(name string) error {
 	return a.TypeRepo.Insert(ctx, newTyp)
 }
 
-func (a *ExpensesApp) DeleteType(id int32) error {
+// DeleteType deletes a type by its `id`, or fails with error
+func (a *ExpApp) DeleteType(id int32) error {
 	ctx := context.Background()
 	return a.TypeRepo.Delete(ctx, id)
 }
 
-func (a *ExpensesApp) UpdateType(id int32, name string) error {
+// UpdateType updates a type by its `id`, or fails with error
+func (a *ExpApp) UpdateType(id int32, name string) error {
 	ctx := context.Background()
 
 	updatedType := mod.Type{

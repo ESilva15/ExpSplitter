@@ -5,16 +5,20 @@ import (
 	mod "expenses/expenses/models"
 )
 
-func (a *ExpensesApp) GetAllCategories(ctx context.Context) ([]mod.Category, error) {
+// GetAllCategories returns all categories.
+func (a *ExpApp) GetAllCategories(ctx context.Context) ([]mod.Category, error) {
 	return a.CategoryRepo.GetAll(ctx)
 }
 
-func (a *ExpensesApp) GetCategory(id int32) (mod.Category, error) {
+// GetCategory returns a category by its ID.
+func (a *ExpApp) GetCategory(id int32) (mod.Category, error) {
 	ctx := context.Background()
+
 	return a.CategoryRepo.Get(ctx, id)
 }
 
-func (a *ExpensesApp) CreateCategory(name string) error {
+// CreateCategory creates a new category.
+func (a *ExpApp) CreateCategory(name string) error {
 	ctx := context.Background()
 
 	newCat := mod.Category{
@@ -24,7 +28,8 @@ func (a *ExpensesApp) CreateCategory(name string) error {
 	return a.CategoryRepo.Insert(ctx, newCat)
 }
 
-func (a *ExpensesApp) UpdateCategory(id int32, name string) error {
+// UpdateCategory updates a category by its ID.
+func (a *ExpApp) UpdateCategory(id int32, name string) error {
 	ctx := context.Background()
 
 	cat := mod.Category{
@@ -35,7 +40,9 @@ func (a *ExpensesApp) UpdateCategory(id int32, name string) error {
 	return a.CategoryRepo.Update(ctx, cat)
 }
 
-func (a *ExpensesApp) DeleteCategory(id int32) error {
+// DeleteCategory deletes a category by its ID.
+func (a *ExpApp) DeleteCategory(id int32) error {
 	ctx := context.Background()
+
 	return a.CategoryRepo.Delete(ctx, id)
 }

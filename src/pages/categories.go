@@ -1,3 +1,4 @@
+// Package pages is the HTTP frontend for this application
 package pages
 
 import (

@@ -8,19 +8,24 @@ import (
 	dec "github.com/shopspring/decimal"
 )
 
-type UserTab struct {
+// userTab describes the tab a given user has.
+type userTab struct {
 	User mod.User
 	Sum  dec.Decimal
 }
-type UserTabs []UserTab
 
-func (ut UserTabs) SortBySum() {
+// userTabs is a list of UserTab.
+type userTabs []userTab
+
+// SortBySum sorts the list of UserTab by the attrib Sum.
+func (ut userTabs) SortBySum() {
 	sort.Slice(ut, func(i, j int) bool {
 		return ut[i].Sum.Cmp(ut[j].Sum) > 0
 	})
 }
 
-func (ut UserTabs) Equal(t UserTabs) bool {
+// Equal returns the equality of the passed UserTab.
+func (ut userTabs) Equal(t userTabs) bool {
 	if len(ut) != len(t) {
 		return false
 	}
@@ -34,24 +39,24 @@ func (ut UserTabs) Equal(t UserTabs) bool {
 	return true
 }
 
-func filterExpenseParticipants(e *mod.Expense) (UserTabs, UserTabs) {
+func filterExpenseParticipants(e *mod.Expense) (userTabs, userTabs) {
 	shares := mapShares(e)
 	payments := mapPayments(e)
 
-	debtors := UserTabs{}
-	creditors := UserTabs{}
+	debtors := userTabs{}
+	creditors := userTabs{}
 
 	for user, share := range shares {
 		debt := share.Sub(payments[user])
 		if debt.LessThan(dec.NewFromFloat(0.0)) {
-			creditors = append(creditors, UserTab{
+			creditors = append(creditors, userTab{
 				User: user,
 				Sum:  debt.Abs(),
 			})
 		}
 
 		if debt.GreaterThan(dec.NewFromFloat(0.0)) {
-			debtors = append(debtors, UserTab{
+			debtors = append(debtors, userTab{
 				User: user,
 				Sum:  debt.Abs(),
 			})
@@ -66,13 +71,13 @@ func filterExpenseParticipants(e *mod.Expense) (UserTabs, UserTabs) {
 
 // TODO
 // Instead of doing this impererively (I think?) create a struct that can
-// handle doing the accounting while collecting the data instead
-type CompoundKey struct {
+// handle doing the accounting while collecting the data instead.
+type compoundeKey struct {
 	Debtor   mod.User
 	Creditor mod.User
 }
 
-func resolveDebt(creditor UserTab, debtors UserTabs) mod.Debts {
+func resolveDebt(creditor userTab, debtors userTabs) mod.Debts {
 	debts := mod.Debts{}
 
 	credit := creditor.Sum
@@ -101,14 +106,14 @@ func resolveDebt(creditor UserTab, debtors UserTabs) mod.Debts {
 	return debts
 }
 
-func resolveDebts(debtors UserTabs, creditors UserTabs) mod.Debts {
-	keyedDebts := make(map[CompoundKey]dec.Decimal)
+func resolveDebts(debtors userTabs, creditors userTabs) mod.Debts {
+	keyedDebts := make(map[compoundeKey]dec.Decimal)
 
 	for _, creditor := range creditors {
 		debt := resolveDebt(creditor, debtors)
 
 		for _, d := range debt {
-			key := CompoundKey{Debtor: d.Debtor, Creditor: d.Creditor}
+			key := compoundeKey{Debtor: d.Debtor, Creditor: d.Creditor}
 			if _, ok := keyedDebts[key]; ok {
 				keyedDebts[key] = keyedDebts[key].Add(d.Sum)
 			} else {
@@ -149,16 +154,16 @@ func CalculateDebts(e *mod.Expense) (mod.Debts, error) {
 // This won't work if the payment was made with multiple payments - but for my
 // use case that won't be a thing. Right now every expense I introduce has been
 // fully payed in one go
-func (a *ExpensesApp) settleDebt(payment mod.Payment,
-	credit mod.Payment, eId int32) error {
+func (a *ExpApp) settleDebt(payment mod.Payment,
+	credit mod.Payment, eID int32) error {
 	ctx := context.Background()
 
 	credit.PayedAmount = credit.PayedAmount.Sub(payment.PayedAmount)
 
-	return a.ExpRepo.SettleDebt(ctx, eId, payment, credit)
+	return a.ExpRepo.SettleDebt(ctx, eID, payment, credit)
 }
 
-func (a *ExpensesApp) ProcessDebt(expID int32, debt mod.Debt) error {
+func (a *ExpApp) ProcessDebt(expID int32, debt mod.Debt) error {
 	// We have to balance the debtor and creditor payments
 	payment := mod.Payment{
 		User: mod.User{

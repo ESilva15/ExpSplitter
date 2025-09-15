@@ -11,6 +11,8 @@ import (
 	mod "expenses/expenses/models"
 )
 
+// AuthMiddleware is the middleware we will use to verify if a user is
+// authenticated or not
 func AuthMiddleware() gin.HandlerFunc {
 	log.Println("Are we authing?")
 	return func(c *gin.Context) {

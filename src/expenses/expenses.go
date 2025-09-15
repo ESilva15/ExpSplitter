@@ -3,12 +3,14 @@ package expenses
 import (
 	"context"
 	mod "expenses/expenses/models"
-	"github.com/shopspring/decimal"
 	"log"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
-func (a *ExpensesApp) GetAllExpenses(ctx context.Context) ([]mod.Expense, error) {
+// GetAllExpenses returns the list of Expenses in which the 'user' participates
+func (a *ExpApp) GetAllExpenses(ctx context.Context) ([]mod.Expense, error) {
 	user := *ctx.Value("user").(*mod.User)
 
 	expenses, err := a.ExpRepo.GetAll(ctx, user.UserID)
@@ -19,7 +21,9 @@ func (a *ExpensesApp) GetAllExpenses(ctx context.Context) ([]mod.Expense, error)
 	return expenses, nil
 }
 
-func (a *ExpensesApp) GetExpensesRanged(
+// TODO - make the GetAllExpenses and this function be only one
+// GetExpensesRanged returns the list of Expenses in which the 'user' participates
+func (a *ExpApp) GetExpensesRanged(
 	ctx context.Context, startDate string, endDate string) ([]mod.Expense, error) {
 	startDateTime, err := time.ParseInLocation("02-Jan-2006 15:04:05", startDate, time.UTC)
 	if err != nil {
@@ -37,7 +41,9 @@ func (a *ExpensesApp) GetExpensesRanged(
 	return a.ExpRepo.GetExpensesRange(ctx, startDateTime, endDateTime, user.UserID)
 }
 
-func (a *ExpensesApp) GetExpense(id int32) (mod.Expense, error) {
+// TODO - we should only be able to access them if the user participates in them
+// GetExpense returns a given expense by ID
+func (a *ExpApp) GetExpense(id int32) (mod.Expense, error) {
 	ctx := context.Background()
 
 	expense, err := a.ExpRepo.Get(ctx, id)
@@ -48,7 +54,8 @@ func (a *ExpensesApp) GetExpense(id int32) (mod.Expense, error) {
 	return expense, nil
 }
 
-func (a *ExpensesApp) LoadExpenseShares(e *mod.Expense) error {
+// LoadExpenseShares populates the Expense with its shares from the DB
+func (a *ExpApp) LoadExpenseShares(e *mod.Expense) error {
 	ctx := context.Background()
 
 	var err error
@@ -57,7 +64,8 @@ func (a *ExpensesApp) LoadExpenseShares(e *mod.Expense) error {
 	return err
 }
 
-func (a *ExpensesApp) LoadExpensePayments(e *mod.Expense) error {
+// LoadExpensePayments populates the Expense with its payments from the DB
+func (a *ExpApp) LoadExpensePayments(e *mod.Expense) error {
 	ctx := context.Background()
 
 	var err error
@@ -66,14 +74,17 @@ func (a *ExpensesApp) LoadExpensePayments(e *mod.Expense) error {
 	return err
 }
 
-func (a *ExpensesApp) LoadExpenseDebts(e *mod.Expense) error {
+// LoadExpenseDebts populates the Expense with its debts from the DB
+func (a *ExpApp) LoadExpenseDebts(e *mod.Expense) error {
 	debts, _ := CalculateDebts(e)
 	e.Debts = debts
 
 	return nil
 }
 
-func (a *ExpensesApp) DeleteExpense(id int32) error {
+// TODO - only expenses the user participates in
+// DeleteExpense deletes a given expense
+func (a *ExpApp) DeleteExpense(id int32) error {
 	ctx := context.Background()
 	err := a.ExpRepo.Delete(ctx, id)
 	return err
@@ -126,7 +137,7 @@ func ExpenseIsEvenlyShared(exp *mod.Expense) bool {
 	return true
 }
 
-func (a *ExpensesApp) analyzeExpense(e *mod.Expense) {
+func (a *ExpApp) analyzeExpense(e *mod.Expense) {
 	// Figure out if its paid off or not by adding the existing payments
 	e.PaidOff = e.Value.Equal(ExpenseTotalPayed(e))
 
@@ -137,13 +148,13 @@ func (a *ExpensesApp) analyzeExpense(e *mod.Expense) {
 	a.NormalizeShares(e)
 }
 
-func (a *ExpensesApp) NewExpense(ctx context.Context, exp mod.Expense) error {
+func (a *ExpApp) NewExpense(ctx context.Context, exp mod.Expense) error {
 	a.analyzeExpense(&exp)
 
 	return a.ExpRepo.Insert(ctx, exp)
 }
 
-func (a *ExpensesApp) UpdateExpense(exp mod.Expense) error {
+func (a *ExpApp) UpdateExpense(exp mod.Expense) error {
 	ctx := context.Background()
 
 	// TODO

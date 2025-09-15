@@ -5,7 +5,7 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
-func (a *ExpensesApp) luaInsertPayment(L *lua.LState) int {
+func (a *ExpApp) luaInsertPayment(L *lua.LState) int {
 	paymentJSON := L.CheckString(1)
 	expenseID := L.CheckInt(2)
 

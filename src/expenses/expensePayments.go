@@ -46,7 +46,7 @@ func ParseFormPayments(userIDs []string, paymentsIDs []string,
 	return payments, nil
 }
 
-func (a *ExpensesApp) GetExpensePaymentByUserID(eId int32, uId int32,
+func (a *ExpApp) GetExpensePaymentByUserID(eId int32, uId int32,
 ) (mod.Payment, error) {
 	ctx := context.Background()
 	return a.ExpRepo.GetExpensePaymentByUserID(ctx, eId, uId)
@@ -54,22 +54,22 @@ func (a *ExpensesApp) GetExpensePaymentByUserID(eId int32, uId int32,
 
 // insertPayment allows us to insert a payment manually
 // for now its private, need to figure out if it needs to be public
-func (a *ExpensesApp) insertPayment(payment mod.Payment, eIdx int32) error {
+func (a *ExpApp) insertPayment(payment mod.Payment, eIdx int32) error {
 	ctx := context.Background()
 	return a.ExpRepo.InsertPayment(ctx, eIdx, payment)
 }
 
-func (a *ExpensesApp) DeletePayment(id int32) error {
+func (a *ExpApp) DeletePayment(id int32) error {
 	ctx := context.Background()
 	return a.ExpRepo.DeletePayment(ctx, id)
 }
 
-func (a *ExpensesApp) UpdatePayment(payment mod.Payment) error {
+func (a *ExpApp) UpdatePayment(payment mod.Payment) error {
 	ctx := context.Background()
 	return a.ExpRepo.UpdatePayment(ctx, payment)
 }
 
-func (a *ExpensesApp) AddPayment(expID int32, userID int32, sum dec.Decimal) error {
+func (a *ExpApp) AddPayment(expID int32, userID int32, sum dec.Decimal) error {
 	payment := mod.Payment{
 		User: mod.User{
 			UserID: userID,

@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	expauth "expenses/expenses/auth"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,6 +13,7 @@ type TokenData struct {
 	Token string `json:"JWTToken"`
 }
 
+// APIAuhtMiddleWare will handle this API authentication
 func APIAuthMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		auth := c.GetHeader("Authorization")

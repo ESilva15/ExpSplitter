@@ -12,17 +12,17 @@ func TestFilterExpenseParticipants(t *testing.T) {
 	testCases := []struct {
 		name              string
 		exp               *mod.Expense
-		expectedDebtors   UserTabs
-		expectedCreditors UserTabs
+		expectedDebtors   userTabs
+		expectedCreditors userTabs
 	}{
 		{
 			name: "Expense something something",
 			exp:  &expense2,
-			expectedCreditors: UserTabs{
+			expectedCreditors: userTabs{
 				{User: user1, Sum: dec.NewFromFloat(32.0)},
 				{User: user3, Sum: dec.NewFromFloat(22.0)},
 			},
-			expectedDebtors: UserTabs{
+			expectedDebtors: userTabs{
 				{User: user2, Sum: dec.NewFromFloat(43.0)},
 				{User: user4, Sum: dec.NewFromFloat(11.0)},
 			},
@@ -30,10 +30,10 @@ func TestFilterExpenseParticipants(t *testing.T) {
 		{
 			name: "Expense cents",
 			exp:  &expense6,
-			expectedCreditors: UserTabs{
+			expectedCreditors: userTabs{
 				{User: user1, Sum: dec.NewFromFloat(0.32)},
 			},
-			expectedDebtors: UserTabs{
+			expectedDebtors: userTabs{
 				{User: user2, Sum: dec.NewFromFloat(0.16)},
 				{User: user3, Sum: dec.NewFromFloat(0.16)},
 			},
@@ -59,18 +59,18 @@ func TestFilterExpenseParticipants(t *testing.T) {
 func TestResolveDebt_ExactDebtsForCredit(t *testing.T) {
 	// Test1:
 	// Debt is solvable
-	debtors := UserTabs{
+	debtors := userTabs{
 		{User: user1, Sum: dec.NewFromFloat(10.0)},
 		{User: user2, Sum: dec.NewFromFloat(10.0)},
 		{User: user3, Sum: dec.NewFromFloat(10.0)},
 	}
-	creditor := UserTab{User: user4, Sum: dec.NewFromFloat(30.0)}
+	creditor := userTab{User: user4, Sum: dec.NewFromFloat(30.0)}
 	expectedDebts := mod.Debts{
 		{Creditor: user4, Debtor: user1, Sum: dec.NewFromFloat(10.0)},
 		{Creditor: user4, Debtor: user2, Sum: dec.NewFromFloat(10.0)},
 		{Creditor: user4, Debtor: user3, Sum: dec.NewFromFloat(10.0)},
 	}
-	expectedDebtors := UserTabs{
+	expectedDebtors := userTabs{
 		{User: user1, Sum: dec.NewFromFloat(0.0)},
 		{User: user2, Sum: dec.NewFromFloat(0.0)},
 		{User: user3, Sum: dec.NewFromFloat(0.0)},
@@ -92,11 +92,11 @@ func TestResolveDebt_ExactDebtsForCredit(t *testing.T) {
 func TestResolveDebt_LessDebtsThanCredit(t *testing.T) {
 	// Test2:
 	// Debt is not solvable:
-	debtors := UserTabs{
+	debtors := userTabs{
 		{User: user1, Sum: dec.NewFromFloat(10.0)},
 		{User: user2, Sum: dec.NewFromFloat(10.0)},
 	}
-	creditor := UserTab{User: user4, Sum: dec.NewFromFloat(30.0)}
+	creditor := userTab{User: user4, Sum: dec.NewFromFloat(30.0)}
 	expectedDebts := mod.Debts{
 		{Creditor: user4, Debtor: user1, Sum: dec.NewFromFloat(10.0)},
 		{Creditor: user4, Debtor: user2, Sum: dec.NewFromFloat(10.0)},
@@ -111,12 +111,12 @@ func TestResolveDebt_LessDebtsThanCredit(t *testing.T) {
 }
 
 func TestResolveDebt_EnoughDebtsForCredit(t *testing.T) {
-	debtors := UserTabs{
+	debtors := userTabs{
 		{User: user1, Sum: dec.NewFromFloat(10.0)},
 		{User: user2, Sum: dec.NewFromFloat(10.0)},
 		{User: user3, Sum: dec.NewFromFloat(10.0)},
 	}
-	creditor := UserTab{User: user4, Sum: dec.NewFromFloat(10.0)}
+	creditor := userTab{User: user4, Sum: dec.NewFromFloat(10.0)}
 	expectedDebts := mod.Debts{
 		{Creditor: user4, Debtor: user1, Sum: dec.NewFromFloat(10.0)},
 	}
@@ -130,13 +130,13 @@ func TestResolveDebt_EnoughDebtsForCredit(t *testing.T) {
 }
 
 func TestResolveDebt_RenameMe(t *testing.T) {
-	debtors := UserTabs{
+	debtors := userTabs{
 		{User: user1, Sum: dec.NewFromFloat(10.0)},
 	}
-	expectedDebtors := UserTabs{
+	expectedDebtors := userTabs{
 		{User: user1, Sum: dec.NewFromFloat(3.0)},
 	}
-	creditor := UserTab{User: user4, Sum: dec.NewFromFloat(7.0)}
+	creditor := userTab{User: user4, Sum: dec.NewFromFloat(7.0)}
 	expectedDebts := mod.Debts{
 		{Creditor: user4, Debtor: user1, Sum: dec.NewFromFloat(7.0)},
 	}

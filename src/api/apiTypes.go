@@ -22,6 +22,7 @@ func getAllTypes(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"users": types})
 }
 
+// RouteTypes will route the endpoints for the types resources
 func RouteTypes(router *gin.RouterGroup) {
 	router.GET("types", getAllTypes)
 }
