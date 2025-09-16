@@ -1,13 +1,14 @@
 package pages
 
 import (
-	exp "expenses/expenses"
-	experr "expenses/expenses/errors"
-	mod "expenses/expenses/models"
 	"fmt"
+	"net/http"
+
+	exp "github.com/ESilva15/expenses/expenses"
+	experr "github.com/ESilva15/expenses/expenses/errors"
+	mod "github.com/ESilva15/expenses/expenses/models"
 	"github.com/gin-gonic/gin"
 	dec "github.com/shopspring/decimal"
-	"net/http"
 )
 
 func deletePayment(c *gin.Context) {

@@ -1,9 +1,10 @@
 package expenses
 
 import (
-	mod "expenses/expenses/models"
 	"fmt"
 	"testing"
+
+	mod "github.com/ESilva15/expenses/expenses/models"
 
 	dec "github.com/shopspring/decimal"
 )

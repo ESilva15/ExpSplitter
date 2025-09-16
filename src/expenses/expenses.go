@@ -2,9 +2,10 @@ package expenses
 
 import (
 	"context"
-	mod "expenses/expenses/models"
 	"log"
 	"time"
+
+	mod "github.com/ESilva15/expenses/expenses/models"
 
 	"github.com/shopspring/decimal"
 )

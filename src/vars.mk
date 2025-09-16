@@ -1,4 +1,4 @@
-include .env
+include $(dir $(lastword $(MAKEFILE_LIST))).env
 
 REQUIRED_VARS := registry repo
 

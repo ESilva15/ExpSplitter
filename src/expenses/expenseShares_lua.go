@@ -1,7 +1,7 @@
 package expenses
 
 import (
-	mod "expenses/expenses/models"
+	mod "github.com/ESilva15/expenses/expenses/models"
 	lua "github.com/yuin/gopher-lua"
 )
 

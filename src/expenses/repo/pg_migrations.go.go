@@ -1,12 +1,13 @@
 package repo
 
 import (
-	"expenses/config"
 	"log"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/ESilva15/expenses/config"
 
 	mig "github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"

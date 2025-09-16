@@ -1,9 +1,10 @@
 package pages
 
 import (
-	exp "expenses/expenses"
-	mod "expenses/expenses/models"
 	"log"
+
+	exp "github.com/ESilva15/expenses/expenses"
+	mod "github.com/ESilva15/expenses/expenses/models"
 
 	"net/http"
 
@@ -68,6 +69,10 @@ func getResults(c *gin.Context) {
 			log.Printf("failed to get debts: %v", err)
 			return
 		}
+
+		log.Println(queriedExpenses[k].Shares)
+		log.Println(queriedExpenses[k].Payments)
+		log.Println(queriedExpenses[k].Debts)
 	}
 
 	userDebtSummary := make(map[mod.User]decimal.Decimal)

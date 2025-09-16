@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	expauth "expenses/expenses/auth"
+	expauth "github.com/ESilva15/expenses/expenses/auth"
 
 	"github.com/gin-gonic/gin"
 )

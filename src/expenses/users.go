@@ -2,7 +2,8 @@ package expenses
 
 import (
 	"context"
-	mod "expenses/expenses/models"
+
+	mod "github.com/ESilva15/expenses/expenses/models"
 
 	"golang.org/x/crypto/bcrypt"
 )

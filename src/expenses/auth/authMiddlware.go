@@ -7,8 +7,8 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 
-	exp "expenses/expenses"
-	mod "expenses/expenses/models"
+	exp "github.com/ESilva15/expenses/expenses"
+	mod "github.com/ESilva15/expenses/expenses/models"
 )
 
 // AuthMiddleware is the middleware we will use to verify if a user is

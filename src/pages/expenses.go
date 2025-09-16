@@ -2,18 +2,22 @@ package pages
 
 import (
 	"encoding/json"
-	exp "expenses/expenses"
-	experr "expenses/expenses/errors"
-	mod "expenses/expenses/models"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
+
+	exp "github.com/ESilva15/expenses/expenses"
+	experr "github.com/ESilva15/expenses/expenses/errors"
+	mod "github.com/ESilva15/expenses/expenses/models"
 
 	fatqr "github.com/ESilva15/gofatqr"
 	"github.com/gin-gonic/gin"
 )
 
 const (
+	// ExpensesPath is the expenses resource path.
 	ExpensesPath = "/expenses"
 )
 
@@ -35,7 +39,7 @@ func expensesPartial(c *gin.Context) {
 	})
 }
 
-func ExpensesGlobalPage(c *gin.Context) {
+func expensesGlobalPage(c *gin.Context) {
 	ctx, err := getLoggedInUserCTX(c)
 	if err != nil {
 		ServerErrorView(c, "Could not get logged in user")
@@ -130,7 +134,6 @@ func expensePage(c *gin.Context) {
 		"stores":       stores,
 		"types":        types,
 		"users":        users,
-		// "summary":      summary,
 	})
 }
 
@@ -189,8 +192,7 @@ func createExpense(c *gin.Context) {
 
 	newExp, err := expenseFromForm(c, ctx)
 	if err != nil {
-		// TODO
-		// Change this to something the user can see
+		// TODO - Change this to something the user can see
 		c.Header("HX-Redirect", "/500")
 		return
 	}
@@ -220,8 +222,7 @@ func updateExpense(c *gin.Context) {
 
 	newExp, err := expenseFromForm(c, ctx)
 	if err != nil {
-		// TODO
-		// Change this to something the user can see
+		// TODO - Change this to something the user can see
 		c.Header("HX-Redirect", "/500")
 		return
 	}
@@ -245,7 +246,7 @@ func deleteExpense(c *gin.Context) {
 	}
 
 	err = exp.App.DeleteExpense(expenseID)
-	if err == experr.ErrNotFound {
+	if errors.Is(err, experr.ErrNotFound) {
 		log.Println("error:", err)
 		errMsg := fmt.Sprintf("category %d not found", expenseID)
 		c.String(http.StatusNotFound, errMsg)
@@ -289,14 +290,15 @@ func qrRequest(c *gin.Context) {
 	response := map[string]string{
 		"total":   fat.GrossTotal.String(),
 		"date":    fat.InvoiceDate.Format("02-Jan-2006"),
-		"storeID": fmt.Sprintf("%d", storeID),
+		"storeID": strconv.Itoa(int(storeID)),
 	}
 
-	c.JSON(200, response)
+	c.JSON(http.StatusOK, response)
 }
 
+// RouteExpenses routes the endpoints for the HTML frontend.
 func RouteExpenses(router *gin.RouterGroup) {
-	router.GET(ExpensesPath, ExpensesGlobalPage)
+	router.GET(ExpensesPath, expensesGlobalPage)
 	router.GET(ExpensesPath+"/:id", expensePage)
 	router.POST(ExpensesPath, expensesPartial)
 

@@ -2,9 +2,10 @@
 <table>
   <tr>
     <th>ID</th>
-    <th>Desc</th>
-    <th>Price</th>
-    <th>Date</th>
+    <th>OWNER</th>
+    <th>DESC</th>
+    <th>PRICE</th>
+    <th>DATE</th>
     <!-- <th>Store</th> -->
     <th>Category</th>
     <!-- <th>Owner</th> -->
@@ -12,9 +13,10 @@
   {{ range .expenses }}
   <tr>
     <th><a href="/expenses/{{ .ExpID }}">{{ .ExpID }}</th>
-    <th spellcheck="false" contenteditable>{{ .Description }}</th>
-    <th spellcheck="false" contenteditable>{{ formatPrice .Value }}</th>
-    <th spellcheck="false" contenteditable>{{ formatDate .Date }}</th>
+    <th spellcheck="false">{{ .Owner.UserName }}</th>
+    <th spellcheck="false">{{ .Description }}</th>
+    <th spellcheck="false">{{ formatPrice .Value }}</th>
+    <th spellcheck="false">{{ formatDate .Date }}</th>
     <th spellcheck="false">{{ .Category.CategoryName }}</th>
   </tr>
   {{ end }}

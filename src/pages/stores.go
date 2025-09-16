@@ -2,17 +2,20 @@ package pages
 
 import (
 	"database/sql"
-	exp "expenses/expenses"
-	experr "expenses/expenses/errors"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
+
+	exp "github.com/ESilva15/expenses/expenses"
+	experr "github.com/ESilva15/expenses/expenses/errors"
 
 	fatqr "github.com/ESilva15/gofatqr"
 	"github.com/gin-gonic/gin"
 )
 
 const (
+	// StoresPath defines the stores resources path.
 	StoresPath = "/stores"
 )
 
@@ -46,7 +49,7 @@ func storePage(c *gin.Context) {
 	}
 
 	store, err := exp.App.GetStore(storeID)
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		NotFoundView(c, fmt.Sprintf("didn't find store with ID `%d`", storeID))
 		return
 	}
@@ -89,7 +92,7 @@ func createStore(c *gin.Context) {
 func updateStore(c *gin.Context) {
 	storeID, err := exp.ParseID(c.Param("id"))
 	if err != nil {
-		c.Redirect(404, "/404")
+		c.Redirect(http.StatusNotFound, "/404")
 	}
 	newName := c.PostForm("store-name")
 	newNIF := c.PostForm("store-nif")
@@ -106,7 +109,7 @@ func updateStore(c *gin.Context) {
 func deleteStore(c *gin.Context) {
 	storeID, err := exp.ParseID(c.Param("id"))
 	if err != nil {
-		c.Redirect(404, "/404")
+		c.Redirect(http.StatusNotFound, "/404")
 	}
 
 	err = exp.App.DeleteStore(storeID)
@@ -132,8 +135,7 @@ func getNIF(c *gin.Context) {
 	var fat fatqr.FatQR
 	err := fat.Scan(qr, 0)
 	if err != nil {
-		// TODO
-		// handle the error here for the user
+		// TODO - handle the error here for the user
 		return
 	}
 
@@ -141,9 +143,10 @@ func getNIF(c *gin.Context) {
 		"nif": fat.TaxRegistrationNumber,
 	}
 
-	c.JSON(200, response)
+	c.JSON(http.StatusOK, response)
 }
 
+// RouteStores routes the endpoints for the stores resources.
 func RouteStores(router *gin.RouterGroup) {
 	router.GET(StoresPath, storesGlobalPage)
 	router.GET(StoresPath+"/:id", storePage)

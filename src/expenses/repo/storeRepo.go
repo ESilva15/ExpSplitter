@@ -2,9 +2,11 @@ package repo
 
 import (
 	"context"
-	mod "expenses/expenses/models"
+
+	mod "github.com/ESilva15/expenses/expenses/models"
 )
 
+// StoreRepository defines the repository for the store data model.
 type StoreRepository interface {
 	Get(ctx context.Context, id int32) (mod.Store, error)
 	GetByNIF(ctx context.Context, nif string) (mod.Store, error)

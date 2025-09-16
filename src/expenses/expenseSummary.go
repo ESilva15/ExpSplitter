@@ -1,7 +1,7 @@
 package expenses
 
 import (
-	mod "expenses/expenses/models"
+	mod "github.com/ESilva15/expenses/expenses/models"
 )
 
 type UserExpenseSummary struct {
@@ -19,21 +19,21 @@ func NewUserExpenseSummary() UserExpenseSummary {
 }
 
 // func (e *Expense) GetSummary() ([]UserExpenseSummary, error) {
-	// summary := []UserExpenseSummary{}
-	//
-	// for _, share := range e.Shares {
-	// 	curSummary := NewUserExpenseSummary()
-	// 	curSummary.User = share.User
-	// 	curSummary.Share = share.Share
-	//
-	// 	for _, payment := range e.Payments {
-	// 		if payment.User.UserID == curSummary.User.UserID {
-	// 			curSummary.PayedTotal += payment.PayedAmount
-	// 		}
-	// 	}
-	//
-	// 	summary = append(summary, curSummary)
-	// }
-	//
-	// return summary, nil
+// summary := []UserExpenseSummary{}
+//
+// for _, share := range e.Shares {
+// 	curSummary := NewUserExpenseSummary()
+// 	curSummary.User = share.User
+// 	curSummary.Share = share.Share
+//
+// 	for _, payment := range e.Payments {
+// 		if payment.User.UserID == curSummary.User.UserID {
+// 			curSummary.PayedTotal += payment.PayedAmount
+// 		}
+// 	}
+//
+// 	summary = append(summary, curSummary)
+// }
+//
+// return summary, nil
 // }

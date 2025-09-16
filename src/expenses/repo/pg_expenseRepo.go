@@ -2,10 +2,11 @@ package repo
 
 import (
 	"context"
-	mod "expenses/expenses/models"
-	"expenses/expenses/repo/pgdb/pgsqlc"
 	"fmt"
 	"time"
+
+	mod "github.com/ESilva15/expenses/expenses/models"
+	"github.com/ESilva15/expenses/expenses/repo/pgdb/pgsqlc"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -65,8 +66,9 @@ func (p *PgExpRepo) getAll(
 	return mapRepoGetExpensesRows(expenses), err
 }
 
-func (p PgExpRepo) GetAll(ctx context.Context, uId int32) (mod.Expenses, error) {
-	return p.getAll(ctx, pgsqlc.New(p.DB), uId)
+// GetAll fetches all expenses.
+func (p PgExpRepo) GetAll(ctx context.Context, uID int32) (mod.Expenses, error) {
+	return p.getAll(ctx, pgsqlc.New(p.DB), uID)
 }
 
 func (p *PgExpRepo) get(ctx context.Context, q *pgsqlc.Queries, id int32) (mod.Expense, error) {
@@ -74,13 +76,16 @@ func (p *PgExpRepo) get(ctx context.Context, q *pgsqlc.Queries, id int32) (mod.E
 	if err != nil {
 		return mod.Expense{}, err
 	}
-	return mapRepoGetExpenseRow(expense), nil
+
+	return mapRepoExpenseRow(ExpenseRowSingle(expense)), nil
 }
 
+// Get fetches a single expense by its ID.
 func (p PgExpRepo) Get(ctx context.Context, id int32) (mod.Expense, error) {
 	return p.get(ctx, pgsqlc.New(p.DB), id)
 }
 
+// Update updates a given expense.
 func (p PgExpRepo) Update(
 	ctx context.Context,
 	exp mod.Expense) error {
@@ -146,7 +151,7 @@ func (p PgExpRepo) Update(
 			} else {
 				err := p.updatePayment(ctx, q, paym)
 				if err != nil {
-					return nil
+					return err
 				}
 			}
 		}
@@ -223,6 +228,7 @@ func (p PgExpRepo) Insert(
 	})
 }
 
+// Delete deletes a given expense by its ID.
 func (p PgExpRepo) Delete(ctx context.Context, id int32) error {
 	queries := pgsqlc.New(p.DB)
 	res, err := queries.DeleteExpense(ctx, id)
@@ -238,11 +244,12 @@ func (p PgExpRepo) Delete(ctx context.Context, id int32) error {
 	return nil
 }
 
+// GetExpensesRange fetches all expenses in a given time frame.
 func (p PgExpRepo) GetExpensesRange(
 	ctx context.Context,
 	start time.Time,
 	end time.Time,
-	uId int32) (mod.Expenses, error) {
+	uID int32) (mod.Expenses, error) {
 
 	startPg, err := timeToTimestamp(start)
 	if err != nil {
@@ -258,7 +265,7 @@ func (p PgExpRepo) GetExpensesRange(
 	expenses, err := queries.GetExpenses(ctx, pgsqlc.GetExpensesParams{
 		Startdate: startPg,
 		Enddate:   endPg,
-		UserID:    uId,
+		UserID:    uID,
 	})
 	if err != nil {
 		return mod.Expenses{}, err

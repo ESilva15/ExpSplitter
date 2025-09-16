@@ -1,4 +1,4 @@
-module expenses
+module github.com/ESilva15/expenses
 
 go 1.24.6
 

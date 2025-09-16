@@ -1,10 +1,11 @@
 package cmd
 
 import (
-	"expenses/expenses"
 	"fmt"
 	"log"
 	"strconv"
+
+	"github.com/ESilva15/expenses/expenses"
 
 	"github.com/spf13/cobra"
 )

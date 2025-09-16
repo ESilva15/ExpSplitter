@@ -1,10 +1,12 @@
 package api
 
 import (
-	exp "expenses/expenses"
-	"expenses/expenses/auth"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/ESilva15/expenses/expenses/auth"
+
+	exp "github.com/ESilva15/expenses/expenses"
+	"github.com/gin-gonic/gin"
 )
 
 type LoginData struct {

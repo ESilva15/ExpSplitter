@@ -2,10 +2,11 @@ package repo
 
 import (
 	"context"
-	experr "expenses/expenses/errors"
-	mod "expenses/expenses/models"
-	"expenses/expenses/repo/pgdb/pgsqlc"
 	"fmt"
+
+	experr "github.com/ESilva15/expenses/expenses/errors"
+	mod "github.com/ESilva15/expenses/expenses/models"
+	"github.com/ESilva15/expenses/expenses/repo/pgdb/pgsqlc"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 

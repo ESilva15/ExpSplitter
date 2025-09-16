@@ -1,8 +1,7 @@
 package expenses
 
 import (
-	mod "expenses/expenses/models"
-	"testing"
+	mod "github.com/ESilva15/expenses/expenses/models"
 
 	dec "github.com/shopspring/decimal"
 )
@@ -165,12 +164,18 @@ var (
 		},
 		Value: dec.NewFromFloat(111.11),
 		Shares: []mod.Share{
-			{ExpShareID: 0, User: user1,
-				Share: dec.NewFromFloat(0.34), Calculated: dec.NewFromFloat(37.79)},
-			{ExpShareID: 1, User: user2,
-				Share: dec.NewFromFloat(0.33), Calculated: dec.NewFromFloat(36.66)},
-			{ExpShareID: 2, User: user3,
-				Share: dec.NewFromFloat(0.33), Calculated: dec.NewFromFloat(36.66)},
+			{
+				ExpShareID: 0, User: user1,
+				Share: dec.NewFromFloat(0.34), Calculated: dec.NewFromFloat(37.79),
+			},
+			{
+				ExpShareID: 1, User: user2,
+				Share: dec.NewFromFloat(0.33), Calculated: dec.NewFromFloat(36.66),
+			},
+			{
+				ExpShareID: 2, User: user3,
+				Share: dec.NewFromFloat(0.33), Calculated: dec.NewFromFloat(36.66),
+			},
 		},
 		Payments: []mod.Payment{
 			{ExpPaymID: 0, User: user1, PayedAmount: dec.NewFromFloat(37.79)},
@@ -183,12 +188,18 @@ var (
 		ExpID: 252,
 		Value: dec.NewFromFloat(0.50),
 		Shares: []mod.Share{
-			{ExpShareID: 0, User: user1,
-				Share: dec.NewFromFloat(0.34), Calculated: dec.NewFromFloat(0.18)},
-			{ExpShareID: 1, User: user2,
-				Share: dec.NewFromFloat(0.33), Calculated: dec.NewFromFloat(0.16)},
-			{ExpShareID: 2, User: user3,
-				Share: dec.NewFromFloat(0.33), Calculated: dec.NewFromFloat(0.16)},
+			{
+				ExpShareID: 0, User: user1,
+				Share: dec.NewFromFloat(0.34), Calculated: dec.NewFromFloat(0.18),
+			},
+			{
+				ExpShareID: 1, User: user2,
+				Share: dec.NewFromFloat(0.33), Calculated: dec.NewFromFloat(0.16),
+			},
+			{
+				ExpShareID: 2, User: user3,
+				Share: dec.NewFromFloat(0.33), Calculated: dec.NewFromFloat(0.16),
+			},
 		},
 		Payments: []mod.Payment{
 			{ExpPaymID: 0, User: user1, PayedAmount: dec.NewFromFloat(0.50)},
@@ -198,33 +209,33 @@ var (
 	}
 )
 
-func TestSharesAndPaymentsMapping(t *testing.T) {
-	// expectedPayments := map[mod.User]float32{
-	// 	user1: 100,
-	// 	user2: 0,
-	// 	user3: 60,
-	// }
-	//
-	// expectedShares := map[mod.User]float32{
-	// 	user1: 0.4,
-	// 	user2: 0.4,
-	// 	user3: 0.2,
-	// }
-	//
-	// dc := NewDebtCalculator(&expense1)
-	// dc.mapShares()
-	// dc.mapPayments()
-	//
-	// if !reflect.DeepEqual(expectedPayments, dc.Payments) {
-	// 	t.Errorf("expected payments total and result is different:\n%+v\n%+v\n",
-	// 		expectedPayments, dc.Payments)
-	// }
-	//
-	// if !reflect.DeepEqual(expectedShares, dc.Shares) {
-	// 	t.Errorf("expected user shares and result is different:\n%+v\n%+v\n",
-	// 		expectedShares, dc.Shares)
-	// }
-}
+// func TestSharesAndPaymentsMapping(t *testing.T) {
+// expectedPayments := map[mod.User]float32{
+// 	user1: 100,
+// 	user2: 0,
+// 	user3: 60,
+// }
+//
+// expectedShares := map[mod.User]float32{
+// 	user1: 0.4,
+// 	user2: 0.4,
+// 	user3: 0.2,
+// }
+//
+// dc := NewDebtCalculator(&expense1)
+// dc.mapShares()
+// dc.mapPayments()
+//
+// if !reflect.DeepEqual(expectedPayments, dc.Payments) {
+// 	t.Errorf("expected payments total and result is different:\n%+v\n%+v\n",
+// 		expectedPayments, dc.Payments)
+// }
+//
+// if !reflect.DeepEqual(expectedShares, dc.Shares) {
+// 	t.Errorf("expected user shares and result is different:\n%+v\n%+v\n",
+// 		expectedShares, dc.Shares)
+// }
+// }
 
 // func TestFilterExpenseParticipants(t *testing.T) {
 // expectedDebtors := []Debt{

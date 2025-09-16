@@ -6,8 +6,8 @@ import (
 	"log"
 	"strings"
 
-	"expenses/config"
-	"expenses/expenses/repo"
+	"github.com/ESilva15/expenses/config"
+	"github.com/ESilva15/expenses/expenses/repo"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	lua "github.com/yuin/gopher-lua"

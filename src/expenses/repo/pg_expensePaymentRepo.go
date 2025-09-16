@@ -2,22 +2,24 @@ package repo
 
 import (
 	"context"
-	mod "expenses/expenses/models"
-	"expenses/expenses/repo/pgdb/pgsqlc"
 	"fmt"
+
+	mod "github.com/ESilva15/expenses/expenses/models"
+	"github.com/ESilva15/expenses/expenses/repo/pgdb/pgsqlc"
 )
 
 func (p PgExpRepo) insertPayment(
-	ctx context.Context, q *pgsqlc.Queries, eId int32, pm mod.Payment) error {
-	payed, err := decimalToNumeric(pm.PayedAmount)
+	ctx context.Context, q *pgsqlc.Queries, eID int32, pm mod.Payment,
+) error {
+	paid, err := decimalToNumeric(pm.PayedAmount)
 	if err != nil {
 		return err
 	}
 
 	res, err := q.InsertPayment(ctx, pgsqlc.InsertPaymentParams{
-		ExpID:  eId,
+		ExpID:  eID,
 		UserID: pm.User.UserID,
-		Payed:  payed,
+		Payed:  paid,
 	})
 	if err != nil {
 		return err

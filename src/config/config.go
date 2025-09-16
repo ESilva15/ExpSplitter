@@ -1,12 +1,15 @@
+// Package config defines the configuration of our app
 package config
 
 import (
-	"gopkg.in/yaml.v2"
 	"log"
 	"os"
 	"sync"
+
+	"gopkg.in/yaml.v2"
 )
 
+// PostgresConfig defines the data required to connect to Postgres.
 type PostgresConfig struct {
 	Host string `yaml:"host"`
 	Port string `yaml:"port"`
@@ -15,6 +18,7 @@ type PostgresConfig struct {
 	Pass string `yaml:"pass"`
 }
 
+// Configuration defines the base configuration of the expenses app
 type Configuration struct {
 	AssetsDir       string          `yaml:"assets"`
 	Port            string          `yaml:"port"`
@@ -29,6 +33,7 @@ var (
 	confPath string
 )
 
+// GetInstance returns the instance of the configuration of the app.
 func GetInstance() *Configuration {
 	once.Do(func() {
 		instance = &Configuration{}
@@ -38,6 +43,7 @@ func GetInstance() *Configuration {
 	return instance
 }
 
+// SetConfig sets the path for the configuration file.
 func SetConfig(path string) {
 	confPath = path
 }

@@ -34,5 +34,5 @@ test:
 build_db_image:
 	make -C ./pgImage build
 
-my-test:
-	@echo hello
+test_db:
+	make -C ./pgImage test

@@ -4,11 +4,12 @@ package pages
 import (
 	"database/sql"
 	"encoding/json"
-	exp "expenses/expenses"
-	experr "expenses/expenses/errors"
 	"fmt"
 	"log"
 	"net/http"
+
+	exp "github.com/ESilva15/expenses/expenses"
+	experr "github.com/ESilva15/expenses/expenses/errors"
 
 	"github.com/gin-gonic/gin"
 )

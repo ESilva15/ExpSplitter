@@ -1,8 +1,8 @@
 package repo
 
 import (
-	mod "expenses/expenses/models"
-	"expenses/expenses/repo/pgdb/pgsqlc"
+	mod "github.com/ESilva15/expenses/expenses/models"
+	"github.com/ESilva15/expenses/expenses/repo/pgdb/pgsqlc"
 )
 
 func mapRepoUser(ru pgsqlc.User) mod.User {

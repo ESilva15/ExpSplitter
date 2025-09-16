@@ -2,8 +2,9 @@ package api
 
 import (
 	"context"
-	exp "expenses/expenses"
 	"net/http"
+
+	exp "github.com/ESilva15/expenses/expenses"
 
 	"github.com/gin-gonic/gin"
 )

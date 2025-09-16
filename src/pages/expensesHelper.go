@@ -2,9 +2,10 @@ package pages
 
 import (
 	"context"
-	"expenses/expenses"
-	mod "expenses/expenses/models"
 	"time"
+
+	"github.com/ESilva15/expenses/expenses"
+	mod "github.com/ESilva15/expenses/expenses/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"

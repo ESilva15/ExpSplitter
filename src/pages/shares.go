@@ -1,10 +1,11 @@
 package pages
 
 import (
-	exp "expenses/expenses"
-	experr "expenses/expenses/errors"
 	"fmt"
 	"net/http"
+
+	exp "github.com/ESilva15/expenses/expenses"
+	experr "github.com/ESilva15/expenses/expenses/errors"
 
 	"github.com/gin-gonic/gin"
 )

@@ -2,14 +2,17 @@ package pages
 
 import (
 	"database/sql"
-	exp "expenses/expenses"
-	experr "expenses/expenses/errors"
+	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	exp "github.com/ESilva15/expenses/expenses"
+	experr "github.com/ESilva15/expenses/expenses/errors"
+	"github.com/gin-gonic/gin"
 )
 
 const (
+	// TypesPath defines the resource path
 	TypesPath = "/types"
 )
 
@@ -42,7 +45,7 @@ func typePage(c *gin.Context) {
 	}
 
 	typ, err := exp.App.GetType(typeID)
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		NotFoundView(c, fmt.Sprintf("Couldn't find type `%d`", typeID))
 		return
 	}
@@ -118,6 +121,7 @@ func updateType(c *gin.Context) {
 	c.Header("HX-Trigger", "{\"formState\":\"Success\"}")
 }
 
+// RouteTypes routes the endpoints for the types resources.
 func RouteTypes(router *gin.RouterGroup) {
 	router.GET(TypesPath, typesGlobalPage)
 	router.GET(TypesPath+"/:id", typePage)

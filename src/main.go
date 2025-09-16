@@ -2,9 +2,10 @@
 package main
 
 import (
-	"expenses/cmd"
-	"expenses/expenses"
 	"log"
+
+	"github.com/ESilva15/expenses/cmd"
+	"github.com/ESilva15/expenses/expenses"
 )
 
 func main() {

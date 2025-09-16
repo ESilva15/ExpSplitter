@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	exp "expenses/expenses"
 	"log"
+
+	exp "github.com/ESilva15/expenses/expenses"
 
 	"github.com/spf13/cobra"
 )

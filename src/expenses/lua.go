@@ -1,7 +1,7 @@
 package expenses
 
 import (
-	"expenses/luadec"
+	"github.com/ESilva15/expenses/luadec"
 
 	ljson "github.com/layeh/gopher-json"
 	lua "github.com/yuin/gopher-lua"

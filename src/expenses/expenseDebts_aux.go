@@ -1,24 +1,18 @@
 package expenses
 
-import (
-	mod "expenses/expenses/models"
-
-	"github.com/shopspring/decimal"
-)
-
-type DebtCalculator struct {
-	Shares   map[mod.User]decimal.Decimal
-	Payments map[mod.User]decimal.Decimal
-	Expense  *mod.Expense
-}
-
-func NewDebtCalculator(e *mod.Expense) *DebtCalculator {
-	return &DebtCalculator{
-		Shares:   make(map[mod.User]decimal.Decimal),
-		Payments: make(map[mod.User]decimal.Decimal),
-		Expense:  e,
-	}
-}
+// type DebtCalculator struct {
+// 	Shares   map[mod.User]decimal.Decimal
+// 	Payments map[mod.User]decimal.Decimal
+// 	Expense  *mod.Expense
+// }
+//
+// func NewDebtCalculator(e *mod.Expense) *DebtCalculator {
+// 	return &DebtCalculator{
+// 		Shares:   make(map[mod.User]decimal.Decimal),
+// 		Payments: make(map[mod.User]decimal.Decimal),
+// 		Expense:  e,
+// 	}
+// }
 
 // TODO
 // This code will be replicated in the expenses controller but without

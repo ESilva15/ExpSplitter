@@ -1,8 +1,9 @@
 package pages
 
 import (
-	exp "expenses/expenses"
 	"net/http"
+
+	exp "github.com/ESilva15/expenses/expenses"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -25,7 +26,7 @@ func loginUser(c *gin.Context) {
 	password := c.PostForm("login-pass")
 
 	user, err := exp.App.ValidateCredentials(username, password)
-	if err != nil  {
+	if err != nil {
 		// TODO - go to an error page or login failed or something
 		return
 	}

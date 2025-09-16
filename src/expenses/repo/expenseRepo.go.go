@@ -1,11 +1,14 @@
+// Package repo defines the repositories for the expenses app
 package repo
 
 import (
 	"context"
-	mod "expenses/expenses/models"
 	"time"
+
+	mod "github.com/ESilva15/expenses/expenses/models"
 )
 
+// ExpenseRepository defines the repository for the expense data model.
 type ExpenseRepository interface {
 	// Direct expense methods
 	Get(ctx context.Context, id int32) (mod.Expense, error)

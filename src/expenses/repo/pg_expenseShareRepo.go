@@ -2,17 +2,19 @@ package repo
 
 import (
 	"context"
-	mod "expenses/expenses/models"
-	"expenses/expenses/repo/pgdb/pgsqlc"
 	"fmt"
+
+	"github.com/ESilva15/expenses/expenses/repo/pgdb/pgsqlc"
+
+	mod "github.com/ESilva15/expenses/expenses/models"
 )
 
 func (p *PgExpRepo) insertShare(
 	ctx context.Context,
 	q *pgsqlc.Queries,
 	eId int32,
-	sh mod.Share) error {
-
+	sh mod.Share,
+) error {
 	share, err := decimalToNumeric(sh.Share)
 	if err != nil {
 		return err
@@ -43,16 +45,16 @@ func (p *PgExpRepo) insertShare(
 func (p PgExpRepo) InsertShare(
 	ctx context.Context,
 	eId int32,
-	sh mod.Share) error {
-
+	sh mod.Share,
+) error {
 	return p.insertShare(ctx, pgsqlc.New(p.DB), eId, sh)
 }
 
 func (p PgExpRepo) InsertShares(
 	ctx context.Context,
 	eId int32,
-	sh mod.Shares) error {
-
+	sh mod.Shares,
+) error {
 	return p.insertShares(ctx, pgsqlc.New(p.DB), eId, sh)
 }
 
@@ -60,8 +62,8 @@ func (p *PgExpRepo) insertShares(
 	ctx context.Context,
 	q *pgsqlc.Queries,
 	eId int32,
-	sh []mod.Share) error {
-
+	sh []mod.Share,
+) error {
 	for k := range sh {
 		err := p.insertShare(ctx, q, eId, sh[k])
 		if err != nil {
@@ -73,8 +75,8 @@ func (p *PgExpRepo) insertShares(
 }
 
 func (p PgExpRepo) updateShare(
-	ctx context.Context, q *pgsqlc.Queries, sh mod.Share) error {
-
+	ctx context.Context, q *pgsqlc.Queries, sh mod.Share,
+) error {
 	share, err := decimalToNumeric(sh.Share)
 	if err != nil {
 		return err
@@ -107,8 +109,8 @@ func (p PgExpRepo) UpdateShare(ctx context.Context, sh mod.Share) error {
 }
 
 func (p *PgExpRepo) deleteShare(
-	ctx context.Context, q *pgsqlc.Queries, id int32) error {
-
+	ctx context.Context, q *pgsqlc.Queries, id int32,
+) error {
 	res, err := q.DeleteShare(ctx, id)
 	if err != nil {
 		return err
@@ -127,8 +129,8 @@ func (p PgExpRepo) DeleteShare(ctx context.Context, id int32) error {
 }
 
 func (p *PgExpRepo) getShares(
-	ctx context.Context, q *pgsqlc.Queries, eId int32) (mod.Shares, error) {
-
+	ctx context.Context, q *pgsqlc.Queries, eId int32,
+) (mod.Shares, error) {
 	shares, err := q.GetShares(ctx, eId)
 	if err != nil {
 		return mod.Shares{}, err

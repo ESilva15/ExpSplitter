@@ -1,9 +1,10 @@
 package pages
 
 import (
-	"expenses/api"
 	"net/http"
 	"strings"
+
+	"github.com/ESilva15/expenses/api"
 
 	"github.com/gin-gonic/gin"
 )

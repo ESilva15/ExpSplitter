@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"expenses/api"
-	"expenses/config"
-	"expenses/expenses/auth"
-	"expenses/pages"
+	"github.com/ESilva15/expenses/api"
+	"github.com/ESilva15/expenses/config"
+	"github.com/ESilva15/expenses/expenses/auth"
+	"github.com/ESilva15/expenses/pages"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"

@@ -2,15 +2,19 @@ package repo
 
 import (
 	"context"
-	mod "expenses/expenses/models"
-	"expenses/expenses/repo/pgdb/pgsqlc"
+
+	mod "github.com/ESilva15/expenses/expenses/models"
+	"github.com/ESilva15/expenses/expenses/repo/pgdb/pgsqlc"
 )
 
+// SettleDebt will update the PG storage with a debt settlement.
+//
+// Returns an error if it fails.
 func (p PgExpRepo) SettleDebt(
-	ctx context.Context, eId int32, payment mod.Payment, credit mod.Payment) error {
-
+	ctx context.Context, eID int32, payment mod.Payment, credit mod.Payment,
+) error {
 	return withTx(p.DB, ctx, func(q *pgsqlc.Queries) error {
-		err := p.insertPayment(ctx, q, eId, payment)
+		err := p.insertPayment(ctx, q, eID, payment)
 		if err != nil {
 			return err
 		}
