@@ -8,13 +8,25 @@ import (
 	mod "github.com/ESilva15/expenses/expenses/models"
 )
 
+// ExpFilter has the fields required to query the database.
+type ExpFilter struct {
+	Start *time.Time
+	End   *time.Time
+}
+
+// NewExpFilter returns a newly initialized ExpFilter.
+func NewExpFilter() ExpFilter {
+	return ExpFilter{
+		Start: nil,
+		End:   nil,
+	}
+}
+
 // ExpenseRepository defines the repository for the expense data model.
 type ExpenseRepository interface {
 	// Direct expense methods
 	Get(ctx context.Context, id int32) (mod.Expense, error)
-	GetAll(ctx context.Context, uID int32) (mod.Expenses, error)
-	GetExpensesRange(ctx context.Context, start time.Time,
-		end time.Time, uID int32) (mod.Expenses, error)
+	GetAll(ctx context.Context, filter ExpFilter, uID int32) (mod.Expenses, error)
 	Update(ctx context.Context, exp mod.Expense) error
 	Insert(ctx context.Context, exp mod.Expense) error
 	Delete(ctx context.Context, id int32) error

@@ -3,13 +3,11 @@ package repo
 import (
 	"context"
 	"fmt"
-	"time"
 
 	mod "github.com/ESilva15/expenses/expenses/models"
 	"github.com/ESilva15/expenses/expenses/repo/pgdb/pgsqlc"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -28,10 +26,10 @@ func (p PgExpRepo) Close() {
 }
 
 func withTx(
-	pgPool *pgxpool.Pool,
 	ctx context.Context,
-	fn func(q *pgsqlc.Queries) error) error {
-
+	pgPool *pgxpool.Pool,
+	fn func(q *pgsqlc.Queries) error,
+) error {
 	tx, err := pgPool.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return err
@@ -46,29 +44,30 @@ func withTx(
 	return tx.Commit(ctx)
 }
 
-func (p *PgExpRepo) getAll(
-	ctx context.Context, q *pgsqlc.Queries, uId int32) (mod.Expenses, error) {
-	// We want to select all here, no timestamps
-	var start pgtype.Timestamp
-	start.Valid = false
-	var end pgtype.Timestamp
-	end.Valid = false
-
-	expenses, err := q.GetExpenses(ctx, pgsqlc.GetExpensesParams{
-		Startdate: start,
-		Enddate:   end,
-		UserID:    uId,
-	})
+// GetAll fetches all expenses.
+func (p PgExpRepo) GetAll(ctx context.Context, filter ExpFilter, uID int32,
+) (mod.Expenses, error) {
+	startPg, err := timeToTimestamp(filter.Start)
 	if err != nil {
-		return []mod.Expense{}, err
+		return mod.Expenses{}, err
 	}
 
-	return mapRepoGetExpensesRows(expenses), err
-}
+	endPg, err := timeToTimestamp(filter.End)
+	if err != nil {
+		return mod.Expenses{}, err
+	}
 
-// GetAll fetches all expenses.
-func (p PgExpRepo) GetAll(ctx context.Context, uID int32) (mod.Expenses, error) {
-	return p.getAll(ctx, pgsqlc.New(p.DB), uID)
+	queries := pgsqlc.New(p.DB)
+	expenses, err := queries.GetExpenses(ctx, pgsqlc.GetExpensesParams{
+		Startdate: startPg,
+		Enddate:   endPg,
+		UserID:    uID,
+	})
+	if err != nil {
+		return mod.Expenses{}, err
+	}
+
+	return mapRepoGetExpensesRows(expenses), nil
 }
 
 func (p *PgExpRepo) get(ctx context.Context, q *pgsqlc.Queries, id int32) (mod.Expense, error) {
@@ -88,9 +87,9 @@ func (p PgExpRepo) Get(ctx context.Context, id int32) (mod.Expense, error) {
 // Update updates a given expense.
 func (p PgExpRepo) Update(
 	ctx context.Context,
-	exp mod.Expense) error {
-
-	return withTx(p.DB, ctx, func(q *pgsqlc.Queries) error {
+	exp mod.Expense,
+) error {
+	return withTx(ctx, p.DB, func(q *pgsqlc.Queries) error {
 		value, err := decimalToNumeric(exp.Value)
 		if err != nil {
 			return err
@@ -106,7 +105,7 @@ func (p PgExpRepo) Update(
 			return err
 		}
 
-		expDate, err := timeToTimestamp(exp.Date)
+		expDate, err := timeToTimestamp(&exp.Date)
 		if err != nil {
 			return err
 		}
@@ -167,9 +166,9 @@ func (p PgExpRepo) Update(
 
 func (p PgExpRepo) Insert(
 	ctx context.Context,
-	exp mod.Expense) error {
-
-	return withTx(p.DB, ctx, func(q *pgsqlc.Queries) error {
+	exp mod.Expense,
+) error {
+	return withTx(ctx, p.DB, func(q *pgsqlc.Queries) error {
 		value, err := decimalToNumeric(exp.Value)
 		if err != nil {
 			return err
@@ -185,12 +184,12 @@ func (p PgExpRepo) Insert(
 			return err
 		}
 
-		expDate, err := timeToTimestamp(exp.Date)
+		expDate, err := timeToTimestamp(&exp.Date)
 		if err != nil {
 			return err
 		}
 
-		creationDate, err := timeToTimestamp(exp.CreationDate)
+		creationDate, err := timeToTimestamp(&exp.CreationDate)
 		if err != nil {
 			return err
 		}
@@ -242,34 +241,4 @@ func (p PgExpRepo) Delete(ctx context.Context, id int32) error {
 	}
 
 	return nil
-}
-
-// GetExpensesRange fetches all expenses in a given time frame.
-func (p PgExpRepo) GetExpensesRange(
-	ctx context.Context,
-	start time.Time,
-	end time.Time,
-	uID int32) (mod.Expenses, error) {
-
-	startPg, err := timeToTimestamp(start)
-	if err != nil {
-		return mod.Expenses{}, err
-	}
-
-	endPg, err := timeToTimestamp(end)
-	if err != nil {
-		return mod.Expenses{}, err
-	}
-
-	queries := pgsqlc.New(p.DB)
-	expenses, err := queries.GetExpenses(ctx, pgsqlc.GetExpensesParams{
-		Startdate: startPg,
-		Enddate:   endPg,
-		UserID:    uID,
-	})
-	if err != nil {
-		return mod.Expenses{}, err
-	}
-
-	return mapRepoGetExpensesRows(expenses), nil
 }

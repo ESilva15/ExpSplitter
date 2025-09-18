@@ -1,9 +1,10 @@
 package repo
 
 import (
+	"time"
+
 	"github.com/jackc/pgx/v5/pgtype"
 	dec "github.com/shopspring/decimal"
-	"time"
 )
 
 func decimalToNumeric(d dec.Decimal) (pgtype.Numeric, error) {
@@ -28,11 +29,16 @@ func boolToPgBool(v bool) (pgtype.Bool, error) {
 	return b, nil
 }
 
-func timeToTimestamp(t time.Time) (pgtype.Timestamp, error) {
+func timeToTimestamp(t *time.Time) (pgtype.Timestamp, error) {
 	var ts pgtype.Timestamp
-	err := ts.Scan(t)
-	if err != nil {
-		return pgtype.Timestamp{}, err
+
+	if t == nil {
+		ts.Valid = false
+	} else {
+		err := ts.Scan(*t)
+		if err != nil {
+			return pgtype.Timestamp{}, err
+		}
 	}
 
 	return ts, nil

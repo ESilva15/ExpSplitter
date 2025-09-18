@@ -41,10 +41,12 @@ func getResults(c *gin.Context) {
 		return
 	}
 
-	startDate := c.PostForm("range-start") + " 00:00:00"
-	endDate := c.PostForm("range-end") + " 23:59:59"
+	filter, err := expenseFilterFromQuery(c)
+	if err != nil {
+		log.Println("error ")
+	}
 
-	queriedExpenses, err := exp.App.GetExpensesRanged(ctx, startDate, endDate)
+	queriedExpenses, err := exp.App.GetAllExpenses(ctx, filter)
 	if err != nil {
 		log.Printf("getting expenses: %v", err)
 		return
@@ -69,10 +71,6 @@ func getResults(c *gin.Context) {
 			log.Printf("failed to get debts: %v", err)
 			return
 		}
-
-		log.Println(queriedExpenses[k].Shares)
-		log.Println(queriedExpenses[k].Payments)
-		log.Println(queriedExpenses[k].Debts)
 	}
 
 	userDebtSummary := make(map[mod.User]decimal.Decimal)
@@ -98,5 +96,5 @@ func RouteOverview(router *gin.RouterGroup) {
 	router.GET("/overview", overviewPage)
 	router.POST("/overview", overviewPartialPage)
 
-	router.POST("/overview/ranged", getResults)
+	router.GET("/overview/ranged", getResults)
 }

@@ -1,5 +1,9 @@
 {{ define "overview" }}
-<form>
+<form
+  hx-get="/overview/ranged" 
+  hx-target="#query-results"
+  hx-swap="innerHTML"
+  >
   <p>
     <label for="range-start">Start date:</label>
     <input 
@@ -14,12 +18,7 @@
       value="" id="expense-date"><br>
   </p>
 
-  <button 
-    type="submit"
-    hx-post="/overview/ranged" 
-    hx-target="#query-results"
-    hx-swap="innerHTML"
-    id="expenses">QUERY</button>
+  <button type="submit" id="expenses">QUERY</button>
 </form>
 <br>
 

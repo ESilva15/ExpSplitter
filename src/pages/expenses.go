@@ -11,6 +11,7 @@ import (
 	exp "github.com/ESilva15/expenses/expenses"
 	experr "github.com/ESilva15/expenses/expenses/errors"
 	mod "github.com/ESilva15/expenses/expenses/models"
+	"github.com/ESilva15/expenses/expenses/repo"
 
 	fatqr "github.com/ESilva15/gofatqr"
 	"github.com/gin-gonic/gin"
@@ -28,7 +29,8 @@ func expensesPartial(c *gin.Context) {
 		return
 	}
 
-	expenses, err := exp.App.GetAllExpenses(ctx)
+	eFilter := repo.NewExpFilter()
+	expenses, err := exp.App.GetAllExpenses(ctx, eFilter)
 	if err != nil {
 		c.Header("HX-Redirect", "/500")
 		return
@@ -46,7 +48,8 @@ func expensesGlobalPage(c *gin.Context) {
 		return
 	}
 
-	expenses, err := exp.App.GetAllExpenses(ctx)
+	eFilter := repo.NewExpFilter()
+	expenses, err := exp.App.GetAllExpenses(ctx, eFilter)
 	if err != nil {
 		log.Println("error:", err)
 		ServerErrorView(c, "Could not get logged in user")
@@ -190,7 +193,7 @@ func createExpense(c *gin.Context) {
 		return
 	}
 
-	newExp, err := expenseFromForm(c, ctx)
+	newExp, err := expenseFromForm(ctx, c)
 	if err != nil {
 		// TODO - Change this to something the user can see
 		c.Header("HX-Redirect", "/500")
@@ -220,7 +223,7 @@ func updateExpense(c *gin.Context) {
 		return
 	}
 
-	newExp, err := expenseFromForm(c, ctx)
+	newExp, err := expenseFromForm(ctx, c)
 	if err != nil {
 		// TODO - Change this to something the user can see
 		c.Header("HX-Redirect", "/500")

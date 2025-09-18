@@ -2,19 +2,19 @@ package expenses
 
 import (
 	"context"
-	"log"
-	"time"
 
 	mod "github.com/ESilva15/expenses/expenses/models"
+	"github.com/ESilva15/expenses/expenses/repo"
 
 	"github.com/shopspring/decimal"
 )
 
 // GetAllExpenses returns the list of Expenses in which the 'user' participates
-func (a *ExpApp) GetAllExpenses(ctx context.Context) ([]mod.Expense, error) {
+func (a *ExpApp) GetAllExpenses(ctx context.Context, filter repo.ExpFilter,
+) ([]mod.Expense, error) {
 	user := *ctx.Value("user").(*mod.User)
 
-	expenses, err := a.ExpRepo.GetAll(ctx, user.UserID)
+	expenses, err := a.ExpRepo.GetAll(ctx, filter, user.UserID)
 	if err != nil {
 		return []mod.Expense{}, err
 	}
@@ -22,28 +22,8 @@ func (a *ExpApp) GetAllExpenses(ctx context.Context) ([]mod.Expense, error) {
 	return expenses, nil
 }
 
-// TODO - make the GetAllExpenses and this function be only one
-// GetExpensesRanged returns the list of Expenses in which the 'user' participates
-func (a *ExpApp) GetExpensesRanged(
-	ctx context.Context, startDate string, endDate string) ([]mod.Expense, error) {
-	startDateTime, err := time.ParseInLocation("02-Jan-2006 15:04:05", startDate, time.UTC)
-	if err != nil {
-		log.Printf("error startDate: %v", err)
-		return []mod.Expense{}, nil
-	}
-
-	endDateTime, err := time.ParseInLocation("02-Jan-2006 15:04:05", endDate, time.UTC)
-	if err != nil {
-		log.Printf("error endDate: %v", err)
-		return []mod.Expense{}, nil
-	}
-
-	user := *ctx.Value("user").(*mod.User)
-	return a.ExpRepo.GetExpensesRange(ctx, startDateTime, endDateTime, user.UserID)
-}
-
 // TODO - we should only be able to access them if the user participates in them
-// GetExpense returns a given expense by ID
+// GetExpense returns a given expense by ID.
 func (a *ExpApp) GetExpense(id int32) (mod.Expense, error) {
 	ctx := context.Background()
 
@@ -109,6 +89,7 @@ func mapPayments(e *mod.Expense) map[mod.User]decimal.Decimal {
 	return payments
 }
 
+// TODO - move to the models
 func ExpenseTotalPayed(exp *mod.Expense) decimal.Decimal {
 	total := decimal.NewFromFloat(0.0)
 	for _, p := range exp.Payments {
@@ -118,6 +99,7 @@ func ExpenseTotalPayed(exp *mod.Expense) decimal.Decimal {
 	return total
 }
 
+// TODO - move to the models
 func ExpenseIsEvenlyShared(exp *mod.Expense) bool {
 	shares := mapShares(exp)
 	payments := mapPayments(exp)

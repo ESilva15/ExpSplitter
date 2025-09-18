@@ -1,6 +1,6 @@
-# WIP
-This is a simple webapp I use to track expenses. It has many holes and things
-that don't work properly, but the current feature set is:
+# ExpSplitter
+This is a simple webapp I use to track expenses. It's very early in development
+so its far from being feature complete. The current feature set is:
 - Users (Authentication)
 - Multiple APIs: Lua API, REST API that returns JSON and of course the core
 `expenses` package itself that can be used separately
@@ -10,7 +10,7 @@ on making the experience as seamless as possible)
 - Check the balance on your own expenses
 
 
-There are many features to be implemented!
+There are still many features to be implemented!
 
 
 # BUGS
@@ -18,6 +18,7 @@ There are many features to be implemented!
 
 
 # DOING
+- REST JSON API endpoints
 
 
 # TODO

@@ -2,21 +2,51 @@ package pages
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/ESilva15/expenses/expenses"
 	mod "github.com/ESilva15/expenses/expenses/models"
+	"github.com/ESilva15/expenses/expenses/repo"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"
 )
 
+func expenseFilterFromQuery(c *gin.Context) (repo.ExpFilter, error) {
+	var err error
+	var start, end time.Time
+	filter := repo.NewExpFilter()
+
+	startDate := c.Query("range-start") + " 00:00:00"
+	if startDate != "" {
+		start, err = time.ParseInLocation("02-Jan-2006 15:04:05", startDate, time.UTC)
+		if err != nil {
+			log.Printf("error startDate: %v", err)
+			return repo.ExpFilter{}, nil
+		}
+		filter.Start = &start
+	}
+
+	endDate := c.Query("range-end") + " 23:59:59"
+	if endDate != "" {
+		end, err = time.ParseInLocation("02-Jan-2006 15:04:05", endDate, time.UTC)
+		if err != nil {
+			log.Printf("error endDate: %v", err)
+			return repo.ExpFilter{}, nil
+		}
+		filter.End = &end
+	}
+
+	return filter, nil
+}
+
 func processFormShares(c *gin.Context) ([]mod.Share, error) {
-	userIDS := c.PostFormArray("shares-user-ids[]")
+	userIDs := c.PostFormArray("shares-user-ids[]")
 	shareIDs := c.PostFormArray("shares-ids[]")
 	shares := c.PostFormArray("shares-percent[]")
 
-	return expenses.ParseFormShares(userIDS, shares, shareIDs)
+	return expenses.ParseFormShares(userIDs, shares, shareIDs)
 }
 
 func processFormPayments(c *gin.Context) ([]mod.Payment, error) {
@@ -27,7 +57,7 @@ func processFormPayments(c *gin.Context) ([]mod.Payment, error) {
 	return expenses.ParseFormPayments(userIDs, paymentIDs, values)
 }
 
-func expenseFromForm(c *gin.Context, ctx context.Context) (*mod.Expense, error) {
+func expenseFromForm(ctx context.Context, c *gin.Context) (*mod.Expense, error) {
 	newDescription := c.PostForm("expense-desc")
 	newDate := c.PostForm("expense-date")
 	newQR := c.PostForm("expense-qr")

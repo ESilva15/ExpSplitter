@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 
 	mod "github.com/ESilva15/expenses/expenses/models"
+	"github.com/ESilva15/expenses/expenses/repo"
 	lua "github.com/yuin/gopher-lua"
 )
 
@@ -25,7 +26,8 @@ func (a *ExpApp) prepareExpense(exp *mod.Expense) error {
 func (a *ExpApp) luaGetAllExpenses(l *lua.LState) int {
 	ctx := context.Background()
 	// TODO - what do we do about the LUA API
-	expenses, err := a.ExpRepo.GetAll(ctx, 1)
+	qFilter := repo.NewExpFilter()
+	expenses, err := a.ExpRepo.GetAll(ctx, qFilter, 1)
 	if err != nil {
 		return returnWithError(l, err.Error())
 	}

@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	exp "github.com/ESilva15/expenses/expenses"
+	"github.com/ESilva15/expenses/expenses/repo"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,7 +14,10 @@ func getAllExpenses(c *gin.Context) {
 	ctx := context.Background()
 	// TODO - only get the expenses of the user
 	// create roles tho, so an admin or someone can get way more expenses
-	expenses, err := exp.App.GetAllExpenses(ctx)
+
+	eFilter := repo.NewExpFilter()
+
+	expenses, err := exp.App.GetAllExpenses(ctx, eFilter)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}

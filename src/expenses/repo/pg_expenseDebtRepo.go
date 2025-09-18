@@ -13,7 +13,7 @@ import (
 func (p PgExpRepo) SettleDebt(
 	ctx context.Context, eID int32, payment mod.Payment, credit mod.Payment,
 ) error {
-	return withTx(p.DB, ctx, func(q *pgsqlc.Queries) error {
+	return withTx(ctx, p.DB, func(q *pgsqlc.Queries) error {
 		err := p.insertPayment(ctx, q, eID, payment)
 		if err != nil {
 			return err
