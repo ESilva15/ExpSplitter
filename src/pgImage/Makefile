@@ -31,7 +31,7 @@ test: remove-dev-container
 		--name $(container)-dev \
 		--env-file .env \
 		-v ./pgsql-data-dev/:/var/lib/postgresql/data/ \
-		-it $(image)
+		-it $(registry)/$(repo)/expensesdb:$(tag)
 
 build_image:
 	make -C ./

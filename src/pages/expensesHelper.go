@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/ESilva15/expenses/expenses"
+	expenses "github.com/ESilva15/expenses/expenses"
 	mod "github.com/ESilva15/expenses/expenses/models"
 	"github.com/ESilva15/expenses/expenses/repo"
 
@@ -18,8 +18,9 @@ func expenseFilterFromQuery(c *gin.Context) (repo.ExpFilter, error) {
 	var start, end time.Time
 	filter := repo.NewExpFilter()
 
-	startDate := c.Query("range-start") + " 00:00:00"
+	startDate := c.Query("range-start")
 	if startDate != "" {
+		startDate += " 00:00:00"
 		start, err = time.ParseInLocation("02-Jan-2006 15:04:05", startDate, time.UTC)
 		if err != nil {
 			log.Printf("error startDate: %v", err)
@@ -28,8 +29,9 @@ func expenseFilterFromQuery(c *gin.Context) (repo.ExpFilter, error) {
 		filter.Start = &start
 	}
 
-	endDate := c.Query("range-end") + " 23:59:59"
+	endDate := c.Query("range-end")
 	if endDate != "" {
+		endDate += " 00:00:00"
 		end, err = time.ParseInLocation("02-Jan-2006 15:04:05", endDate, time.UTC)
 		if err != nil {
 			log.Printf("error endDate: %v", err)

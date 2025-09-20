@@ -1,0 +1,115 @@
+{{ define "analysis" }}
+
+<div>
+  <canvas id="monthlyTotal"></canvas>
+</div>
+
+<div>
+  <canvas id="monthlyBalance"></canvas>
+</div>
+
+<script src="/assets/js/chart.js"></script>
+<script src="/assets/js/chartjs-plugin-datalabels.js"></script>
+<script>
+  const mBalanceChart = document.getElementById('monthlyBalance');
+  const monthlyBalanceData = {{ .plotData.mBalance | toJson }};
+
+  const labels = monthlyBalanceData.map(entry =>
+    new Date(2000, entry.month, 1).toLocaleString('en', {month: 'short'})
+  );
+  const values = monthlyBalanceData.map(entry => Number(entry.total));
+
+  // TODO - make the fucking folds work
+  new Chart(mBalanceChart, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Monthly Balance',
+        data: values,
+        backgroundColor: (ctx) => {
+          const value = ctx.raw; // the data point value
+          return value < 0 ? 'rgb(231 144 234 / 50%)' : 'rgb(67 149 84 / 50%)';
+        },
+        borderColor: (ctx) => {
+          const value = ctx.raw;
+          return value < 0 ? 'rgb(231 144 234 / 100%)' : 'rgb(67 149 84 / 100%)';
+        },
+        borderWidth: 1
+      }]
+    },
+    options: {
+      plugins: {
+        datalabels: {
+          // anchor: (ctx) => ctx.raw > 0 ? 'start' : 'end', // below bar for negative
+          // align: (ctx) => ctx.raw > 0 ? 'end' : 'start',
+          anchor: "end",
+          align: "end",
+          formatter: (value) => value,
+          color: (context) => {
+            const value = context.dataset.data[context.dataIndex];
+            return value < 0 ? 'rgb(231 144 234 / 100%)' : 'rgb(67 149 84 / 100%)';
+          },
+          font: {
+            weight: 'bold'
+          }
+        }
+      },
+      scales: {
+        y: {beginAtZero: true}
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+
+  // Total Chart
+  const mTotalChart = document.getElementById('monthlyTotal');
+  const mTotalData = {{ .plotData.mTotal | toJson }};
+
+  const mTotalLabels = mTotalData.map(entry =>
+    new Date(2000, entry.month, 1).toLocaleString('en', {month: 'short'})
+  );
+  const mTotalValues = mTotalData.map(entry => Number(entry.total));
+  new Chart(mTotalChart, {
+    type: 'line',
+    data: {
+      labels: mTotalLabels,
+      datasets: [{
+        label: 'Monthly Total',
+        data: mTotalValues,
+        backgroundColor: (ctx) => {
+          const value = ctx.raw; // the data point value
+          return value < 0 ? 'rgb(231 144 234 / 50%)' : 'rgb(67 149 84 / 50%)';
+        },
+        borderColor: (ctx) => {
+          const value = ctx.raw;
+          return value < 0 ? 'rgb(231 144 234 / 100%)' : 'rgb(67 149 84 / 100%)';
+        },
+        borderWidth: 1
+      }]
+    },
+    options: {
+      plugins: {
+        datalabels: {
+          // anchor: (ctx) => ctx.raw > 0 ? 'start' : 'end', // below bar for negative
+          // align: (ctx) => ctx.raw > 0 ? 'end' : 'start',
+          anchor: "end",
+          align: "end",
+          formatter: (value) => value,
+          color: (context) => {
+            const value = context.dataset.data[context.dataIndex];
+            return value < 0 ? 'rgb(231 144 234 / 100%)' : 'rgb(67 149 84 / 100%)';
+          },
+          font: {
+            weight: 'bold'
+          }
+        }
+      },
+      scales: {
+        y: {beginAtZero: true}
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+</script>
+{{ end }}

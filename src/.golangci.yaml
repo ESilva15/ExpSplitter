@@ -9,3 +9,4 @@ linters:
     - wsl_v5
     - exhaustruct
     - gochecknoglobals
+    - nlreturn

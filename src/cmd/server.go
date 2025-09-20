@@ -1,9 +1,12 @@
 package cmd
 
 import (
+	"encoding/json"
+
 	"github.com/ESilva15/expenses/api"
 	"github.com/ESilva15/expenses/config"
 	"github.com/ESilva15/expenses/expenses/auth"
+	val "github.com/ESilva15/expenses/expenses/values"
 	"github.com/ESilva15/expenses/pages"
 
 	"github.com/gin-contrib/sessions"
@@ -11,7 +14,6 @@ import (
 	"github.com/shopspring/decimal"
 	"github.com/spf13/cobra"
 
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -30,7 +32,16 @@ var (
 			return t.Format("02-Jan-2006")
 		},
 		"formatPrice": func(v decimal.Decimal) string {
-			return fmt.Sprintf("%s", v.Round(2).StringFixed(2))
+			return v.Round(val.DecRange).StringFixed(val.DecRange)
+		},
+		"toJson": func(v any) template.JS {
+			a, err := json.Marshal(v)
+			if err != nil {
+				log.Println("failed to marshal json data:", err)
+				return template.JS("{}")
+			}
+
+			return template.JS(a)
 		},
 	}
 )
@@ -61,6 +72,7 @@ func setRoutes(router *gin.RouterGroup, eng *gin.Engine) {
 	pages.RoutePayments(router)
 	pages.RouteShares(router)
 	pages.RouteOverview(router)
+	pages.RouteAnalysis(router)
 
 	// This are for the engine, I really need to rethink this
 	pages.RouteLogin(eng)

@@ -40,6 +40,13 @@
               hx-replace-url="true"
               id="overview"
               class="nav-button {{ if eq .page "overview" }}selected{{ end }}">OVERVIEW</button>
+            <button 
+              hx-post="/analysis" 
+              hx-target="#content"
+              hx-swap="innerHTML"
+              hx-replace-url="true"
+              id="overview"
+              class="nav-button {{ if eq .page "analysis" }}selected{{ end }}">ANALYSIS</button>
           </nav>
           <br>
           {{ end }}
@@ -61,6 +68,8 @@
               {{ template "category" . }}
             {{ else if eq .content "overview" }}
               {{ template "overview" . }}
+            {{ else if eq .content "analysis" }}
+              {{ template "analysis" . }}
             {{ else if eq .content "stores" }}
               {{ template "stores" . }}
             {{ else if eq .content "store" }}
