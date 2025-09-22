@@ -130,8 +130,8 @@ func server(cmd *cobra.Command, args []string) {
 }
 
 // shelf
-var serverCmd = &cobra.Command{
-	Use:   "server",
+var httpCmd = &cobra.Command{
+	Use:   "http",
 	Short: "",
 	Long:  ``,
 	Args:  nil,
@@ -139,5 +139,5 @@ var serverCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(serverCmd)
+	rootCmd.AddCommand(httpCmd)
 }
