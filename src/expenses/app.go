@@ -3,8 +3,8 @@ package expenses
 
 import (
 	"context"
+	"fmt"
 	"log"
-	"strings"
 
 	"github.com/ESilva15/expenses/config"
 	"github.com/ESilva15/expenses/expenses/repo"
@@ -55,19 +55,15 @@ func startLuaVM() (*lua.LState, error) {
 }
 
 func getPgConnString(cfg *config.Configuration) string {
-	var s strings.Builder
-
-	s.WriteString("port=" + cfg.PgCfg.Port + " ")
-	s.WriteString("host=" + cfg.PgCfg.Host + " ")
-	s.WriteString("user=" + cfg.PgCfg.User + " ")
-	s.WriteString("dbname=" + cfg.PgCfg.DB + " ")
-	s.WriteString("password=" + cfg.PgCfg.Pass)
-
-	return s.String()
+	return fmt.Sprintf("postgres://%s:%s@/%s?host=%s&port=%s&sslmode=disable",
+		cfg.PgCfg.User, cfg.PgCfg.Pass, cfg.PgCfg.DB, cfg.PgCfg.Host, cfg.PgCfg.Port)
 }
 
 func runMigrations(luaVM *lua.LState) error {
-	migrator, err := repo.NewPgMigrator()
+	cfg := config.GetInstance()
+	pgStr := getPgConnString(cfg)
+
+	migrator, err := repo.NewPgMigrator(pgStr)
 	if err != nil {
 		return err
 	}
@@ -84,7 +80,10 @@ func runMigrations(luaVM *lua.LState) error {
 
 // GoToMigration provides a way to force moving to the specified migration.
 func (a *ExpApp) GoToMigration(id uint) error {
-	migrator, err := repo.NewPgMigrator()
+	cfg := config.GetInstance()
+	pgStr := getPgConnString(cfg)
+
+	migrator, err := repo.NewPgMigrator(pgStr)
 	if err != nil {
 		return err
 	}
@@ -92,12 +91,28 @@ func (a *ExpApp) GoToMigration(id uint) error {
 	return migrator.Goto(id)
 }
 
+func createPGXPoolConn(ctx context.Context) (*pgxpool.Pool, error) {
+	cfg := config.GetInstance()
+	pgStr := getPgConnString(cfg)
+
+	conn, err := pgxpool.New(ctx, pgStr)
+	if err != nil {
+		return nil, err
+	}
+
+	var result int
+	err = conn.QueryRow(ctx, "SELECT 1").Scan(&result)
+	if err != nil {
+		panic("connection test query failed: " + err.Error())
+	}
+
+	return conn, nil
+}
+
 // StartApp will configure and open the required connections to run this app.
 func StartApp() error {
 	config.SetConfig("./config.yaml")
-	cfg := config.GetInstance()
 	ctx := context.Background()
-	pgStr := getPgConnString(cfg)
 
 	// Create the LuaVM
 	luaVM, err := startLuaVM()
@@ -112,7 +127,7 @@ func StartApp() error {
 	}
 
 	// Create our final app thing
-	conn, err := pgxpool.New(ctx, pgStr)
+	conn, err := createPGXPoolConn(ctx)
 	if err != nil {
 		log.Fatalf("Failed to open DB: %v", err)
 	}

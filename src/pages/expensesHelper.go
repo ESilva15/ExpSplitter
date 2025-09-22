@@ -2,7 +2,6 @@ package pages
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -148,28 +147,28 @@ func expenseFromForm(ctx context.Context, c *gin.Context) (*mod.Expense, error) 
 func fetchExpensesData(c *gin.Context) (map[string]any, error) {
 	ctx, err := getLoggedInUserCTX(c)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("could not get logged in user - ", err))
+		return nil, fmt.Errorf("could not get logged in user - %v", err)
 	}
 
 	eFilter := repo.NewExpFilter()
 	expenses, err := exp.App.GetAllExpenses(ctx, eFilter)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("could not get expenses - ", err))
+		return nil, fmt.Errorf("could not get expenses - %v", err)
 	}
 
 	categories, err := exp.App.GetAllCategories(ctx)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("could not get categories - ", err))
+		return nil, fmt.Errorf("could not get categories - %v", err)
 	}
 
 	stores, err := exp.App.GetAllStores(ctx)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("could not get stores - ", err))
+		return nil, fmt.Errorf("could not get stores - %v", err)
 	}
 
 	types, err := exp.App.GetAllTypes(ctx)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("could not get types - ", err))
+		return nil, fmt.Errorf("could not get types - %v", err)
 	}
 
 	return map[string]any{

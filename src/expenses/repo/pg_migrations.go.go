@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"errors"
 	"log"
 	"os"
 	"path/filepath"
@@ -15,19 +16,20 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
-const LAST_GO_MIGRATION = 3
+// LastGoMigration defines the last migration execute with go code. After
+// that the lua API should be used.
+const LastGoMigration = 3
 
+// PgMigrator implements the Migrator interface for the PG connection.
 type PgMigrator struct {
 	Mig *mig.Migrate
 }
 
-func NewPgMigrator() (Migrator, error) {
+// NewPgMigrator creates and returns a new migrator.
+func NewPgMigrator(connStr string) (PgMigrator, error) {
 	cfg := config.GetInstance()
 
-	str := "postgres://" + cfg.PgCfg.User + ":" + cfg.PgCfg.Pass + "@" +
-		cfg.PgCfg.Host + ":" + cfg.PgCfg.Port + "/" + cfg.PgCfg.DB + "?sslmode=disable"
-
-	m, err := mig.New(cfg.MigrationsPath, str)
+	m, err := mig.New(cfg.MigrationsPath, connStr)
 	if err != nil {
 		return PgMigrator{}, err
 	}
@@ -37,13 +39,15 @@ func NewPgMigrator() (Migrator, error) {
 	}, nil
 }
 
+// Close closes what is necessary to close on a PgMigrator.
 func (p PgMigrator) Close() {
 	p.Mig.Close()
 }
 
-func (a PgMigrator) Goto(id uint) error {
-	err := a.Mig.Migrate(id)
-	if err != nil && err != mig.ErrNoChange {
+// Goto forces the migrations to a given migrations of id: `id`.
+func (p PgMigrator) Goto(id uint) error {
+	err := p.Mig.Migrate(id)
+	if err != nil && !errors.Is(err, mig.ErrNoChange) {
 		return err
 	}
 

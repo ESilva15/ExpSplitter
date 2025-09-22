@@ -18,13 +18,13 @@ type PostgresConfig struct {
 	Pass string `yaml:"pass"`
 }
 
-// Configuration defines the base configuration of the expenses app
+// Configuration defines the base configuration of the expenses app.
 type Configuration struct {
 	AssetsDir       string          `yaml:"assets"`
 	Port            string          `yaml:"port"`
 	PgCfg           *PostgresConfig `yaml:"postgres"`
-	MigrationsPath  string          `yaml:"migrations_path"`
-	MigCustomScript string          `yaml:"mig_custom_scripts"`
+	MigrationsPath  string          `yaml:"migrationsPath"`
+	MigCustomScript string          `yaml:"migCustomScripts"`
 }
 
 var (

@@ -4,7 +4,7 @@ postgres:
   user: expdbuser
   pass: thepass
   db: thedb
-  host: 127.0.0.1
-  port: 5431
-migrations_path: "file://expenses/repo/pgdb/migrations/"
-mig_custom_scripts: "./expenses/repo/pgdb/migrations/custom/"
+  host: /home/esilva/Desktop/projetos/expenses/src/pgImage/pgSocket/
+  port: 5432
+migrationsPath: "file://expenses/repo/pgdb/migrations/"
+migCustomScripts: "./expenses/repo/pgdb/migrations/custom/"
