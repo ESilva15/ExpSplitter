@@ -2,10 +2,12 @@ package pages
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log"
 	"time"
 
-	expenses "github.com/ESilva15/expenses/expenses"
+	exp "github.com/ESilva15/expenses/expenses"
 	mod "github.com/ESilva15/expenses/expenses/models"
 	"github.com/ESilva15/expenses/expenses/repo"
 	ginaux "github.com/ESilva15/expenses/ginAux"
@@ -67,7 +69,7 @@ func processFormShares(c *gin.Context) ([]mod.Share, error) {
 	shareIDs := c.PostFormArray("shares-ids[]")
 	shares := c.PostFormArray("shares-percent[]")
 
-	return expenses.ParseFormShares(userIDs, shares, shareIDs)
+	return exp.ParseFormShares(userIDs, shares, shareIDs)
 }
 
 func processFormPayments(c *gin.Context) ([]mod.Payment, error) {
@@ -75,7 +77,7 @@ func processFormPayments(c *gin.Context) ([]mod.Payment, error) {
 	paymentIDs := c.PostFormArray("payments-ids[]")
 	values := c.PostFormArray("payments-payment[]")
 
-	return expenses.ParseFormPayments(userIDs, paymentIDs, values)
+	return exp.ParseFormPayments(userIDs, paymentIDs, values)
 }
 
 func expenseFromForm(ctx context.Context, c *gin.Context) (*mod.Expense, error) {
@@ -94,12 +96,12 @@ func expenseFromForm(ctx context.Context, c *gin.Context) (*mod.Expense, error) 
 		return nil, err
 	}
 
-	typID, err := expenses.ParseID(c.PostForm("newexp-type-dropdown"))
+	typID, err := exp.ParseID(c.PostForm("newexp-type-dropdown"))
 	if err != nil {
 		return nil, err
 	}
 
-	catID, err := expenses.ParseID(c.PostForm("newexp-cat-dropdown"))
+	catID, err := exp.ParseID(c.PostForm("newexp-cat-dropdown"))
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +109,7 @@ func expenseFromForm(ctx context.Context, c *gin.Context) (*mod.Expense, error) 
 	// TODO:
 	// Move the names of the dropdowns to a variable that can be passed to the
 	// html page
-	storeID, err := expenses.ParseID(c.PostForm("newexp-store-dropdown"))
+	storeID, err := exp.ParseID(c.PostForm("newexp-store-dropdown"))
 	if err != nil {
 		return nil, err
 	}
@@ -140,5 +142,40 @@ func expenseFromForm(ctx context.Context, c *gin.Context) (*mod.Expense, error) 
 		Shares:       shares,
 		Payments:     payments,
 		QRString:     newQR,
+	}, nil
+}
+
+func fetchExpensesData(c *gin.Context) (map[string]any, error) {
+	ctx, err := getLoggedInUserCTX(c)
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("could not get logged in user - ", err))
+	}
+
+	eFilter := repo.NewExpFilter()
+	expenses, err := exp.App.GetAllExpenses(ctx, eFilter)
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("could not get expenses - ", err))
+	}
+
+	categories, err := exp.App.GetAllCategories(ctx)
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("could not get categories - ", err))
+	}
+
+	stores, err := exp.App.GetAllStores(ctx)
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("could not get stores - ", err))
+	}
+
+	types, err := exp.App.GetAllTypes(ctx)
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("could not get types - ", err))
+	}
+
+	return map[string]any{
+		"expenses":   expenses,
+		"categories": categories,
+		"stores":     stores,
+		"types":      types,
 	}, nil
 }

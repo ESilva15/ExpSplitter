@@ -66,53 +66,6 @@ func getExpenses(c *gin.Context) {
 	})
 }
 
-func expensesGlobalPage(c *gin.Context) {
-	ctx, err := getLoggedInUserCTX(c)
-	if err != nil {
-		ServerErrorView(c, "Could not get logged in user")
-		return
-	}
-
-	eFilter := repo.NewExpFilter()
-	expenses, err := exp.App.GetAllExpenses(ctx, eFilter)
-	if err != nil {
-		log.Println("error:", err)
-		ServerErrorView(c, "Could not get logged in user")
-		return
-	}
-
-	categories, err := exp.App.GetAllCategories(ctx)
-	if err != nil {
-		log.Println("error:", err)
-		ServerErrorView(c, "Unable to get categories")
-		return
-	}
-
-	stores, err := exp.App.GetAllStores(ctx)
-	if err != nil {
-		log.Println("error:", err)
-		ServerErrorView(c, "Unable to get stores")
-		return
-	}
-
-	types, err := exp.App.GetAllTypes(ctx)
-	if err != nil {
-		log.Println("error:", err)
-		ServerErrorView(c, "Unable to get types")
-		return
-	}
-
-	c.HTML(http.StatusOK, "terminal", gin.H{
-		"page":         "expenses",
-		"renderNavBar": true,
-		"content":      "expenses",
-		"expenses":     expenses,
-		"categories":   categories,
-		"stores":       stores,
-		"types":        types,
-	})
-}
-
 func expensePage(c *gin.Context) {
 	ctx, err := getLoggedInUserCTX(c)
 	if err != nil {
@@ -352,7 +305,6 @@ func qrRequest(c *gin.Context) {
 func RouteExpenses(router *gin.RouterGroup) {
 	router.GET(ExpensesPath, getExpenses)
 	router.GET(ExpensesPath+"/:id", expensePage)
-	router.GET("/main", expensesGlobalPage)
 
 	router.GET(ExpensesPath+"/new", newExpensePage)
 	router.POST(ExpensesPath+"/new", createExpense)

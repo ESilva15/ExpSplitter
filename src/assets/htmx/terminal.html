@@ -26,13 +26,13 @@
           {{ if .renderNavBar }}
           <nav id="page-navigation">
             <button 
-              hx-post="/expenses" 
+              hx-post="/" 
               hx-target="#content"
               hx-target-5*="#doc"
               hx-swap="innerHTML"
               hx-replace-url="true"
               id="expenses"
-              class="nav-button {{ if eq .page "expenses" }}selected{{ end }}">EXPENSES</button>
+              class="nav-button {{ if eq .page "mainPage" }}selected{{ end }}">EXPENSES</button>
             <button 
               hx-post="/overview" 
               hx-target="#content"
@@ -52,10 +52,8 @@
           {{ end }}
 
           <main id="content">
-            {{ if eq .content "expense" }}
-              {{ template "expense" . }}
-            {{ else if eq .content "expenses" }}
-              {{ template "expenses" . }}
+            {{ if eq .content "mainPage" }}
+              {{ template "mainPage" . }}
             {{ else if eq .content "login" }}
               {{ template "login" . }}
             {{ else if eq .content "newExpense" }}
