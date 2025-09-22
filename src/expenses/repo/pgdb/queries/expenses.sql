@@ -19,7 +19,14 @@ WHERE
 AND
   (sqlc.narg(StartDate)::timestamp IS NULL OR expenses."ExpDate" >= sqlc.narg(StartDate)::timestamp)
   AND
-  (sqlc.narg(EndDate)::timestamp IS NULL OR expenses."ExpDate" <= sqlc.narg(EndDate)::timestamp);
+  (sqlc.narg(EndDate)::timestamp IS NULL OR expenses."ExpDate" <= sqlc.narg(EndDate)::timestamp)
+AND
+  (sqlc.narg(CatIDs)::int[] IS NULL OR expenses."CategoryID" = ANY(sqlc.narg(CatIDs)::int[]))
+AND
+  (sqlc.narg(StoreIDs)::int[] IS NULL OR expenses."StoreID" = ANY(sqlc.narg(StoreIDs)::int[]))
+AND
+  (sqlc.narg(TypeIDs)::int[] IS NULL OR expenses."TypeID" = ANY(sqlc.narg(TypeIDs)::int[]))
+ORDER BY expenses."ExpDate";
 
 -- name: GetExpense :one
 SELECT 

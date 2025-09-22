@@ -62,6 +62,9 @@ func (p PgExpRepo) GetAll(ctx context.Context, filter ExpFilter, uID int32,
 		Startdate: startPg,
 		Enddate:   endPg,
 		UserID:    uID,
+		Catids:    filter.CatIDs,
+		Storeids:  filter.StoreIDs,
+		Typeids:   filter.TypeIDs,
 	})
 	if err != nil {
 		return mod.Expenses{}, err

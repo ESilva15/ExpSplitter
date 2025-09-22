@@ -10,15 +10,21 @@ import (
 
 // ExpFilter has the fields required to query the database.
 type ExpFilter struct {
-	Start *time.Time
-	End   *time.Time
+	Start    *time.Time // Start is the earliest an expense can be
+	End      *time.Time // End is the latest an expense can be
+	CatIDs   []int32    // CatIDs is a list of categories to match against
+	StoreIDs []int32    // StoreIDs is a list of stores to match against
+	TypeIDs  []int32    // TypeIDs is a list of types to match against
 }
 
 // NewExpFilter returns a newly initialized ExpFilter.
 func NewExpFilter() ExpFilter {
 	return ExpFilter{
-		Start: nil,
-		End:   nil,
+		Start:    nil,
+		End:      nil,
+		CatIDs:   nil,
+		StoreIDs: nil,
+		TypeIDs:  nil,
 	}
 }
 

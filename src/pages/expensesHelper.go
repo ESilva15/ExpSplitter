@@ -8,6 +8,7 @@ import (
 	expenses "github.com/ESilva15/expenses/expenses"
 	mod "github.com/ESilva15/expenses/expenses/models"
 	"github.com/ESilva15/expenses/expenses/repo"
+	ginaux "github.com/ESilva15/expenses/ginAux"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"
@@ -38,6 +39,24 @@ func expenseFilterFromQuery(c *gin.Context) (repo.ExpFilter, error) {
 			return repo.ExpFilter{}, nil
 		}
 		filter.End = &end
+	}
+
+	filter.CatIDs, err = ginaux.QueryIntArray(c, "cat-dropdown[]")
+	if err != nil {
+		log.Printf("Failed to retrieve IDs from cat-dropdown[] %+v", err)
+		return repo.ExpFilter{}, nil
+	}
+
+	filter.StoreIDs, err = ginaux.QueryIntArray(c, "store-dropdown[]")
+	if err != nil {
+		log.Printf("Failed to retrieve IDs from store-dropdown[] %+v", err)
+		return repo.ExpFilter{}, nil
+	}
+
+	filter.TypeIDs, err = ginaux.QueryIntArray(c, "type-dropdown[]")
+	if err != nil {
+		log.Printf("Failed to retrieve IDs from type-dropdown[] %+v", err)
+		return repo.ExpFilter{}, nil
 	}
 
 	return filter, nil

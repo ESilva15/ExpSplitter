@@ -1,0 +1,91 @@
+{{ define "expensesFilterBox" }}
+<style>
+  .filters {
+    display: flex;
+    flex-wrap: wrap; /* allow wrapping to next line if needed */
+    gap: 1em;        /* space between fields */
+  }
+
+  .filter-field {
+    flex: 0 1 200px; /* min width 200px, shrink if needed, don't force full width */
+  }
+
+  .filter-field label {
+    display: block;  /* stack label above select */
+    margin-bottom: 0.25em;
+    font-weight: bold;
+  }
+
+  .filter-field select {
+    width: auto;  /* let select size itself, not full width */
+    min-width: 100%; /* ensures it’s at least as wide as the container */
+  }
+</style>
+
+<fieldset>
+  <legend>FILTERS</legend>
+  <form
+    hx-get="/expenses" 
+    hx-target="#expenses-table"
+    hx-swap="innerHTML"
+    >
+
+    <!-- Start Date Input -->
+    <label for="range-start">Start date:</label>
+    <input 
+      class="tui-input underline" type="text" name="range-start" 
+      value="" id="range-start">
+
+    <!-- End Data Input -->
+    <label for="range-end">End date:</label>
+    <input 
+      class="tui-input underline" type="text" name="range-end" 
+      value="" id="range-end"><br><br>
+
+    <!-- Drop downs -->
+    <div class="filter">
+      <!-- Category Input -->
+      <div class="filter-field">
+        <label for="cat-dropdown[]">Categories:</label>
+        <select name="cat-dropdown[]" id="cat-dropdown" 
+          class="tui-dropdown" multiple>
+          {{ range .categories }}
+          <option 
+            value="{{ .CategoryID }}">{{ .CategoryName }}</option>
+          {{ end}}
+        </select>
+      </div>
+
+      <!-- Store Input -->
+      <div class="filter-field">
+        <label for="store-dropdown[]">Stores:</label>
+        <select name="store-dropdown[]" id="store-dropdown" 
+          class="tui-dropdown" multiple>
+          {{ range .stores }}
+          <option 
+          value="{{ .StoreID }}">{{ .StoreName }}</option>
+          {{ end}}
+        </select>
+      </div>
+
+      <!-- Type Input -->
+      <div class="filter-field">
+        <label for="type-dropdown[]">Types:</label>
+        <select name="type-dropdown[]" id="type-dropdown" 
+          class="tui-dropdown" multiple>
+          {{ range .types }}
+          <option 
+          value="{{ .TypeID }}">{{ .TypeName }}</option>
+          {{ end}}
+        </select>
+      </div>
+    </div>
+
+    <!-- TODO -->
+    <!-- Ordering is left as an exercise for the reader -->
+
+    <br>
+    <button type="submit" id="expenses">FILTER</button>
+  </form>
+</fieldset>
+{{ end }}

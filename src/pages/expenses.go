@@ -41,6 +41,31 @@ func expensesPartial(c *gin.Context) {
 	})
 }
 
+func getExpenses(c *gin.Context) {
+	ctx, err := getLoggedInUserCTX(c)
+	if err != nil {
+		ServerErrorView(c, "Could not get logged in user")
+		return
+	}
+
+	eFilter, err := expenseFilterFromQuery(c)
+	if err != nil {
+		ServerErrorView(c, "Could not get logged in user")
+		return
+	}
+
+	expenses, err := exp.App.GetAllExpenses(ctx, eFilter)
+	if err != nil {
+		log.Println("error:", err)
+		ServerErrorView(c, "Could not get logged in user")
+		return
+	}
+
+	c.HTML(http.StatusOK, "expensesTable", gin.H{
+		"expenses": expenses,
+	})
+}
+
 func expensesGlobalPage(c *gin.Context) {
 	ctx, err := getLoggedInUserCTX(c)
 	if err != nil {
@@ -56,11 +81,35 @@ func expensesGlobalPage(c *gin.Context) {
 		return
 	}
 
+	categories, err := exp.App.GetAllCategories(ctx)
+	if err != nil {
+		log.Println("error:", err)
+		ServerErrorView(c, "Unable to get categories")
+		return
+	}
+
+	stores, err := exp.App.GetAllStores(ctx)
+	if err != nil {
+		log.Println("error:", err)
+		ServerErrorView(c, "Unable to get stores")
+		return
+	}
+
+	types, err := exp.App.GetAllTypes(ctx)
+	if err != nil {
+		log.Println("error:", err)
+		ServerErrorView(c, "Unable to get types")
+		return
+	}
+
 	c.HTML(http.StatusOK, "terminal", gin.H{
 		"page":         "expenses",
 		"renderNavBar": true,
 		"content":      "expenses",
 		"expenses":     expenses,
+		"categories":   categories,
+		"stores":       stores,
+		"types":        types,
 	})
 }
 
@@ -301,9 +350,9 @@ func qrRequest(c *gin.Context) {
 
 // RouteExpenses routes the endpoints for the HTML frontend.
 func RouteExpenses(router *gin.RouterGroup) {
-	router.GET(ExpensesPath, expensesGlobalPage)
+	router.GET(ExpensesPath, getExpenses)
 	router.GET(ExpensesPath+"/:id", expensePage)
-	router.POST(ExpensesPath, expensesPartial)
+	router.GET("/main", expensesGlobalPage)
 
 	router.GET(ExpensesPath+"/new", newExpensePage)
 	router.POST(ExpensesPath+"/new", createExpense)

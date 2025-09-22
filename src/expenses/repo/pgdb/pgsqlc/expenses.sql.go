@@ -106,12 +106,22 @@ AND
   ($2::timestamp IS NULL OR expenses."ExpDate" >= $2::timestamp)
   AND
   ($3::timestamp IS NULL OR expenses."ExpDate" <= $3::timestamp)
+AND
+  ($4::int[] IS NULL OR expenses."CategoryID" = ANY($4::int[]))
+AND
+  ($5::int[] IS NULL OR expenses."StoreID" = ANY($5::int[]))
+AND
+  ($6::int[] IS NULL OR expenses."TypeID" = ANY($6::int[]))
+ORDER BY expenses."ExpDate"
 `
 
 type GetExpensesParams struct {
 	UserID    int32
 	Startdate pgtype.Timestamp
 	Enddate   pgtype.Timestamp
+	Catids    []int32
+	Storeids  []int32
+	Typeids   []int32
 }
 
 type GetExpensesRow struct {
@@ -123,7 +133,14 @@ type GetExpensesRow struct {
 }
 
 func (q *Queries) GetExpenses(ctx context.Context, arg GetExpensesParams) ([]GetExpensesRow, error) {
-	rows, err := q.db.Query(ctx, getExpenses, arg.UserID, arg.Startdate, arg.Enddate)
+	rows, err := q.db.Query(ctx, getExpenses,
+		arg.UserID,
+		arg.Startdate,
+		arg.Enddate,
+		arg.Catids,
+		arg.Storeids,
+		arg.Typeids,
+	)
 	if err != nil {
 		return nil, err
 	}

@@ -1,29 +1,4 @@
 {{ define "expenses" }}
-<fieldset>
-  <legend>FILTERS</legend>
-  <form action="">
-  </form>
-</fieldset>
-<table>
-  <tr>
-    <th>ID</th>
-    <th>OWNER</th>
-    <th>DESC</th>
-    <th>PRICE</th>
-    <th>DATE</th>
-    <!-- <th>Store</th> -->
-    <th>Category</th>
-    <!-- <th>Owner</th> -->
-  </tr>
-  {{ range .expenses }}
-  <tr>
-    <th><a href="/expenses/{{ .ExpID }}">{{ .ExpID }}</th>
-    <th spellcheck="false">{{ .Owner.UserName }}</th>
-    <th spellcheck="false">{{ .Description }}</th>
-    <th spellcheck="false">{{ formatPrice .Value }}</th>
-    <th spellcheck="false">{{ formatDate .Date }}</th>
-    <th spellcheck="false">{{ .Category.CategoryName }}</th>
-  </tr>
-  {{ end }}
-</table>
+{{ template "expensesFilterBox" . }}
+{{ template "expensesTable" . }}
 {{ end }}

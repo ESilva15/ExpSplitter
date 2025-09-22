@@ -6,8 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// RouteHome routes the home pages.
 func RouteHome(router *gin.RouterGroup) {
 	router.GET("/", func(c *gin.Context) {
-		c.Redirect(http.StatusFound, ExpensesPath)
+		c.Redirect(http.StatusFound, "/main")
 	})
 }
