@@ -26,7 +26,7 @@ import (
 // TODO MOVE THIS REGISTERED FUNCTIONS SOMEWHER ELSE
 // This can be set in the compilation command - in the Makefile
 var (
-	ginMode     = "debug"
+	ginMode     = "release"
 	tmplFuncMap = template.FuncMap{
 		"formatDate": func(t time.Time) string {
 			return t.Format("02-Jan-2006")

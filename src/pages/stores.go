@@ -136,6 +136,7 @@ func getNIF(c *gin.Context) {
 	err := fat.Scan(qr, 0)
 	if err != nil {
 		// TODO - handle the error here for the user
+		log.Println("error parsing qr code:", err)
 		return
 	}
 

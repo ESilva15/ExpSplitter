@@ -26,7 +26,7 @@ AND
   (sqlc.narg(StoreIDs)::int[] IS NULL OR expenses."StoreID" = ANY(sqlc.narg(StoreIDs)::int[]))
 AND
   (sqlc.narg(TypeIDs)::int[] IS NULL OR expenses."TypeID" = ANY(sqlc.narg(TypeIDs)::int[]))
-ORDER BY expenses."ExpDate";
+ORDER BY expenses."ExpDate" DESC;
 
 -- name: GetExpense :one
 SELECT 

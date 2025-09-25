@@ -56,6 +56,8 @@
               {{ template "mainPage" . }}
             {{ else if eq .content "login" }}
               {{ template "login" . }}
+            {{ else if eq .content "expense" }}
+              {{ template "expense" . }}
             {{ else if eq .content "newExpense" }}
               {{ template "expense" . }}
             {{ else if eq .content "panic" }}

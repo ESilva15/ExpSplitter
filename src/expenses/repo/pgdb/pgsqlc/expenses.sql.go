@@ -112,7 +112,7 @@ AND
   ($5::int[] IS NULL OR expenses."StoreID" = ANY($5::int[]))
 AND
   ($6::int[] IS NULL OR expenses."TypeID" = ANY($6::int[]))
-ORDER BY expenses."ExpDate"
+ORDER BY expenses."ExpDate" DESC
 `
 
 type GetExpensesParams struct {

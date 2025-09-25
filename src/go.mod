@@ -3,7 +3,7 @@ module github.com/ESilva15/expenses
 go 1.24.6
 
 require (
-	github.com/ESilva15/gofatqr v1.0.0
+	github.com/ESilva15/gofatqr v1.1.1
 	github.com/gin-contrib/sessions v1.0.4
 	github.com/gin-gonic/gin v1.10.1
 	github.com/golang-jwt/jwt/v5 v5.3.0

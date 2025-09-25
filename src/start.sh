@@ -2,4 +2,4 @@
 set -e
 
 cd /usr/share/webapps/expensesweb
-./expensesweb server
+./expensesweb http
