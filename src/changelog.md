@@ -1,3 +1,7 @@
+# v0.0.94-alpha
+- Small fix to how the built in charts got their data
+
+
 # v0.0.93-alpha
 Breaking changes:
 - In the configuration file, the following fields have be to be renamed:

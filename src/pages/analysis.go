@@ -18,18 +18,23 @@ type MonthlyTotal struct {
 	Total dec.Decimal `json:"total"`
 }
 
-func getMonthlyBalance(exp mod.Expenses) ([]MonthlyTotal, error) {
+func getMonthlyBalance(expenses mod.Expenses, uID int32) ([]MonthlyTotal, error) {
 	monthlyBalance := make([]MonthlyTotal, val.MonthsPerYear)
 	for k := range val.MonthsPerYear {
 		monthlyBalance[k].Month = k
 	}
 
-	for _, e := range exp {
+	for _, e := range expenses {
 		month := e.Date.Month() - 1
 		t := e.Type.TypeName
 
 		// Get the current expenses value and make it negative if its an expense
-		value := e.Value
+		// It's not the value, its what we paid on it (our payments)
+		// I don't like this like this - takes too long, we should load it from DB
+		// at the start, and cache it too
+		_ = exp.App.LoadExpensePayments(&e)
+		value := exp.App.PaidByUser(e, uID)
+		// value := e.Value
 		if t == "Despesa" {
 			value = value.Neg()
 		}
@@ -41,16 +46,18 @@ func getMonthlyBalance(exp mod.Expenses) ([]MonthlyTotal, error) {
 	return monthlyBalance, nil
 }
 
-func getMonthlyTotal(exp mod.Expenses) ([]MonthlyTotal, error) {
+func getMonthlyTotal(expenses mod.Expenses, uID int32) ([]MonthlyTotal, error) {
 	mTotal := make([]MonthlyTotal, val.MonthsPerYear)
 	for k := range mTotal {
 		mTotal[k].Month = k
 	}
 
 	// Step 1: net total for each month
-	for _, e := range exp {
+	for _, e := range expenses {
 		month := int(e.Date.Month()) - 1 // Jan = 0
-		value := e.Value
+		// Same as on the other one here
+		_ = exp.App.LoadExpensePayments(&e)
+		value := exp.App.PaidByUser(e, uID)
 		if e.Type.TypeName == "Despesa" {
 			value = value.Neg()
 		}
@@ -70,6 +77,7 @@ func getAnalysisDataWG(c *gin.Context) (map[string]any, error) {
 	if err != nil {
 		return map[string]any{}, err
 	}
+	user := *ctx.Value("user").(*mod.User)
 
 	filter, err := expenseFilterFromQuery(c)
 	if err != nil {
@@ -92,11 +100,11 @@ func getAnalysisDataWG(c *gin.Context) (map[string]any, error) {
 	wg.Add(2)
 	go func() {
 		defer wg.Done()
-		mBalance, bErr = getMonthlyBalance(queriedExpenses)
+		mBalance, bErr = getMonthlyBalance(queriedExpenses, user.UserID)
 	}()
 	go func() {
 		defer wg.Done()
-		mTotal, tErr = getMonthlyTotal(queriedExpenses)
+		mTotal, tErr = getMonthlyTotal(queriedExpenses, user.UserID)
 	}()
 	wg.Wait()
 

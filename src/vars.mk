@@ -5,4 +5,4 @@ REQUIRED_VARS := registry repo
 $(foreach v,$(REQUIRED_VARS),\
   $(if $(value $(v)),,$(error Variable '$(v)' is required but empty)))
 
-tag = v0.0.93-alpha
+tag = v0.0.94-alpha

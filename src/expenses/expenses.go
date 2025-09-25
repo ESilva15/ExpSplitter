@@ -6,7 +6,7 @@ import (
 	mod "github.com/ESilva15/expenses/expenses/models"
 	"github.com/ESilva15/expenses/expenses/repo"
 
-	"github.com/shopspring/decimal"
+	dec "github.com/shopspring/decimal"
 )
 
 // GetAllExpenses returns the list of Expenses in which the 'user' participates
@@ -71,8 +71,8 @@ func (a *ExpApp) DeleteExpense(id int32) error {
 	return err
 }
 
-func mapShares(e *mod.Expense) map[mod.User]decimal.Decimal {
-	shares := make(map[mod.User]decimal.Decimal)
+func mapShares(e *mod.Expense) map[mod.User]dec.Decimal {
+	shares := make(map[mod.User]dec.Decimal)
 	for _, share := range e.Shares {
 		shares[share.User] = share.Calculated
 	}
@@ -80,8 +80,8 @@ func mapShares(e *mod.Expense) map[mod.User]decimal.Decimal {
 	return shares
 }
 
-func mapPayments(e *mod.Expense) map[mod.User]decimal.Decimal {
-	payments := make(map[mod.User]decimal.Decimal)
+func mapPayments(e *mod.Expense) map[mod.User]dec.Decimal {
+	payments := make(map[mod.User]dec.Decimal)
 	for _, p := range e.Payments {
 		payments[p.User] = payments[p.User].Add(p.PayedAmount)
 	}
@@ -90,8 +90,8 @@ func mapPayments(e *mod.Expense) map[mod.User]decimal.Decimal {
 }
 
 // TODO - move to the models
-func ExpenseTotalPayed(exp *mod.Expense) decimal.Decimal {
-	total := decimal.NewFromFloat(0.0)
+func ExpenseTotalPayed(exp *mod.Expense) dec.Decimal {
+	total := dec.NewFromFloat(0.0)
 	for _, p := range exp.Payments {
 		total = total.Add(p.PayedAmount)
 	}
@@ -145,4 +145,9 @@ func (a *ExpApp) UpdateExpense(exp mod.Expense) error {
 	a.analyzeExpense(&exp)
 
 	return a.ExpRepo.Update(ctx, exp)
+}
+
+// PaidByUser returns the amount a given user paid on an expense
+func (a *ExpApp) PaidByUser(e mod.Expense, uID int32) dec.Decimal {
+	return e.PaidByUser(uID)
 }
