@@ -37,6 +37,8 @@ func getMonthlyBalance(expenses mod.Expenses, uID int32) ([]MonthlyTotal, error)
 		// value := e.Value
 		if t == "Despesa" {
 			value = value.Neg()
+		} else if t == "Investment" {
+			continue
 		}
 
 		// Store the data on the montly balance list
@@ -60,7 +62,10 @@ func getMonthlyTotal(expenses mod.Expenses, uID int32) ([]MonthlyTotal, error) {
 		value := exp.App.PaidByUser(e, uID)
 		if e.Type.TypeName == "Despesa" {
 			value = value.Neg()
+		} else if e.Type.TypeName == "Investment" {
+			continue
 		}
+
 		mTotal[month].Total = mTotal[month].Total.Add(value)
 	}
 
