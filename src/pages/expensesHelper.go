@@ -76,7 +76,7 @@ func expenseFromForm(ctx context.Context, c *gin.Context) (*mod.Expense, error) 
 	creator := *ctx.Value("user").(*mod.User)
 	return &mod.Expense{
 		Description: newDescription,
-		Date:        formattedDate,
+		Date:        mod.CustomDate{Time: formattedDate},
 		Value:       value,
 		Type: mod.Type{
 			TypeID: typID,

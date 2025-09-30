@@ -108,7 +108,7 @@ func (p PgExpRepo) Update(
 			return err
 		}
 
-		expDate, err := timeToTimestamp(&exp.Date)
+		expDate, err := timeToTimestamp(&exp.Date.Time)
 		if err != nil {
 			return err
 		}
@@ -187,7 +187,7 @@ func (p PgExpRepo) Insert(
 			return err
 		}
 
-		expDate, err := timeToTimestamp(&exp.Date)
+		expDate, err := timeToTimestamp(&exp.Date.Time)
 		if err != nil {
 			return err
 		}

@@ -58,7 +58,7 @@ func mapRepoExpenseRow(e ExpenseRow) mod.Expense {
 			UserID:   e.GetUser().UserID,
 			UserName: e.GetUser().UserName,
 		},
-		Date:         expDate,
+		Date:         mod.CustomDate{Time: expDate},
 		Shares:       []mod.Share{},
 		Payments:     []mod.Payment{},
 		PaidOff:      paidOff,

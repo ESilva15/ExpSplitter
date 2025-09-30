@@ -2,10 +2,36 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
+	"strings"
 	"time"
 
 	dec "github.com/shopspring/decimal"
 )
+
+// CustomDate is here so we can scan it.
+type CustomDate struct {
+	time.Time
+}
+
+// CustomDateLayout defines the format we are using for expenses dates.
+const CustomDateLayout = "02-Jan-2006"
+
+// UnmarshalJSON unmarshalles our custom date to time.Time.
+func (cd *CustomDate) UnmarshalJSON(b []byte) error {
+	s := strings.Trim(string(b), `"`)
+	if s == "" {
+		return fmt.Errorf("time cannot be empty")
+	}
+
+	t, err := time.Parse(CustomDateLayout, s)
+	if err != nil {
+		return err
+	}
+
+	cd.Time = t
+	return nil
+}
 
 // Expense is the model for the expense concept in our application.
 type Expense struct {
@@ -16,7 +42,7 @@ type Expense struct {
 	Type         Type        `json:"Type"`
 	Category     Category    `json:"Category"`
 	Owner        User        `json:"Owner"`
-	Date         time.Time   `json:"Date"`
+	Date         CustomDate  `json:"Date"`
 	Payments     []Payment   `json:"Payments"`
 	Shares       []Share     `json:"Shares"`
 	Debts        Debts       `json:"Debts"`
@@ -38,7 +64,7 @@ func NewExpense() Expense {
 		Store:        NewStore(),
 		Category:     NewCategory(),
 		Owner:        NewUser(),
-		Date:         time.Now(),
+		Date:         CustomDate{time.Now()},
 		Payments:     []Payment{},
 		Shares:       []Share{},
 		PaidOff:      false,
