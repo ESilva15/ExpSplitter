@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
@@ -11,10 +10,24 @@ import (
 	mod "github.com/ESilva15/expenses/expenses/models"
 )
 
-// AuthMiddleware is the middleware we will use to verify if a user is
-// authenticated or not
-func AuthMiddleware() gin.HandlerFunc {
-	log.Println("Are we authing?")
+// SetUser sets the context data for the currently logged in user.
+func SetUser(c *gin.Context, uID int32) error {
+	var user *mod.User
+
+	user, err := exp.App.GetUser(uID)
+	if err != nil {
+		return err
+	}
+
+	c.Set("user", user)
+
+	return nil
+}
+
+// TODO - use the SetUser function here too somehow
+// Middleware is the middleware we will use to verify if a user is
+// authenticated or not.
+func Middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var user *mod.User
 		var err error

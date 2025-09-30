@@ -26,7 +26,7 @@ import (
 // TODO MOVE THIS REGISTERED FUNCTIONS SOMEWHER ELSE
 // This can be set in the compilation command - in the Makefile
 var (
-	ginMode     = "release"
+	ginMode     = "debug"
 	tmplFuncMap = template.FuncMap{
 		"formatDate": func(t time.Time) string {
 			return t.Format("02-Jan-2006")
@@ -106,16 +106,17 @@ func startWebserver() {
 
 	// Set auth groups
 	authGroup := router.Group("/")
-	authGroup.Use(auth.AuthMiddleware())
+	authGroup.Use(auth.Middleware())
 	{
 		setRoutes(authGroup, router)
 	}
 
 	// TODO - this also needs authentication
 	apiGroup := router.Group(api.APIPath)
+	api.RouteLogin(apiGroup)
 	{
 		apiAuth := apiGroup.Group("/")
-		apiAuth.Use(api.APIAuthMiddleWare())
+		apiAuth.Use(api.AuthMiddleWare())
 		setAPI(apiAuth)
 	}
 

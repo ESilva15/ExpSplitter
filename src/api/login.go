@@ -9,13 +9,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type LoginData struct {
+type loginData struct {
 	Name string `json:"username"`
 	Pass string `json:"password"`
 }
 
 func login(c *gin.Context) {
-	var loginData LoginData
+	var loginData loginData
 	err := c.ShouldBindJSON(&loginData)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "bad request - " + err.Error()})
@@ -24,19 +24,27 @@ func login(c *gin.Context) {
 
 	user, err := exp.App.ValidateCredentials(loginData.Name, loginData.Pass)
 	if err != nil {
-		// TODO - go to an error page or login failed or something
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "bad credentials"})
 		return
 	}
 
-	token, err := auth.GenerateToken(user.UserName)
+	token, err := auth.GenerateToken(user.UserID)
 	if err != nil {
-		// TODO - get error return
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
-func RouteLogin(eng *gin.Engine) {
-	eng.POST("login", login)
+func loginHelp(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"help": "to login send a json like username, password",
+	})
+}
+
+// RouteLogin routes the required API login endpoints
+func RouteLogin(router *gin.RouterGroup) {
+	router.GET("login", loginHelp)
+	router.POST("login", login)
 }

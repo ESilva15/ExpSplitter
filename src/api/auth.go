@@ -9,12 +9,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type TokenData struct {
+type tokenData struct {
 	Token string `json:"JWTToken"`
 }
 
-// APIAuhtMiddleWare will handle this API authentication
-func APIAuthMiddleWare() gin.HandlerFunc {
+// AuthMiddleWare will handle this API authentication.
+func AuthMiddleWare() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		auth := c.GetHeader("Authorization")
 		if !strings.HasPrefix(auth, "Bearer ") {
@@ -24,14 +24,23 @@ func APIAuthMiddleWare() gin.HandlerFunc {
 		}
 
 		tokenStr := strings.TrimPrefix(auth, "Bearer ")
-		validateToken, err := expauth.ValidateToken(tokenStr)
+		claims, err := expauth.ValidateToken(tokenStr)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			c.Abort()
 			return
 		}
 
-		if !validateToken {
+		if claims == nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "token is not valid"})
+			c.Abort()
+			return
+		}
+
+		// Set the user from the claims
+		userID := int32(claims["sub"].(float64))
+		err = expauth.SetUser(c, userID)
+		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "token is not valid"})
 			c.Abort()
 			return
