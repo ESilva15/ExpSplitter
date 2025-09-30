@@ -7,6 +7,7 @@ import (
 	exp "github.com/ESilva15/expenses/expenses"
 	mod "github.com/ESilva15/expenses/expenses/models"
 	val "github.com/ESilva15/expenses/expenses/values"
+	gaux "github.com/ESilva15/expenses/ginAux"
 	dec "github.com/shopspring/decimal"
 
 	"github.com/gin-gonic/gin"
@@ -78,13 +79,13 @@ func getMonthlyTotal(expenses mod.Expenses, uID int32) ([]MonthlyTotal, error) {
 }
 
 func getAnalysisDataWG(c *gin.Context) (map[string]any, error) {
-	ctx, err := getLoggedInUserCTX(c)
+	ctx, err := gaux.GetLoggedInUserCTX(c)
 	if err != nil {
 		return map[string]any{}, err
 	}
 	user := *ctx.Value("user").(*mod.User)
 
-	filter, err := expenseFilterFromQuery(c)
+	filter, err := gaux.ExpenseFilterFromQuery(c)
 	if err != nil {
 		return map[string]any{}, err
 	}
@@ -138,6 +139,7 @@ func analysisPartialPage(c *gin.Context) {
 
 	c.HTML(http.StatusOK, "analysis", gin.H{
 		"plotData": data,
+		"content":  "analysis",
 	})
 }
 

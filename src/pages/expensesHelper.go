@@ -3,65 +3,16 @@ package pages
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	exp "github.com/ESilva15/expenses/expenses"
 	mod "github.com/ESilva15/expenses/expenses/models"
 	"github.com/ESilva15/expenses/expenses/repo"
-	ginaux "github.com/ESilva15/expenses/ginAux"
+	gaux "github.com/ESilva15/expenses/ginAux"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"
 )
-
-func expenseFilterFromQuery(c *gin.Context) (repo.ExpFilter, error) {
-	var err error
-	var start, end time.Time
-	filter := repo.NewExpFilter()
-
-	startDate := c.Query("range-start")
-	if startDate != "" {
-		startDate += " 00:00:00"
-		start, err = time.ParseInLocation("02-Jan-2006 15:04:05", startDate, time.UTC)
-		if err != nil {
-			log.Printf("error startDate: %v", err)
-			return repo.ExpFilter{}, nil
-		}
-		filter.Start = &start
-	}
-
-	endDate := c.Query("range-end")
-	if endDate != "" {
-		endDate += " 00:00:00"
-		end, err = time.ParseInLocation("02-Jan-2006 15:04:05", endDate, time.UTC)
-		if err != nil {
-			log.Printf("error endDate: %v", err)
-			return repo.ExpFilter{}, nil
-		}
-		filter.End = &end
-	}
-
-	filter.CatIDs, err = ginaux.QueryIntArray(c, "cat-dropdown[]")
-	if err != nil {
-		log.Printf("Failed to retrieve IDs from cat-dropdown[] %+v", err)
-		return repo.ExpFilter{}, nil
-	}
-
-	filter.StoreIDs, err = ginaux.QueryIntArray(c, "store-dropdown[]")
-	if err != nil {
-		log.Printf("Failed to retrieve IDs from store-dropdown[] %+v", err)
-		return repo.ExpFilter{}, nil
-	}
-
-	filter.TypeIDs, err = ginaux.QueryIntArray(c, "type-dropdown[]")
-	if err != nil {
-		log.Printf("Failed to retrieve IDs from type-dropdown[] %+v", err)
-		return repo.ExpFilter{}, nil
-	}
-
-	return filter, nil
-}
 
 func processFormShares(c *gin.Context) ([]mod.Share, error) {
 	userIDs := c.PostFormArray("shares-user-ids[]")
@@ -145,7 +96,7 @@ func expenseFromForm(ctx context.Context, c *gin.Context) (*mod.Expense, error) 
 }
 
 func fetchExpensesData(c *gin.Context) (map[string]any, error) {
-	ctx, err := getLoggedInUserCTX(c)
+	ctx, err := gaux.GetLoggedInUserCTX(c)
 	if err != nil {
 		return nil, fmt.Errorf("could not get logged in user - %v", err)
 	}

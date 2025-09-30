@@ -9,6 +9,7 @@ import (
 
 	exp "github.com/ESilva15/expenses/expenses"
 	experr "github.com/ESilva15/expenses/expenses/errors"
+	gaux "github.com/ESilva15/expenses/ginAux"
 
 	fatqr "github.com/ESilva15/gofatqr"
 	"github.com/gin-gonic/gin"
@@ -20,7 +21,7 @@ const (
 )
 
 func storesGlobalPage(c *gin.Context) {
-	ctx, err := getLoggedInUserCTX(c)
+	ctx, err := gaux.GetLoggedInUserCTX(c)
 	if err != nil {
 		log.Println("failed to fetch logged in user -", err.Error())
 		ServerErrorView(c, "The server too makes mistakes")

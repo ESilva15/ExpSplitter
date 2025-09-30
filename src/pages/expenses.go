@@ -12,6 +12,7 @@ import (
 	experr "github.com/ESilva15/expenses/expenses/errors"
 	mod "github.com/ESilva15/expenses/expenses/models"
 	"github.com/ESilva15/expenses/expenses/repo"
+	gaux "github.com/ESilva15/expenses/ginAux"
 
 	fatqr "github.com/ESilva15/gofatqr"
 	"github.com/gin-gonic/gin"
@@ -23,7 +24,7 @@ const (
 )
 
 func expensesPartial(c *gin.Context) {
-	ctx, err := getLoggedInUserCTX(c)
+	ctx, err := gaux.GetLoggedInUserCTX(c)
 	if err != nil {
 		ServerErrorView(c, "Could not get logged in user")
 		return
@@ -42,13 +43,13 @@ func expensesPartial(c *gin.Context) {
 }
 
 func getExpenses(c *gin.Context) {
-	ctx, err := getLoggedInUserCTX(c)
+	ctx, err := gaux.GetLoggedInUserCTX(c)
 	if err != nil {
 		ServerErrorView(c, "Could not get logged in user")
 		return
 	}
 
-	eFilter, err := expenseFilterFromQuery(c)
+	eFilter, err := gaux.ExpenseFilterFromQuery(c)
 	if err != nil {
 		ServerErrorView(c, "Could not get logged in user")
 		return
@@ -67,7 +68,7 @@ func getExpenses(c *gin.Context) {
 }
 
 func expensePage(c *gin.Context) {
-	ctx, err := getLoggedInUserCTX(c)
+	ctx, err := gaux.GetLoggedInUserCTX(c)
 	if err != nil {
 		ServerErrorView(c, "Could not get logged in user")
 		return
@@ -143,7 +144,7 @@ func expensePage(c *gin.Context) {
 }
 
 func newExpensePage(c *gin.Context) {
-	ctx, err := getLoggedInUserCTX(c)
+	ctx, err := gaux.GetLoggedInUserCTX(c)
 	if err != nil {
 		log.Println("failed to fetch logged in user -", err.Error())
 		ServerErrorView(c, "The server too makes mistakes")
@@ -188,7 +189,7 @@ func newExpensePage(c *gin.Context) {
 }
 
 func createExpense(c *gin.Context) {
-	ctx, err := getLoggedInUserCTX(c)
+	ctx, err := gaux.GetLoggedInUserCTX(c)
 	if err != nil {
 		log.Println("failed to fetch logged in user -", err.Error())
 		ServerErrorView(c, "The server too makes mistakes")
@@ -212,7 +213,7 @@ func createExpense(c *gin.Context) {
 }
 
 func updateExpense(c *gin.Context) {
-	ctx, err := getLoggedInUserCTX(c)
+	ctx, err := gaux.GetLoggedInUserCTX(c)
 	if err != nil {
 		log.Println("failed to fetch logged in user -", err.Error())
 		ServerErrorView(c, "The server too makes mistakes")

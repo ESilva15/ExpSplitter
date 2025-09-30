@@ -8,6 +8,7 @@ import (
 
 	exp "github.com/ESilva15/expenses/expenses"
 	experr "github.com/ESilva15/expenses/expenses/errors"
+	gaux "github.com/ESilva15/expenses/ginAux"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,7 +18,7 @@ const (
 )
 
 func typesGlobalPage(c *gin.Context) {
-	ctx, err := getLoggedInUserCTX(c)
+	ctx, err := gaux.GetLoggedInUserCTX(c)
 	if err != nil {
 		ServerErrorView(c, "could not get logged in user")
 		return

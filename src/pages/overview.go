@@ -5,6 +5,7 @@ import (
 
 	exp "github.com/ESilva15/expenses/expenses"
 	mod "github.com/ESilva15/expenses/expenses/models"
+	gaux "github.com/ESilva15/expenses/ginAux"
 
 	"net/http"
 
@@ -35,13 +36,13 @@ func overviewPage(c *gin.Context) {
 }
 
 func getResults(c *gin.Context) {
-	ctx, err := getLoggedInUserCTX(c)
+	ctx, err := gaux.GetLoggedInUserCTX(c)
 	if err != nil {
 		ServerErrorView(c, "Could not get logged in user")
 		return
 	}
 
-	filter, err := expenseFilterFromQuery(c)
+	filter, err := gaux.ExpenseFilterFromQuery(c)
 	if err != nil {
 		log.Println("error ")
 	}
