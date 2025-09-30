@@ -2,7 +2,6 @@ package expenses
 
 import (
 	"context"
-	"log"
 	"sort"
 
 	mod "github.com/ESilva15/expenses/expenses/models"
@@ -144,11 +143,7 @@ func resolveDebts(debtors userTabs, creditors userTabs) mod.Debts {
 // TODO - Are we sure there are no errors in here?
 func CalculateDebts(e *mod.Expense) (mod.Debts, error) {
 	debtors, creditors := filterExpenseParticipants(e)
-	log.Println("Debtors:", debtors)
-	log.Println("Creditors:", creditors)
-
 	debts := resolveDebts(debtors, creditors)
-	log.Println("Debts:", debts)
 
 	return debts, nil
 }
