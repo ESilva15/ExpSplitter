@@ -8,8 +8,6 @@
   <canvas id="monthlyBalance"></canvas>
 </div>
 
-<script src="/assets/js/chart.js"></script>
-<script src="/assets/js/chartjs-plugin-datalabels.js"></script>
 <script>
   const mBalanceChart = document.getElementById('monthlyBalance');
   const monthlyBalanceData = {{ .plotData.mBalance | toJson }};
