@@ -13,6 +13,15 @@ build_release_alpine:
 	mkdir -p $(build)/data/
 	find $(build) -name "*.ttf" ! -name DejaVuSansMono.ttf -delete
 
+devdb_start:
+	podman compose start database
+
+devdb_status:
+	podman compose stats database
+
+devdb_stop:
+	podman compose stop database
+
 build_image: build_release_alpine
 	docker buildx build -t $(registry)/$(repo)/expensesweb:$(tag) .
 

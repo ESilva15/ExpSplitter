@@ -23,10 +23,8 @@ type ExpApp struct {
 	TypeRepo     repo.TypeRepository
 }
 
-var (
-	// App provides access to the expenses main service.
-	App *ExpApp
-)
+// App provides access to the expenses main service.
+var App *ExpApp
 
 // NewExpenseApp returns a new instance of our core App.
 func NewExpenseApp(dbPool *pgxpool.Pool, luaVM *lua.LState) *ExpApp {
@@ -103,7 +101,7 @@ func createPGXPoolConn(ctx context.Context) (*pgxpool.Pool, error) {
 	var result int
 	err = conn.QueryRow(ctx, "SELECT 1").Scan(&result)
 	if err != nil {
-		panic("connection test query failed: " + err.Error())
+		return nil, err
 	}
 
 	return conn, nil
@@ -123,7 +121,7 @@ func StartApp() error {
 	// Run the migrations
 	err = runMigrations(luaVM)
 	if err != nil {
-		log.Printf("Unable to run migrations: %v", err)
+		log.Fatalf("Unable to run migrations: %v", err)
 	}
 
 	// Create our final app thing
