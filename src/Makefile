@@ -14,7 +14,10 @@ build_release_alpine:
 	find $(build) -name "*.ttf" ! -name DejaVuSansMono.ttf -delete
 
 devdb_start:
-	podman compose start database
+	podman compose up database --force-recreate
+
+devdb_clear:
+	podman compose down -v database
 
 devdb_status:
 	podman compose stats database
