@@ -88,6 +88,37 @@ code {
   color: var(--url-color);
 }
 
+// Table stuff
+.table-container {
+  overflow-x: auto;
+  width: 0;
+  min-width: 100%;
+}
+
+.table-container table {
+  min-width: max-content;
+  border-collapse: collapse;
+}
+
+.table-container th {
+  border-bottom: 2px solid var(--text-color);
+  padding: 2px 4px;
+}
+
+.table-container td {
+  padding: 2px 4px;
+}
+
+.table-container th:not(:last-child),
+.table-container td:not(:last-child) {
+  border-right: 1px solid var(--text-color);
+}
+
+.table-container tr.negative-row {
+  background-color: var(--warning-color);
+}
+// End of table stuff
+
 /* CSS for centering images */
 .centeredImgContainer {
   max-width: 80%;
@@ -132,6 +163,7 @@ dt {
 }
 
 #container {
+  max-width: 100%;
   width: 100%;
   margin: auto;
 
@@ -162,6 +194,8 @@ dt {
 }
 
 .main-container-content {
+  width: 100%;
+  max-width: 100%;
   height: 100%;
 
   overflow-y: auto;

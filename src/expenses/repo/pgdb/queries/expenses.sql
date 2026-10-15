@@ -87,3 +87,23 @@ SET
   "qr" = $9,
   "ExpDate" = $10
 WHERE "ExpID" = $11;
+
+-- name: GetExpenseSum :one
+SELECT * from "expenses"
+JOIN "expensesShares" ON "expenses"."ExpID" = "expensesShares"."ExpID"
+WHERE 
+  "expenses"."ExpID" = 673 AND 
+  "expensesShares"."UserID" = 1;
+
+-- name: GetMonthlyTotalPaid :many
+SELECT
+  EXTRACT(MONTH FROM e."ExpDate") AS month,
+  SUM(ep."Payed") AS monthly_total_paid
+FROM "expensesPayments" ep
+JOIN 
+  expenses e ON ep."ExpID" = e."ExpID"
+WHERE 
+  ep."UserID" = 1
+  AND e."TypeID" = 0
+GROUP BY EXTRACT(MONTH FROM e."ExpDate")
+ORDER BY month;

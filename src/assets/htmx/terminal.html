@@ -70,6 +70,8 @@
               {{ template "overview" . }}
             {{ else if eq .content "analysis" }}
               {{ template "analysis" . }}
+            {{ else if eq .content "analysis-filtered" }}
+              {{ template "analysis-filtered" . }}
             {{ else if eq .content "stores" }}
               {{ template "stores" . }}
             {{ else if eq .content "store" }}

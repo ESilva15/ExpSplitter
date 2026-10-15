@@ -1,10 +1,11 @@
-# Download a production database's data
+# Database stuff
+## Download a production database's data
 ```bash
 docker exec -i <container-name> \
     pg_dump -U <db-user> -a -d <database> > outputfile.sql
 ```
 
-# Start a local development database
+## Start a local development database
 ```bash
 # Use to clean the volumens and kill the current running database
 podman compose down -v database
@@ -18,8 +19,11 @@ make devdb_clear
 make devdb_start
 ```
 
-# Upload a database
+## Upload a database
 ```bash
 # Don't forget to devdb_clear the current existing database
 psql -h 127.0.0.1 -p 5431 -U expdbuser -d expenses -f ./data.sql
 ```
+
+# CSS
+Go to `assets/css` and run `sass --watch main.scss aesthetic.css`

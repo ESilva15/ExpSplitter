@@ -18,12 +18,13 @@ import (
 
 // ExpApp is the data structure for the main runtime of this application.
 type ExpApp struct {
-	Lua          *lua.LState
-	ExpRepo      repo.ExpenseRepository
-	CategoryRepo repo.CategoryRepository
-	UserRepo     repo.UserRepository
-	StoreRepo    repo.StoreRepository
-	TypeRepo     repo.TypeRepository
+	Lua           *lua.LState
+	FinancialRepo repo.FinancialRepository
+	ExpRepo       repo.ExpenseRepository
+	CategoryRepo  repo.CategoryRepository
+	UserRepo      repo.UserRepository
+	StoreRepo     repo.StoreRepository
+	TypeRepo      repo.TypeRepository
 }
 
 // App provides access to the expenses main service.
@@ -32,12 +33,13 @@ var App *ExpApp
 // NewExpenseApp returns a new instance of our core App.
 func NewExpenseApp(dbPool *pgxpool.Pool, luaVM *lua.LState) *ExpApp {
 	return &ExpApp{
-		ExpRepo:      repo.NewPgExpRepo(dbPool),
-		CategoryRepo: repo.NewPgCatRepo(dbPool),
-		UserRepo:     repo.NewPgUserRepo(dbPool),
-		StoreRepo:    repo.NewPgStoreRepo(dbPool),
-		TypeRepo:     repo.NewPgTypeRepo(dbPool),
-		Lua:          luaVM,
+		FinancialRepo: repo.NewPgFinancialRepo(dbPool),
+		ExpRepo:       repo.NewPgExpRepo(dbPool),
+		CategoryRepo:  repo.NewPgCatRepo(dbPool),
+		UserRepo:      repo.NewPgUserRepo(dbPool),
+		StoreRepo:     repo.NewPgStoreRepo(dbPool),
+		TypeRepo:      repo.NewPgTypeRepo(dbPool),
+		Lua:           luaVM,
 	}
 }
 

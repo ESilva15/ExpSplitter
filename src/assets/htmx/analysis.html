@@ -1,18 +1,13 @@
 {{ define "analysis" }}
 
-<div>
-  <canvas id="monthlyTotal"></canvas>
-</div>
-
-<div>
-  <canvas id="monthlyBalance"></canvas>
-</div>
-
-<script>
-  <!-- Inject go data here --> 
-  window.analysisBalanceData = {{ .plotData.mBalance | toJson }};
-  window.analysisTotalData = {{ .plotData.mTotal | toJson }};
-</script>
-
-<script src="/assets/js/analysis.js"></script>
+<ol>
+  <li>
+    <button 
+      hx-post="/filtered-analysis" 
+      hx-target="#content"
+      hx-swap="innerHTML"
+      hx-replace-url="true"
+      id="overview">FILTERED ANALYSIS</button>
+  </li>
+</ol>
 {{ end }}

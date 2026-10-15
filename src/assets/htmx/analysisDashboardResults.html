@@ -1,0 +1,54 @@
+{{ define "analysis-filtered-results" }}
+<fieldset>
+  <legend>MONTHLY SUMMARY</legend>
+  <!-- <div style="overflow-x: auto; width: 0; min-width: 100%;"> -->
+  <div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Month</th>
+                <th>Despesa</th>
+                <th>Salário</th>
+                <th>Cartão Refeição</th>
+                <th>Reembolso</th>
+                <th>Prenda</th>
+                <th>Investment</th>
+                <th>Adjustment</th>
+                <th>Adjustment Liquid</th>
+                <th>Poupança</th>
+                <th>Poupança Liquid</th>
+                <th>Running Balance</th>
+                <th>Running Balance Liquid</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ range . }}
+            <tr {{ if .PoupancaLiquid.IsNegative }}class="negative-row"{{ end }}>
+                <td>{{ .MonthYear }}</td>
+                <td>{{ .Despesa }}</td>
+                <td>{{ .Salario }}</td>
+                <td>{{ .CartaoRefeicao }}</td>
+                <td>{{ .Reembolso }}</td>
+                <td>{{ .Prenda }}</td>
+                <td>{{ .Investment }}</td>
+                <td>{{ .Adjustment }}</td>
+                <td>{{ .AdjustmentLiquid }}</td>
+                <td>{{ .Poupanca }}</td>
+                <td>{{ .PoupancaLiquid }}</td>
+                <td>{{ .RunningBalance }}</td>
+                <td>{{ .RunningBalanceLiquid }}</td>
+            </tr>
+            {{ else }}
+            <tr>
+                <td colspan="13" class="text-center text-muted">No monthly summary data available.</td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+  </div>
+</fieldset>
+
+<fieldset>
+  <legend>PERIOD AVERAGES</legend>
+</fieldset>
+{{ end }}
