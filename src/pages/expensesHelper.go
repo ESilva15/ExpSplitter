@@ -15,6 +15,54 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+func filterFromQuery(c *gin.Context) (mod.Filter, error) {
+	var err error
+	var start, end time.Time
+	filter := mod.NewFilter()
+
+	startDate := c.Query("range-start")
+	if startDate != "" {
+		startDate += " 00:00:00"
+		start, err = time.ParseInLocation("02-Jan-2006 15:04:05", startDate, time.UTC)
+		if err != nil {
+			log.Printf("error startDate: %v", err)
+			return mod.Filter{}, nil
+		}
+		filter.Start = &start
+	}
+
+	endDate := c.Query("range-end")
+	if endDate != "" {
+		endDate += " 00:00:00"
+		end, err = time.ParseInLocation("02-Jan-2006 15:04:05", endDate, time.UTC)
+		if err != nil {
+			log.Printf("error endDate: %v", err)
+			return mod.Filter{}, nil
+		}
+		filter.End = &end
+	}
+
+	filter.CatIDs, err = ginaux.QueryIntArray(c, "cat-dropdown[]")
+	if err != nil {
+		log.Printf("Failed to retrieve IDs from cat-dropdown[] %+v", err)
+		return mod.Filter{}, nil
+	}
+
+	filter.StoreIDs, err = ginaux.QueryIntArray(c, "store-dropdown[]")
+	if err != nil {
+		log.Printf("Failed to retrieve IDs from store-dropdown[] %+v", err)
+		return mod.Filter{}, nil
+	}
+
+	filter.TypeIDs, err = ginaux.QueryIntArray(c, "type-dropdown[]")
+	if err != nil {
+		log.Printf("Failed to retrieve IDs from type-dropdown[] %+v", err)
+		return mod.Filter{}, nil
+	}
+
+	return filter, nil
+}
+
 func expenseFilterFromQuery(c *gin.Context) (repo.ExpFilter, error) {
 	var err error
 	var start, end time.Time

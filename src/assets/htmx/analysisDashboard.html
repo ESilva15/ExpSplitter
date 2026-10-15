@@ -1,0 +1,44 @@
+{{ define "analysis-filtered" }}
+
+<form
+  hx-get="/filtered-analysis/filters" 
+  hx-target="#filtered-analysis"
+  hx-swap="innerHTML"
+  >
+  <p>
+    <label for="range-start">Start date:</label>
+    <input 
+      class="tui-input underline fullwidth" type="text" name="range-start" 
+      value="" id="expense-date"><br>
+  </p>
+
+  <p>
+    <label for="range-end">End date:</label>
+    <input 
+      class="tui-input underline fullwidth" type="text" name="range-end" 
+      value="" id="expense-date"><br>
+  </p>
+
+  <button type="submit" id="expenses">QUERY</button>
+</form>
+
+<div id="filtered-analysis">
+</div>
+
+
+<!-- <div> -->
+<!--   <canvas id="monthlyTotal"></canvas> -->
+<!-- </div> -->
+<!---->
+<!-- <div> -->
+<!--   <canvas id="monthlyBalance"></canvas> -->
+<!-- </div> -->
+<!---->
+<!-- <script> -->
+<!--   <!-- Inject go data here -->
+<!--   window.analysisBalanceData = {{ .plotData.mBalance | toJson }}; -->
+<!--   window.analysisTotalData = {{ .plotData.mTotal | toJson }}; -->
+<!-- </script> -->
+<!---->
+<!-- <script src="/assets/js/analysis.js"></script> -->
+{{ end }}

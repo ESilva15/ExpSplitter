@@ -2,9 +2,9 @@ assets: "./assets/"
 port: 8081
 postgres:
   user: expdbuser
-  pass: thepass
-  db: thedb
-  host: /home/esilva/Desktop/projetos/expenses/src/pgImage/pgSocket/
-  port: 5432
+  pass: expDBPass
+  db: expenses
+  host: "127.0.0.1"
+  port: 5431
 migrationsPath: "file://expenses/repo/pgdb/migrations/"
 migCustomScripts: "./expenses/repo/pgdb/migrations/custom/"

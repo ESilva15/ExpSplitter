@@ -1,0 +1,10 @@
+services:
+  database:
+    image: docker.io/library/postgres:16
+    container_name: expenses-dev-db
+    hostname: expenses-dev-db
+    env_file:
+      - .pgenv
+    ports:
+      - "5431:5432"
+    restart: unless-stopped

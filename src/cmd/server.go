@@ -2,6 +2,10 @@ package cmd
 
 import (
 	"encoding/json"
+	"html/template"
+	"log"
+	"net/http"
+	"time"
 
 	"github.com/ESilva15/expenses/api"
 	"github.com/ESilva15/expenses/config"
@@ -14,11 +18,7 @@ import (
 	"github.com/shopspring/decimal"
 	"github.com/spf13/cobra"
 
-	"html/template"
-	"log"
-	"net/http"
 	fp "path/filepath"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -73,6 +73,7 @@ func setRoutes(router *gin.RouterGroup, eng *gin.Engine) {
 	pages.RouteShares(router)
 	pages.RouteOverview(router)
 	pages.RouteAnalysis(router)
+	pages.RouteAnalysisDashboard(router)
 
 	// This are for the engine, I really need to rethink this
 	pages.RouteLogin(eng)
