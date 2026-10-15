@@ -4,7 +4,7 @@ postgres:
   user: expdbuser
   pass: expDBPass
   db: expenses
-  host: "127.0.0.1"
-  port: 5431
+  host: "database"
+  port: 5432
 migrationsPath: "file://expenses/repo/pgdb/migrations/"
 migCustomScripts: "./expenses/repo/pgdb/migrations/custom/"

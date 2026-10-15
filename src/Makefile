@@ -26,25 +26,19 @@ devdb_stop:
 	podman compose stop database
 
 build_image: build_release_alpine
-	docker buildx build -t $(registry)/$(repo)/expensesweb:$(tag) .
+	podman build -t $(registry)/$(repo)/expensesweb:$(tag) .
 
 launch_container:
-	docker run \
+	podman run \
 		-p 8081:8081 \
 		-v ./data/data.db:/usr/share/webapps/expensesweb/data/data.db \
 		-it $(registry)/$(repo)/expensesweb:$(tag) zsh
 
 push_image:
-	docker push $(registry)/$(repo)/expensesweb:$(tag)
+	podman push $(registry)/$(repo)/expensesweb:$(tag)
 
 test:
 	# go test  ./... -cover -bench=
 	go test -coverprofile=coverage.out ./...
 	go tool cover -html=coverage.out -o coverage.html
 	rm ./coverage.out
-
-build_db_image:
-	make -C ./pgImage build
-
-test_db:
-	make -C ./pgImage test
